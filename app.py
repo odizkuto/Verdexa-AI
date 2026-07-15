@@ -34,6 +34,13 @@ def save_uploaded_image(file_storage):
     return save_path, unique_name
 
 
+# ======================== XÁC MINH GOOGLE SEARCH CONSOLE ========================
+
+@app.route("/google0156cc4bdf0bb97f.html")
+def google_verify():
+    return send_from_directory(".", "google0156cc4bdf0bb97f.html")
+
+
 # ======================== TRANG GIAO DIỆN ========================
 
 @app.route("/")
