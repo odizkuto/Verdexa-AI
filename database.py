@@ -212,3 +212,11 @@ def update_chat_history(chat_id, messages_json):
     )
     conn.commit()
     conn.close()
+
+
+def delete_chat_history(chat_id):
+    """Xoá 1 cuộc trò chuyện đã lưu theo id."""
+    conn = get_connection()
+    conn.execute("DELETE FROM chat_history WHERE id = ?", (chat_id,))
+    conn.commit()
+    conn.close()
