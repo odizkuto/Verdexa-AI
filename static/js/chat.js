@@ -6,9 +6,14 @@ chat.js - Trò chuyện với AI về nông nghiệp
 const chatHistory = document.getElementById("chatHistory");
 const chatInput = document.getElementById("chatInput");
 const chatSendBtn = document.getElementById("chatSendBtn");
+const chatToolbar = document.getElementById("chatToolbar");
+const chatSavedList = document.getElementById("chatSavedList");
 
 // Lưu lịch sử hội thoại để gửi kèm cho AI (giúp AI hiểu ngữ cảnh)
 let conversation = [];
+
+// id của cuộc trò chuyện đã được tự động lưu (null = chưa lưu lần nào)
+let savedChatId = null;
 
 /*============================*/
 /* Tự chèn CSS cho hiệu ứng "đang trả lời" (không phụ thuộc style.css,
@@ -80,6 +85,87 @@ function appendMessage(role, content, isHtml) {
 }
 
 /*============================*/
+/* Tự động lưu / cập nhật cuộc trò chuyện vào lịch sử */
+
+async function autoSaveOrUpdateChat() {
+    try {
+        if (savedChatId === null) {
+            // Tin nhắn đầu tiên xong -> tạo bản ghi mới, AI tự đặt tên theo chủ đề
+            const res = await fetch("/api/chat/save", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ messages: conversation }),
+            });
+            const data = await res.json();
+            if (res.ok && data.id) {
+                savedChatId = data.id;
+                loadSavedChatsList();
+            }
+        } else {
+            // Các tin nhắn sau -> cập nhật vào đúng cuộc trò chuyện đã lưu
+            await fetch(`/api/chat/save/${savedChatId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ messages: conversation }),
+            });
+        }
+    } catch (err) {
+        // Lưu lịch sử là tính năng phụ trợ, lỗi ở đây không nên làm gián đoạn việc chat
+        console.warn("Không thể lưu lịch sử trò chuyện:", err);
+    }
+}
+
+/*============================*/
+/* Hiển thị danh sách các cuộc trò chuyện đã lưu, bấm vào để xem lại */
+
+async function loadSavedChatsList() {
+    try {
+        const res = await fetch("/api/chat/history");
+        const sessions = await res.json();
+        if (!res.ok || !Array.isArray(sessions) || sessions.length === 0) return;
+
+        chatSavedList.innerHTML = "";
+        sessions.forEach((s) => {
+            const item = document.createElement("button");
+            item.type = "button";
+            item.className = "chat-saved-item";
+            item.title = s.title;
+            item.textContent = s.title;
+            item.addEventListener("click", () => loadSavedChat(s.id));
+            chatSavedList.appendChild(item);
+        });
+        chatToolbar.style.display = "flex";
+    } catch (err) {
+        console.warn("Không thể tải danh sách lịch sử trò chuyện:", err);
+    }
+}
+
+async function loadSavedChat(chatId) {
+    try {
+        const res = await fetch(`/api/chat/history/${chatId}`);
+        const data = await res.json();
+        if (!res.ok) return;
+
+        chatHistory.innerHTML = "";
+        conversation = [];
+        data.messages.forEach((m) => {
+            if (m.role === "user") {
+                appendMessage("user", m.content, false);
+            } else {
+                appendMessage("bot", formatAiReply(m.content), true);
+            }
+            conversation.push({ role: m.role, content: m.content });
+        });
+        savedChatId = data.id;
+    } catch (err) {
+        console.warn("Không thể mở lại cuộc trò chuyện:", err);
+    }
+}
+
+// Hiện sẵn danh sách lịch sử (nếu có) khi vào lại tab Chat
+loadSavedChatsList();
+
+/*============================*/
 /* Gửi tin nhắn tới AI */
 
 async function sendChatMessage() {
@@ -122,6 +208,9 @@ async function sendChatMessage() {
         if (conversation.length > 20) {
             conversation = conversation.slice(-20);
         }
+
+        // Tự động lưu (lần đầu) hoặc cập nhật (các lần sau) vào lịch sử trò chuyện
+        autoSaveOrUpdateChat();
     } catch (err) {
         typingBubble.textContent = err.message || "Không thể kết nối tới máy chủ AI.";
     } finally {
