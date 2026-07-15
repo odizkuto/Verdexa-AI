@@ -11,6 +11,24 @@ const chatSendBtn = document.getElementById("chatSendBtn");
 let conversation = [];
 
 /*============================*/
+/* Tự chèn CSS cho hiệu ứng "đang trả lời" (không phụ thuộc style.css,
+   tránh trường hợp trình duyệt/host còn cache bản CSS cũ) */
+
+(function injectTypingDotsStyle() {
+    if (document.getElementById("typing-dots-style")) return;
+    const style = document.createElement("style");
+    style.id = "typing-dots-style";
+    style.textContent = `
+        .typing-dots{display:flex;align-items:center;gap:5px;padding:4px 2px;}
+        .typing-dots span{width:8px;height:8px;border-radius:50%;background:#2e7d32;opacity:.4;display:inline-block;animation:typingBounce 1.2s infinite ease-in-out;}
+        .typing-dots span:nth-child(2){animation-delay:.2s;}
+        .typing-dots span:nth-child(3){animation-delay:.4s;}
+        @keyframes typingBounce{0%,60%,100%{transform:translateY(0);opacity:.4;}30%{transform:translateY(-6px);opacity:1;}}
+    `;
+    document.head.appendChild(style);
+})();
+
+/*============================*/
 /* Escape HTML để tránh AI (hoặc user) chèn code lạ vào trang */
 
 function escapeHtml(text) {
