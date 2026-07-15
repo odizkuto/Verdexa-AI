@@ -6,8 +6,8 @@ chat.js - Trò chuyện với AI về nông nghiệp
 const chatHistory = document.getElementById("chatHistory");
 const chatInput = document.getElementById("chatInput");
 const chatSendBtn = document.getElementById("chatSendBtn");
-const chatToolbar = document.getElementById("chatToolbar");
 const chatSavedList = document.getElementById("chatSavedList");
+const chatNewBtn = document.getElementById("chatNewBtn");
 
 // Lưu lịch sử hội thoại để gửi kèm cho AI (giúp AI hiểu ngữ cảnh)
 let conversation = [];
@@ -122,19 +122,38 @@ async function loadSavedChatsList() {
     try {
         const res = await fetch("/api/chat/history");
         const sessions = await res.json();
-        if (!res.ok || !Array.isArray(sessions) || sessions.length === 0) return;
+        if (!res.ok) return;
+
+        if (!Array.isArray(sessions) || sessions.length === 0) {
+            chatSavedList.innerHTML = '<p class="chat-saved-empty">Chưa có cuộc trò chuyện nào.</p>';
+            return;
+        }
 
         chatSavedList.innerHTML = "";
         sessions.forEach((s) => {
             const item = document.createElement("button");
             item.type = "button";
-            item.className = "chat-saved-item";
+            item.className = "chat-saved-item" + (s.id === savedChatId ? " active" : "");
             item.title = s.title;
-            item.textContent = s.title;
+
+            const titleSpan = document.createElement("span");
+            titleSpan.className = "chat-saved-title";
+            titleSpan.textContent = s.title;
+            item.appendChild(titleSpan);
+
+            const delBtn = document.createElement("span");
+            delBtn.className = "chat-delete-btn";
+            delBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+            delBtn.title = "Xoá cuộc trò chuyện";
+            delBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                deleteSavedChat(s.id);
+            });
+            item.appendChild(delBtn);
+
             item.addEventListener("click", () => loadSavedChat(s.id));
             chatSavedList.appendChild(item);
         });
-        chatToolbar.style.display = "flex";
     } catch (err) {
         console.warn("Không thể tải danh sách lịch sử trò chuyện:", err);
     }
@@ -157,9 +176,48 @@ async function loadSavedChat(chatId) {
             conversation.push({ role: m.role, content: m.content });
         });
         savedChatId = data.id;
+        loadSavedChatsList();
     } catch (err) {
         console.warn("Không thể mở lại cuộc trò chuyện:", err);
     }
+}
+
+/*============================*/
+/* Xoá 1 cuộc trò chuyện đã lưu */
+
+async function deleteSavedChat(chatId) {
+    try {
+        const res = await fetch(`/api/chat/history/${chatId}`, { method: "DELETE" });
+        if (!res.ok) return;
+
+        // Nếu đang xem đúng cuộc trò chuyện vừa xoá -> bắt đầu cuộc trò chuyện mới
+        if (savedChatId === chatId) {
+            startNewChat();
+        }
+        loadSavedChatsList();
+    } catch (err) {
+        console.warn("Không thể xoá cuộc trò chuyện:", err);
+    }
+}
+
+/*============================*/
+/* Bắt đầu cuộc trò chuyện mới (giống nút "New chat" của Gemini/ChatGPT) */
+
+function startNewChat() {
+    conversation = [];
+    savedChatId = null;
+    chatHistory.innerHTML = `
+        <div class="bot">
+            Xin chào 👋 Hôm nay tôi có thể giúp gì cho cây trồng của bạn?
+        </div>
+    `;
+    chatInput.value = "";
+    chatInput.focus();
+    loadSavedChatsList();
+}
+
+if (chatNewBtn) {
+    chatNewBtn.addEventListener("click", startNewChat);
 }
 
 // Hiện sẵn danh sách lịch sử (nếu có) khi vào lại tab Chat
