@@ -235,3 +235,43 @@ def chat_with_ai(message, history=None):
     response = _send_chat_message(chat, message, max_tokens=800)
 
     return response.text.strip()
+
+
+def generate_chat_title(messages):
+    """
+    Tự đặt tên ngắn gọn (tối đa ~6 từ) cho 1 cuộc trò chuyện dựa trên nội dung.
+    messages: list [{"role": "user"/"assistant", "content": str}, ...]
+    """
+    # Fallback đơn giản: lấy câu hỏi đầu tiên của người dùng, cắt ngắn lại.
+    first_user_msg = next(
+        (m.get("content", "").strip() for m in messages if m.get("role") == "user" and m.get("content", "").strip()),
+        "",
+    )
+    fallback_title = (first_user_msg[:40] + "…") if len(first_user_msg) > 40 else first_user_msg
+    fallback_title = fallback_title or "Cuộc trò chuyện với AI"
+
+    if Config.DEMO_MODE:
+        return fallback_title
+
+    try:
+        genai = _gemini_client()
+        model = genai.GenerativeModel(GEMINI_MODEL)
+
+        transcript = "\n".join(
+            f"{'Người dùng' if m.get('role') == 'user' else 'AI'}: {m.get('content', '')}"
+            for m in messages
+        )[:3000]  # giới hạn độ dài để tiết kiệm token
+
+        prompt = (
+            f"{NO_THINKING_INSTRUCTION}\n\n"
+            "Dưới đây là 1 đoạn hội thoại giữa người dùng và AI về cây trồng/nông nghiệp:\n\n"
+            f"{transcript}\n\n"
+            "Hãy đặt 1 tiêu đề NGẮN GỌN (tối đa 6 từ) tóm tắt đúng nội dung chính của đoạn hội thoại này. "
+            "Chỉ trả về đúng tiêu đề, không thêm dấu ngoặc kép, không giải thích, không chấm câu cuối."
+        )
+
+        response = _generate(model, prompt, max_tokens=30)
+        title = response.text.strip().strip('"').strip("'").strip()
+        return title or fallback_title
+    except Exception:
+        return fallback_title
