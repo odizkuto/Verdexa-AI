@@ -61,7 +61,8 @@ function renderLibraryResult(data) {
         : "";
 
     librarySearchResult.innerHTML = `
-        <div class="search-result-card neon-active">
+        <div class="neon-frame neon-active">
+        <div class="search-result-card">
             <img src="${escapeHtml(data.image)}"
                  onerror="this.src='https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=800&q=80'">
             <div class="search-result-body">
@@ -101,6 +102,7 @@ function renderLibraryResult(data) {
                 </div>
                 ${diseaseTagsHtml}
             </div>
+        </div>
         </div>
     `;
 }
