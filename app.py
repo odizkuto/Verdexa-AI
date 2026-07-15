@@ -18,7 +18,6 @@ app = Flask(__name__)
 app.config.from_object(Config)
 
 os.makedirs(Config.UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(os.path.dirname(Config.DATABASE_PATH), exist_ok=True)
 
 
 def allowed_file(filename):
