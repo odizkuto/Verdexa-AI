@@ -318,7 +318,7 @@ nav a:hover{
 
     transition:.3s;
 
-    display:flex;
+    display:inline-flex;
 
     align-items:center;
 
