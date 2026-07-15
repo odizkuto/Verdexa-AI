@@ -223,6 +223,26 @@ def api_plants():
     return jsonify(db.get_all_plants())
 
 
+@app.route("/api/plant-search")
+def api_plant_search():
+    query = request.args.get("name", "").strip()
+    if not query:
+        return jsonify({"error": "Vui lòng nhập tên cây cần tìm kiếm."}), 400
+
+    try:
+        info = ai.search_plant_info(query)
+    except Exception as e:
+        return jsonify({"error": f"Lỗi khi tìm kiếm: {str(e)}"}), 500
+
+    image_url = ai.fetch_plant_image(info.get("image_query") or query)
+    info["image"] = image_url or (
+        "https://images.unsplash.com/photo-1501004318641-b39e6451bec6"
+        "?auto=format&fit=crop&w=800&q=80"
+    )
+
+    return jsonify(info)
+
+
 # ======================== API: CHAT AI ========================
 
 @app.route("/api/chat", methods=["POST"])
