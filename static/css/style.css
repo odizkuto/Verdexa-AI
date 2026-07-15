@@ -1777,6 +1777,7 @@ body.sidebar-layout {
     left: 0;
     width: 260px;
     height: 100vh;
+    height: 100dvh;
     background: rgba(255,255,255,0.85);
     backdrop-filter: blur(20px);
     border-right: 1px solid rgba(46,125,50,0.12);
@@ -1784,6 +1785,7 @@ body.sidebar-layout {
     display: flex;
     flex-direction: column;
     padding: 32px 20px;
+    overflow-y: auto;
     z-index: 1000;
 }
 
@@ -1916,6 +1918,7 @@ body.sidebar-layout {
     flex: 1;
     padding: 48px 52px;
     min-height: 100vh;
+    min-height: 100dvh;
 }
 
 /* ===== TAB PANELS ===== */
@@ -2125,12 +2128,49 @@ body.sidebar-layout .chat-box {
     }
 
     /* Chat */
+    .chat-section,
+    .chat-box {
+        margin: 0;
+        width: 100%;
+    }
+
     .chat-history {
-        padding: 18px;
-        height: 340px;
+        padding: 16px;
+        height: 46vh;
+        min-height: 220px;
+    }
+
+    .chat-input {
+        padding: 12px 14px;
     }
 
     .chat-input input {
         font-size: 14px;
+    }
+
+    /* 3 nút: Chọn ảnh / Chụp ảnh / Phân tích ảnh — thu nhỏ vừa chữ */
+    .upload-actions {
+        gap: 10px;
+    }
+
+    .upload-box button,
+    #cameraBtn,
+    #diseaseCameraBtn,
+    .primary,
+    .secondary {
+        padding: 10px 18px;
+        font-size: 13px;
+        border-radius: 10px;
+    }
+
+    .upload-box #analyzeBtn.primary {
+        margin-top: 12px !important;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .diagnosis-form .upload-actions {
+        justify-content: center !important;
+        flex-wrap: wrap;
     }
 }
