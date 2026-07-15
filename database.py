@@ -1,16 +1,26 @@
 """
 Verdexa AI - database.py
-Kết nối và thao tác với SQLite: khởi tạo bảng, lưu lịch sử, quản lý dữ liệu cây trồng.
+Kết nối và thao tác với PostgreSQL (Neon, Supabase...): khởi tạo bảng,
+lưu lịch sử, quản lý dữ liệu cây trồng.
+
+Dùng PostgreSQL (thay vì SQLite) để dữ liệu KHÔNG bị mất khi host trên
+các nền tảng có ổ đĩa tạm (ephemeral) như Render gói Free.
 """
 
-import sqlite3
+import psycopg2
+import psycopg2.extras
 from config import Config
 
 
 def get_connection():
-    """Mở kết nối tới database SQLite."""
-    conn = sqlite3.connect(Config.DATABASE_PATH)
-    conn.row_factory = sqlite3.Row
+    """Mở kết nối tới database PostgreSQL. Trả về dict-like row (giống sqlite3.Row cũ)."""
+    if not Config.DATABASE_URL:
+        raise RuntimeError(
+            "Chưa cấu hình DATABASE_URL. Vào file apikey.env (hoặc biến môi trường trên "
+            "Render) và thêm dòng: DATABASE_URL=postgresql://... "
+            "(lấy chuỗi kết nối này từ Neon/Supabase)."
+        )
+    conn = psycopg2.connect(Config.DATABASE_URL, cursor_factory=psycopg2.extras.RealDictCursor)
     return conn
 
 
@@ -22,7 +32,7 @@ def init_db():
     # Bảng cây trồng (dùng cho Plant Library)
     cur.execute("""
         CREATE TABLE IF NOT EXISTS plants (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             name TEXT NOT NULL,
             category TEXT,
             image TEXT,
@@ -39,38 +49,39 @@ def init_db():
     # Bảng lịch sử tra cứu (nhận diện cây / chẩn đoán bệnh)
     cur.execute("""
         CREATE TABLE IF NOT EXISTS history (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             image_path TEXT,
             plant_name TEXT,
             disease_name TEXT,
             confidence REAL,
             result_summary TEXT,
-            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
 
-    # Bảng người dùng (chuẩn bị cho V2: đăng nhập/đăng ký)
+    # Bảng người dùng (đăng nhập / đăng ký)
     cur.execute("""
         CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             username TEXT UNIQUE NOT NULL,
             email TEXT UNIQUE NOT NULL,
             password_hash TEXT NOT NULL,
-            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
 
     # Bảng lưu lại các cuộc trò chuyện với AI, tự đặt tên theo nội dung
     cur.execute("""
         CREATE TABLE IF NOT EXISTS chat_history (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             title TEXT NOT NULL,
             messages TEXT NOT NULL,
-            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
 
     conn.commit()
+    cur.close()
     conn.close()
 
 
@@ -78,7 +89,8 @@ def seed_plants_if_empty():
     """Thêm dữ liệu cây trồng mẫu nếu bảng plants đang trống."""
     conn = get_connection()
     cur = conn.cursor()
-    count = cur.execute("SELECT COUNT(*) FROM plants").fetchone()[0]
+    cur.execute("SELECT COUNT(*) AS count FROM plants")
+    count = cur.fetchone()["count"]
 
     if count == 0:
         sample_plants = [
@@ -98,42 +110,52 @@ def seed_plants_if_empty():
         cur.executemany("""
             INSERT INTO plants
             (name, category, image, family, temperature, harvest_time, water_need, fertilizer, common_diseases, description)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """, sample_plants)
         conn.commit()
 
+    cur.close()
     conn.close()
 
 
 def get_all_plants():
     conn = get_connection()
-    plants = conn.execute("SELECT * FROM plants").fetchall()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM plants")
+    plants = cur.fetchall()
+    cur.close()
     conn.close()
     return [dict(p) for p in plants]
 
 
 def get_plant_by_id(plant_id):
     conn = get_connection()
-    plant = conn.execute("SELECT * FROM plants WHERE id = ?", (plant_id,)).fetchone()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM plants WHERE id = %s", (plant_id,))
+    plant = cur.fetchone()
+    cur.close()
     conn.close()
     return dict(plant) if plant else None
 
 
 def add_history(image_path, plant_name, disease_name, confidence, result_summary):
     conn = get_connection()
-    conn.execute("""
+    cur = conn.cursor()
+    cur.execute("""
         INSERT INTO history (image_path, plant_name, disease_name, confidence, result_summary)
-        VALUES (?, ?, ?, ?, ?)
+        VALUES (%s, %s, %s, %s, %s)
     """, (image_path, plant_name, disease_name, confidence, result_summary))
     conn.commit()
+    cur.close()
     conn.close()
 
 
 def get_history(limit=50):
     conn = get_connection()
-    rows = conn.execute(
-        "SELECT * FROM history ORDER BY created_at DESC LIMIT ?", (limit,)
-    ).fetchall()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM history ORDER BY created_at DESC LIMIT %s", (limit,))
+    rows = cur.fetchall()
+    cur.close()
     conn.close()
     return [dict(r) for r in rows]
 
@@ -145,25 +167,32 @@ def create_user(username, email, password_hash):
     conn = get_connection()
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
+        "INSERT INTO users (username, email, password_hash) VALUES (%s, %s, %s) RETURNING id",
         (username, email, password_hash),
     )
+    user_id = cur.fetchone()["id"]
     conn.commit()
-    user_id = cur.lastrowid
+    cur.close()
     conn.close()
     return user_id
 
 
 def get_user_by_email(email):
     conn = get_connection()
-    user = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM users WHERE email = %s", (email,))
+    user = cur.fetchone()
+    cur.close()
     conn.close()
     return dict(user) if user else None
 
 
 def get_user_by_username(username):
     conn = get_connection()
-    user = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM users WHERE username = %s", (username,))
+    user = cur.fetchone()
+    cur.close()
     conn.close()
     return dict(user) if user else None
 
@@ -175,11 +204,12 @@ def add_chat_history(title, messages_json):
     conn = get_connection()
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO chat_history (title, messages) VALUES (?, ?)",
+        "INSERT INTO chat_history (title, messages) VALUES (%s, %s) RETURNING id",
         (title, messages_json),
     )
+    chat_id = cur.fetchone()["id"]
     conn.commit()
-    chat_id = cur.lastrowid
+    cur.close()
     conn.close()
     return chat_id
 
@@ -187,10 +217,13 @@ def add_chat_history(title, messages_json):
 def get_chat_sessions(limit=50):
     """Danh sách các cuộc trò chuyện đã lưu (không kèm nội dung đầy đủ), mới nhất trước."""
     conn = get_connection()
-    rows = conn.execute(
-        "SELECT id, title, created_at FROM chat_history ORDER BY created_at DESC LIMIT ?",
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT id, title, created_at FROM chat_history ORDER BY created_at DESC LIMIT %s",
         (limit,),
-    ).fetchall()
+    )
+    rows = cur.fetchall()
+    cur.close()
     conn.close()
     return [dict(r) for r in rows]
 
@@ -198,7 +231,10 @@ def get_chat_sessions(limit=50):
 def get_chat_session(chat_id):
     """Lấy đầy đủ 1 cuộc trò chuyện đã lưu theo id."""
     conn = get_connection()
-    row = conn.execute("SELECT * FROM chat_history WHERE id = ?", (chat_id,)).fetchone()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM chat_history WHERE id = %s", (chat_id,))
+    row = cur.fetchone()
+    cur.close()
     conn.close()
     return dict(row) if row else None
 
@@ -206,17 +242,21 @@ def get_chat_session(chat_id):
 def update_chat_history(chat_id, messages_json):
     """Cập nhật nội dung tin nhắn của 1 cuộc trò chuyện đã lưu (giữ nguyên tiêu đề)."""
     conn = get_connection()
-    conn.execute(
-        "UPDATE chat_history SET messages = ? WHERE id = ?",
+    cur = conn.cursor()
+    cur.execute(
+        "UPDATE chat_history SET messages = %s WHERE id = %s",
         (messages_json, chat_id),
     )
     conn.commit()
+    cur.close()
     conn.close()
 
 
 def delete_chat_history(chat_id):
     """Xoá 1 cuộc trò chuyện đã lưu theo id."""
     conn = get_connection()
-    conn.execute("DELETE FROM chat_history WHERE id = ?", (chat_id,))
+    cur = conn.cursor()
+    cur.execute("DELETE FROM chat_history WHERE id = %s", (chat_id,))
     conn.commit()
+    cur.close()
     conn.close()
