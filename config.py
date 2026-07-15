@@ -17,8 +17,10 @@ class Config:
     # Khóa bí mật dùng cho session, cookie... (nên đặt qua biến môi trường khi deploy thật)
     SECRET_KEY = os.environ.get("SECRET_KEY", "verdexa-dev-secret-key")
 
-    # Đường dẫn database SQLite
-    DATABASE_PATH = os.path.join(BASE_DIR, "database", "verdexa.db")
+    # Chuỗi kết nối database PostgreSQL (Neon, Supabase, Render Postgres...).
+    # Đặt biến môi trường DATABASE_URL trước khi chạy, ví dụ:
+    #   DATABASE_URL=postgresql://user:password@host/dbname?sslmode=require
+    DATABASE_URL = os.environ.get("DATABASE_URL", "")
 
     # Thư mục lưu ảnh người dùng upload
     UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
