@@ -2326,39 +2326,61 @@ body.sidebar-layout .chat-box {
 
     .chat-sidebar {
         width: 100%;
-        flex-direction: row;
-        flex-wrap: wrap;
+        flex-direction: column;
         border-right: none;
         border-bottom: 1px solid #eee;
-        max-height: 160px;
+        max-height: none;
+        padding: 14px 16px;
+        gap: 10px;
     }
 
     .chat-new-btn {
-        width: auto;
-        flex-shrink: 0;
+        width: 100%;
     }
 
     .chat-saved-label {
-        display: none;
+        display: flex;
+        font-size: 11px;
     }
 
     .chat-saved-list {
         flex-direction: row;
         flex-wrap: nowrap;
         overflow-x: auto;
+        gap: 8px;
+        padding-bottom: 4px;
     }
 
     .chat-saved-item {
         width: auto;
         flex-shrink: 0;
         white-space: nowrap;
-        border-radius: 40px;
-        background: #edf7ed;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+        min-width: 120px;
+        max-width: 170px;
+        background: #fff;
+        border: 1px solid #e2ece2;
         color: #2e7d32;
+        box-shadow: 0 4px 10px rgba(0,0,0,.05);
+    }
+
+    .chat-saved-item.active{
+        background: #2e7d32;
+        border-color: #2e7d32;
+        color: #fff;
     }
 
     .chat-saved-item .chat-saved-title {
-        max-width: 140px;
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .chat-saved-item .chat-delete-btn {
+        align-self: flex-end;
     }
 
     .chat-history {
