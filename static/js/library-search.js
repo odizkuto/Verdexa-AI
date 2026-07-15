@@ -6,6 +6,7 @@ library-search.js - Tìm kiếm thông tin cây bất kỳ bằng AI (tab Thư v
 const librarySearchInput = document.getElementById("librarySearchInput");
 const librarySearchBtn = document.getElementById("librarySearchBtn");
 const librarySearchResult = document.getElementById("librarySearchResult");
+const libraryEmptyState = document.getElementById("libraryEmptyState");
 
 /*============================*/
 /* Chống XSS: escape chữ do AI trả về trước khi chèn vào innerHTML */
@@ -118,6 +119,10 @@ async function runLibrarySearch() {
         return;
     }
 
+    if (libraryEmptyState) {
+        libraryEmptyState.style.display = "none";
+    }
+
     renderLibraryLoading();
 
     try {
@@ -141,4 +146,14 @@ librarySearchInput.addEventListener("keydown", (e) => {
         e.preventDefault();
         runLibrarySearch();
     }
+});
+
+/*============================*/
+/* Chip gợi ý: bấm vào là điền tên cây và tìm luôn */
+
+document.querySelectorAll(".library-suggestion-chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+        librarySearchInput.value = chip.textContent.trim();
+        runLibrarySearch();
+    });
 });
