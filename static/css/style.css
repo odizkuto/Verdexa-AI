@@ -1916,6 +1916,7 @@ body.sidebar-layout {
 .main-content {
     margin-left: 260px;
     flex: 1;
+    min-width: 0;
     padding: 48px 52px;
     min-height: 100vh;
     min-height: 100dvh;
@@ -2136,8 +2137,8 @@ body.sidebar-layout .chat-box {
 
     .chat-history {
         padding: 16px;
-        height: 46vh;
-        min-height: 220px;
+        height: 56vh;
+        min-height: 280px;
     }
 
     .chat-input {
