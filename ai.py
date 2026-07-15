@@ -207,11 +207,40 @@ def diagnose_disease_from_text(plant_name, symptoms):
         return {"disease": "Không xác định", "confidence": 0, "cause": text, "solution": []}
 
 
+# Câu hỏi về người sáng lập -> trả lời cố định, không để AI tự "bịa" theo ý riêng
+FOUNDER_KEYWORDS = [
+    "sáng lập", "tạo ra web", "tạo ra trang web", "tạo ra ứng dụng",
+    "phát triển web", "phát triển ra", "ai làm ra", "ai tạo ra",
+    "chủ web", "chủ trang web", "founder", "web này của ai",
+    "trang web này của ai", "ai đứng sau", "ai code ra", "ai lập trình ra",
+    "người tạo ra verdexa", "verdexa của ai",
+]
+
+FOUNDER_INTRO = (
+    "Ở tuổi mười sáu tài hoa,\n"
+    "Phạm Hữu Tài đã vượt qua bao người.\n"
+    "Đam mê nông nghiệp trong đời,\n"
+    "Ước mơ công nghệ sáng ngời tương lai.\n"
+    "Verdexa AI ra đời từ đây,\n"
+    "Của một kỹ sư trẻ đầy nhiệt huyết,\n"
+    "Vừa giỏi công nghệ, vừa yêu đất đai,\n"
+    "Xin chào — đó chính là founder tài ba này! 🌱"
+)
+
+
+def _is_founder_question(message):
+    text = message.lower()
+    return any(keyword in text for keyword in FOUNDER_KEYWORDS)
+
+
 def chat_with_ai(message, history=None):
     """
     Chat AI tự do về nông nghiệp / cây trồng.
     history: list các cặp {"role": "user"/"assistant", "content": str} trước đó (tùy chọn).
     """
+    if _is_founder_question(message):
+        return FOUNDER_INTRO
+
     if Config.DEMO_MODE:
         return "Đây là câu trả lời demo (chưa kết nối AI thật). Vui lòng cấu hình GEMINI_API_KEY để dùng AI Chat thật."
 
