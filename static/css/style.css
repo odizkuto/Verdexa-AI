@@ -2012,3 +2012,125 @@ body.sidebar-layout .chat-box {
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
+/* =========================================
+   MOBILE FIX (điện thoại nhỏ, <=600px)
+   Sửa lỗi lệch tỉ lệ: library-grid bị đè
+   về 2 cột do specificity, padding/font quá
+   to so với màn hình hẹp.
+========================================= */
+@media (max-width: 600px) {
+
+    .main-content {
+        padding: 20px 14px;
+    }
+
+    .panel-header {
+        margin-bottom: 24px;
+    }
+
+    .panel-header h1 {
+        font-size: 22px;
+        gap: 10px;
+    }
+
+    .panel-header p {
+        font-size: 13px;
+    }
+
+    /* Thư viện cây: ép về đúng 1 cột trên điện thoại,
+       thắng được rule body.sidebar-layout .library-grid
+       ở @media 900px vì nằm sau trong file (cùng specificity) */
+    body.sidebar-layout .library-grid,
+    .library-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .plant-card img {
+        height: 180px;
+    }
+
+    .plant-card h3 {
+        font-size: 19px;
+        padding: 16px 16px 6px;
+    }
+
+    .plant-card p {
+        padding: 0 16px 12px;
+        font-size: 14px;
+    }
+
+    .plant-card button {
+        margin: 0 16px 18px;
+        padding: 12px 20px;
+        font-size: 14px;
+    }
+
+    /* Card kết quả nhận diện */
+    .result-card {
+        margin-top: 26px;
+        border-radius: 20px;
+    }
+
+    .result-card .image {
+        height: 220px;
+    }
+
+    .result-card .info {
+        padding: 22px;
+    }
+
+    .result-card h2 {
+        font-size: 24px;
+        margin-top: 12px;
+    }
+
+    .percent {
+        width: 80px;
+        height: 80px;
+        font-size: 20px;
+        margin: 18px 0;
+    }
+
+    /* Chẩn đoán bệnh */
+    .diagnosis-form,
+    .diagnosis-result {
+        padding: 22px;
+        border-radius: 18px;
+    }
+
+    .diagnosis-result h2 {
+        font-size: 24px;
+        margin: 16px 0;
+    }
+
+    .diagnosis-form textarea {
+        height: 130px;
+    }
+
+    /* Upload box */
+    .upload-box {
+        padding: 30px 16px;
+        border-radius: 20px;
+    }
+
+    .upload-box i {
+        font-size: 44px;
+        margin-bottom: 14px;
+    }
+
+    .upload-box h3 {
+        font-size: 19px;
+    }
+
+    /* Chat */
+    .chat-history {
+        padding: 18px;
+        height: 340px;
+    }
+
+    .chat-input input {
+        font-size: 14px;
+    }
+}
