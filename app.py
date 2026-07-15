@@ -45,6 +45,15 @@ def google_verify():
     return send_from_directory(".", "google0156cc4bdf0bb97f.html")
 
 
+# ======================== HEALTH CHECK / KEEP-ALIVE ========================
+# Dùng route này để UptimeRobot / cron-job.org ping giữ cho Render không ngủ.
+# Route rất nhẹ: không query DB, không render template.
+
+@app.route("/ping")
+def ping():
+    return "OK", 200
+
+
 # ======================== TRANG GIAO DIỆN ========================
 
 @app.route("/")
