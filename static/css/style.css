@@ -1745,7 +1745,99 @@ nav a:hover{
 
     overflow:auto;
 
-    background:#fafafa;
+    background:
+        radial-gradient(circle at 15% 8%, rgba(46,125,50,0.05), transparent 45%),
+        radial-gradient(circle at 85% 92%, rgba(46,125,50,0.05), transparent 45%),
+        #fafafa;
+
+}
+
+/*============================*/
+/* Chip gợi ý câu hỏi trong khung chat - lấp khoảng trống lúc mới vào */
+
+.chat-suggestions{
+
+    margin-top:26px;
+
+}
+
+.chat-suggestions-label{
+
+    display:block;
+
+    font-size:12px;
+
+    font-weight:700;
+
+    text-transform:uppercase;
+
+    letter-spacing:.03em;
+
+    color:#9aa89a;
+
+    margin-bottom:12px;
+
+}
+
+.chat-suggestions-grid{
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:10px;
+
+    max-width:640px;
+
+}
+
+.chat-suggestion-chip{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    text-align:left;
+
+    background:#fff;
+
+    border:1px solid #eee;
+
+    color:#3a3a3a;
+
+    padding:14px 16px;
+
+    border-radius:14px;
+
+    font-size:13.5px;
+
+    font-weight:500;
+
+    cursor:pointer;
+
+    transition:.2s;
+
+}
+
+.chat-suggestion-chip i{
+
+    color:#2e7d32;
+
+    font-size:15px;
+
+    flex-shrink:0;
+
+}
+
+.chat-suggestion-chip:hover{
+
+    background:#f0f9f0;
+
+    border-color:rgba(46,125,50,0.25);
+
+    transform:translateY(-2px);
 
 }
 
@@ -2902,6 +2994,10 @@ body.sidebar-layout .chat-box {
 
     .chat-input input {
         font-size: 14px;
+    }
+
+    .chat-suggestions-grid {
+        grid-template-columns: 1fr;
     }
 
     /* Thư viện: trạng thái trống gọn hơn trên màn hình nhỏ */
