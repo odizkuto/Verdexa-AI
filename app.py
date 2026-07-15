@@ -19,6 +19,11 @@ app.config.from_object(Config)
 
 os.makedirs(Config.UPLOAD_FOLDER, exist_ok=True)
 
+# Khởi tạo bảng + seed dữ liệu mẫu ngay khi module được nạp — chạy được dù
+# start bằng "python app.py" (local) hay bằng gunicorn (Render, production).
+db.init_db()
+db.seed_plants_if_empty()
+
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in Config.ALLOWED_EXTENSIONS
@@ -307,9 +312,7 @@ def api_history():
     return jsonify(db.get_history())
 
 
-# ======================== KHỞI ĐỘNG APP ========================
+# ======================== KHỞI ĐỘNG APP (chỉ khi chạy local: python app.py) ========================
 
 if __name__ == "__main__":
-    db.init_db()
-    db.seed_plants_if_empty()
     app.run(debug=True, port=5000)
