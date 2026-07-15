@@ -1161,6 +1161,28 @@ nav a:hover{
     color:#fff;
 }
 
+.chat-saved-item-pending{
+    cursor:default;
+    opacity:.85;
+}
+
+.chat-saved-item-pending .chat-saved-title::after{
+    content:"";
+    display:inline-block;
+    width:6px;
+    height:6px;
+    margin-left:6px;
+    border-radius:50%;
+    background:currentColor;
+    opacity:.6;
+    animation:pendingBlink 1s infinite ease-in-out;
+}
+
+@keyframes pendingBlink{
+    0%, 100%{ opacity:.25; }
+    50%{ opacity:.9; }
+}
+
 .chat-saved-title{
     flex:1;
     min-width:0;
