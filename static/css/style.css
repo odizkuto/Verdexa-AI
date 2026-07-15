@@ -2808,11 +2808,65 @@ body.sidebar-layout .chat-box {
     max-width: 900px;
 }
 
+/* ===== MOBILE TOP BAR ===== */
+.mobile-topbar {
+    display: none;
+}
+
 /* ===== RESPONSIVE SIDEBAR ===== */
 @media (max-width: 900px) {
+
+    .mobile-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 60px;
+        background: rgba(255,255,255,0.92);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(46,125,50,0.12);
+        box-shadow: 0 2px 20px rgba(0,0,0,0.06);
+        z-index: 1001;
+    }
+
+    .mobile-topbar i {
+        font-size: 22px;
+        color: #2e7d32;
+    }
+
+    .mobile-topbar-text {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.2;
+    }
+
+    .mobile-topbar-text span {
+        font-size: 16px;
+        font-weight: 700;
+        color: #2e7d32;
+    }
+
+    .mobile-topbar-text small {
+        font-size: 10px;
+        font-weight: 600;
+        color: #8fa78f;
+        letter-spacing: .04em;
+    }
+
     .sidebar {
+        top: 60px;
+        height: calc(100vh - 60px);
+        height: calc(100dvh - 60px);
         width: 70px;
         padding: 24px 10px;
+    }
+
+    .main-content {
+        margin-top: 60px;
     }
 
     .sidebar-logo span,
