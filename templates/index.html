@@ -181,20 +181,28 @@
         </div>
 
         <div class="chat-box">
-            <div class="chat-toolbar" id="chatToolbar" style="display:none;">
-                <span class="chat-saved-label"><i class="fa-solid fa-clock-rotate-left"></i> Lịch sử trò chuyện</span>
-                <div class="chat-saved-list" id="chatSavedList"></div>
-            </div>
-            <div class="chat-history" id="chatHistory">
-                <div class="bot">
-                    Xin chào 👋 Hôm nay tôi có thể giúp gì cho cây trồng của bạn?
-                </div>
-            </div>
-            <div class="chat-input">
-                <input type="text" id="chatInput" placeholder="Hỏi AI...">
-                <button type="button" id="chatSendBtn">
-                    <i class="fa-solid fa-paper-plane"></i>
+            <aside class="chat-sidebar" id="chatSidebar">
+                <button type="button" class="chat-new-btn" id="chatNewBtn">
+                    <i class="fa-solid fa-plus"></i> Cuộc trò chuyện mới
                 </button>
+                <span class="chat-saved-label"><i class="fa-solid fa-clock-rotate-left"></i> Lịch sử trò chuyện</span>
+                <div class="chat-saved-list" id="chatSavedList">
+                    <p class="chat-saved-empty">Chưa có cuộc trò chuyện nào.</p>
+                </div>
+            </aside>
+
+            <div class="chat-main">
+                <div class="chat-history" id="chatHistory">
+                    <div class="bot">
+                        Xin chào 👋 Hôm nay tôi có thể giúp gì cho cây trồng của bạn?
+                    </div>
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="chatInput" placeholder="Hỏi AI...">
+                    <button type="button" id="chatSendBtn">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </section>
