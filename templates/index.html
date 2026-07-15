@@ -176,20 +176,6 @@
         </div>
 
         <div class="library-search-result" id="librarySearchResult"></div>
-
-        <div class="library-grid" id="libraryGrid">
-            {% for plant in plants %}
-            <div class="plant-card">
-                <img src="{{ url_for('static', filename='images/plants/' + plant.image) if plant.image else 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=600&q=80' }}"
-                     onerror="this.src='https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=600&q=80'">
-                <h3>{{ plant.name }}</h3>
-                <p>{{ plant.category }}</p>
-                <button onclick="window.location.href='/plant/{{ plant.id }}'">Chi tiết</button>
-            </div>
-            {% else %}
-            <p>Chưa có dữ liệu cây trồng.</p>
-            {% endfor %}
-        </div>
     </section>
 
     <!-- TAB: TRÒ CHUYỆN AI -->
