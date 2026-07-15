@@ -266,6 +266,8 @@ def chat_with_ai(message, history=None):
     return response.text.strip()
 
 
+# ============================
+# Đặt tiêu đề cho cuộc trò chuyện AI
 def generate_chat_title(messages):
     """
     Tự đặt tên ngắn gọn (tối đa ~6 từ) cho 1 cuộc trò chuyện dựa trên nội dung.
@@ -304,3 +306,100 @@ def generate_chat_title(messages):
         return title or fallback_title
     except Exception:
         return fallback_title
+
+
+# ============================
+# Thư viện cây: tìm kiếm thông tin cây bất kỳ bằng AI + ảnh minh họa thật
+
+def search_plant_info(name):
+    """
+    Tra cứu thông tin 1 loại cây theo tên bất kỳ do người dùng nhập (dùng cho
+    thanh tìm kiếm ở tab Thư viện cây trồng).
+    Trả về dict: name, category, family, temperature, harvest_time, water_need,
+    fertilizer, common_diseases, description, image_query.
+    (image_query là từ khóa tiếng Anh để tìm ảnh minh họa ở fetch_plant_image()).
+    """
+    if Config.DEMO_MODE:
+        return {
+            "name": name,
+            "category": "Cây trồng",
+            "family": "Đang cập nhật",
+            "temperature": "20 - 30°C",
+            "harvest_time": "Đang cập nhật",
+            "water_need": "Trung bình",
+            "fertilizer": "NPK cân đối",
+            "common_diseases": "Đốm lá, sâu ăn lá",
+            "description": (
+                f'Đây là thông tin demo cho "{name}" (chưa kết nối AI thật). '
+                "Vui lòng cấu hình GEMINI_API_KEY để có dữ liệu chính xác."
+            ),
+            "image_query": name,
+        }
+
+    genai = _gemini_client()
+    model = genai.GenerativeModel(GEMINI_MODEL)
+
+    prompt = (
+        f"{NO_THINKING_INSTRUCTION}\n\n"
+        f'Người dùng muốn tra cứu thông tin về cây/thực vật có tên: "{name}".\n'
+        "Bạn là chuyên gia thực vật học. Hãy cung cấp thông tin về loại cây này. "
+        "Nếu tên này không phải một loại cây/thực vật hợp lệ, vẫn trả lời theo đúng "
+        "format JSON nhưng để 'description' giải thích là không tìm thấy thông tin phù hợp "
+        "và các trường còn lại để '—'.\n"
+        "Trả lời CHỈ bằng JSON theo đúng format, không thêm bất kỳ chữ nào khác:\n"
+        '{"name": "tên cây viết đúng chính tả tiếng Việt, viết hoa chữ đầu", '
+        '"category": "phân loại ngắn gọn, VD: Cây ăn quả / Rau ăn lá / Cây cảnh / Cây lấy gỗ...", '
+        '"family": "họ thực vật", '
+        '"temperature": "khoảng nhiệt độ phù hợp", '
+        '"harvest_time": "thời gian thu hoạch hoặc thời gian trưởng thành", '
+        '"water_need": "nhu cầu nước: Thấp / Trung bình / Cao", '
+        '"fertilizer": "loại phân bón phù hợp", '
+        '"common_diseases": "các bệnh/sâu hại thường gặp, cách nhau bởi dấu phẩy", '
+        '"description": "mô tả ngắn gọn 2-3 câu", '
+        '"image_query": "1-3 từ khóa TIẾNG ANH (tên khoa học hoặc tên thông dụng tiếng Anh) '
+        'để tìm ảnh minh họa chính xác nhất"}'
+    )
+
+    response = _generate(model, prompt, max_tokens=500)
+    text = _extract_json(response.text)
+
+    try:
+        result = json.loads(text)
+    except json.JSONDecodeError:
+        result = {"name": name, "description": text}
+
+    result.setdefault("name", name)
+    result.setdefault("image_query", result.get("name") or name)
+    return result
+
+
+def fetch_plant_image(query):
+    """
+    Tìm 1 ảnh thật minh họa cho tên cây, lấy từ Wikipedia (miễn phí, không cần
+    API key riêng). Trả về URL ảnh, hoặc None nếu không tìm thấy / lỗi mạng.
+    """
+    try:
+        import requests
+        resp = requests.get(
+            "https://en.wikipedia.org/w/api.php",
+            params={
+                "action": "query",
+                "generator": "search",
+                "gsrsearch": query,
+                "gsrlimit": 1,
+                "prop": "pageimages",
+                "piprop": "original",
+                "format": "json",
+            },
+            timeout=6,
+            headers={"User-Agent": "VerdexaAI/1.0 (plant library search)"},
+        )
+        data = resp.json()
+        pages = data.get("query", {}).get("pages", {})
+        for page in pages.values():
+            original = page.get("original")
+            if original and original.get("source"):
+                return original["source"]
+    except Exception:
+        pass
+    return None
