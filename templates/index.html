@@ -165,10 +165,19 @@
     <section class="tab-panel" id="tab-library">
         <div class="panel-header">
             <h1><i class="fa-solid fa-book-open"></i> Thư viện cây trồng</h1>
-            <p>Khám phá các loại cây trồng và cây ăn quả phổ biến.</p>
+            <p>Nhập tên bất kỳ loại cây nào, AI sẽ tra cứu và tổng hợp thông tin cho bạn.</p>
         </div>
 
-        <div class="library-grid">
+        <div class="library-search">
+            <input type="text" id="librarySearchInput" placeholder="Nhập tên cây cần tra cứu... (VD: Sầu riêng, Hoa hồng, Cây bơ)">
+            <button type="button" id="librarySearchBtn">
+                <i class="fa-solid fa-magnifying-glass"></i> Tìm kiếm
+            </button>
+        </div>
+
+        <div class="library-search-result" id="librarySearchResult"></div>
+
+        <div class="library-grid" id="libraryGrid">
             {% for plant in plants %}
             <div class="plant-card">
                 <img src="{{ url_for('static', filename='images/plants/' + plant.image) if plant.image else 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=600&q=80' }}"
@@ -222,6 +231,7 @@
 <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 <script src="{{ url_for('static', filename='js/disease.js') }}"></script>
 <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+<script src="{{ url_for('static', filename='js/library-search.js') }}"></script>
 <script>
 // ===== TRẠNG THÁI ĐĂNG NHẬP (từ server) =====
 const IS_LOGGED_IN = {{ 'true' if username else 'false' }};
