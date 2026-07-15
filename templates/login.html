@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập | Verdexa AI</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+</head>
+<body>
+
+<div class="background-blur blur1"></div>
+<div class="background-blur blur2"></div>
+
+<a href="/" class="back-home">
+    <i class="fa-solid fa-arrow-left"></i>
+    Về trang chủ
+</a>
+
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-logo">
+            <i class="fa-solid fa-seedling"></i>
+            <span>Verdexa AI</span>
+        </div>
+
+        <h1>Đăng nhập</h1>
+        <p class="auth-subtitle">Chào mừng bạn quay lại Verdexa AI</p>
+
+        <div class="auth-error" id="loginError"></div>
+
+        <form class="auth-form" id="loginForm">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <div class="input-wrap">
+                    <i class="fa-solid fa-envelope"></i>
+                    <input type="email" id="email" name="email" placeholder="ban@email.com" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Mật khẩu</label>
+                <div class="input-wrap">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="password" name="password" placeholder="Nhập mật khẩu" required>
+                    <i class="fa-solid fa-eye toggle-password" id="togglePassword"></i>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <label class="remember-me">
+                    <input type="checkbox" id="remember" name="remember">
+                    Ghi nhớ đăng nhập
+                </label>
+                <a href="#">Quên mật khẩu?</a>
+            </div>
+
+            <button type="submit" class="auth-submit" id="loginSubmit">
+                <i class="fa-solid fa-right-to-bracket"></i>
+                Đăng nhập
+            </button>
+        </form>
+
+        <div class="auth-divider">hoặc</div>
+
+        <p class="auth-switch">
+            Chưa có tài khoản? <a href="/register">Đăng ký ngay</a>
+        </p>
+    </div>
+</div>
+
+<script>
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+
+    togglePassword.addEventListener('click', () => {
+        const isHidden = passwordInput.type === 'password';
+        passwordInput.type = isHidden ? 'text' : 'password';
+        togglePassword.classList.toggle('fa-eye');
+        togglePassword.classList.toggle('fa-eye-slash');
+    });
+
+    const loginForm = document.getElementById('loginForm');
+    const loginError = document.getElementById('loginError');
+    const loginSubmit = document.getElementById('loginSubmit');
+
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        loginError.classList.remove('show');
+        loginError.textContent = '';
+
+        const email = document.getElementById('email').value.trim();
+        const password = passwordInput.value;
+
+        if (!email || !password) {
+            loginError.textContent = 'Vui lòng nhập đầy đủ email và mật khẩu.';
+            loginError.classList.add('show');
+            return;
+        }
+
+        const originalHtml = loginSubmit.innerHTML;
+        loginSubmit.disabled = true;
+        loginSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang đăng nhập...';
+
+        try {
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            let data = {};
+            try { data = await res.json(); } catch (_) {}
+
+            if (res.ok) {
+                window.location.href = '/';
+                return;
+            }
+
+            loginError.textContent = data.error || 'Email hoặc mật khẩu không đúng.';
+            loginError.classList.add('show');
+        } catch (err) {
+            loginError.textContent = 'Không thể kết nối tới máy chủ. Vui lòng thử lại sau.';
+            loginError.classList.add('show');
+        } finally {
+            loginSubmit.disabled = false;
+            loginSubmit.innerHTML = originalHtml;
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,246 @@
+"""
+Verdexa AI - app.py
+File chính chạy Flask: khai báo route cho giao diện web và API.
+Chạy: python app.py
+"""
+
+import os
+import uuid
+from flask import Flask, render_template, request, jsonify, send_from_directory, session
+from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
+
+from config import Config
+import database as db
+import ai
+
+app = Flask(__name__)
+app.config.from_object(Config)
+
+os.makedirs(Config.UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(os.path.dirname(Config.DATABASE_PATH), exist_ok=True)
+
+
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in Config.ALLOWED_EXTENSIONS
+
+
+def save_uploaded_image(file_storage):
+    """Lưu ảnh upload với tên file duy nhất, trả về đường dẫn đã lưu."""
+    filename = secure_filename(file_storage.filename)
+    unique_name = f"{uuid.uuid4().hex}_{filename}"
+    save_path = os.path.join(Config.UPLOAD_FOLDER, unique_name)
+    file_storage.save(save_path)
+    return save_path, unique_name
+
+
+# ======================== TRANG GIAO DIỆN ========================
+
+@app.route("/")
+def home():
+    plants = db.get_all_plants()
+    return render_template("index.html", plants=plants, username=session.get("username"))
+
+
+@app.route("/login")
+def login_page():
+    return render_template("login.html")
+
+
+@app.route("/register")
+def register_page():
+    return render_template("register.html")
+
+
+@app.route("/plant/<int:plant_id>")
+def plant_details_page(plant_id):
+    plant = db.get_plant_by_id(plant_id)
+    if not plant:
+        return "Không tìm thấy cây trồng.", 404
+    return render_template("plant-details.html", plant=plant, username=session.get("username"))
+
+
+@app.route("/history")
+def history_page():
+    records = db.get_history()
+    return render_template("history.html", history=records, username=session.get("username"))
+
+
+@app.route("/uploads/<filename>")
+def uploaded_file(filename):
+    return send_from_directory(Config.UPLOAD_FOLDER, filename)
+
+
+# ======================== API: NHẬN DIỆN CÂY ========================
+
+@app.route("/api/predict", methods=["POST"])
+def api_predict():
+    if "image" not in request.files:
+        return jsonify({"error": "Vui lòng chọn ảnh."}), 400
+
+    file = request.files["image"]
+    if file.filename == "" or not allowed_file(file.filename):
+        return jsonify({"error": "Định dạng ảnh không hợp lệ."}), 400
+
+    save_path, unique_name = save_uploaded_image(file)
+
+    try:
+        result = ai.recognize_plant(save_path)
+    except Exception as e:
+        return jsonify({"error": f"Lỗi khi nhận diện: {str(e)}"}), 500
+
+    db.add_history(
+        image_path=unique_name,
+        plant_name=result.get("plant"),
+        disease_name=None,
+        confidence=result.get("confidence"),
+        result_summary=result.get("description", ""),
+    )
+
+    return jsonify(result)
+
+
+# ======================== API: CHẨN ĐOÁN BỆNH ========================
+
+@app.route("/api/diagnose", methods=["POST"])
+def api_diagnose():
+    # Cách 1: chẩn đoán bằng ảnh
+    if "image" in request.files and request.files["image"].filename != "":
+        file = request.files["image"]
+        if not allowed_file(file.filename):
+            return jsonify({"error": "Định dạng ảnh không hợp lệ."}), 400
+
+        save_path, unique_name = save_uploaded_image(file)
+        try:
+            result = ai.diagnose_disease_from_image(save_path)
+        except Exception as e:
+            return jsonify({"error": f"Lỗi khi chẩn đoán: {str(e)}"}), 500
+
+        db.add_history(
+            image_path=unique_name,
+            plant_name=None,
+            disease_name=result.get("disease"),
+            confidence=result.get("confidence"),
+            result_summary=result.get("cause", ""),
+        )
+        return jsonify(result)
+
+    # Cách 2: chẩn đoán bằng tên cây + triệu chứng
+    data = request.get_json(silent=True) or request.form
+    plant_name = data.get("plant_name", "").strip()
+    symptoms = data.get("symptoms", "").strip()
+
+    if not plant_name or not symptoms:
+        return jsonify({"error": "Vui lòng nhập tên cây và triệu chứng."}), 400
+
+    try:
+        result = ai.diagnose_disease_from_text(plant_name, symptoms)
+    except Exception as e:
+        return jsonify({"error": f"Lỗi khi chẩn đoán: {str(e)}"}), 500
+
+    db.add_history(
+        image_path=None,
+        plant_name=plant_name,
+        disease_name=result.get("disease"),
+        confidence=result.get("confidence"),
+        result_summary=result.get("cause", ""),
+    )
+
+    return jsonify(result)
+
+
+# ======================== API: ĐĂNG KÝ / ĐĂNG NHẬP ========================
+
+@app.route("/api/register", methods=["POST"])
+def api_register():
+    data = request.get_json(silent=True) or {}
+    username = data.get("username", "").strip()
+    email = data.get("email", "").strip().lower()
+    password = data.get("password", "")
+
+    if not username or not email or not password:
+        return jsonify({"error": "Vui lòng điền đầy đủ tất cả các trường."}), 400
+
+    if len(password) < 6:
+        return jsonify({"error": "Mật khẩu phải có ít nhất 6 ký tự."}), 400
+
+    if db.get_user_by_email(email):
+        return jsonify({"error": "Email này đã được đăng ký."}), 409
+
+    if db.get_user_by_username(username):
+        return jsonify({"error": "Tên người dùng đã tồn tại."}), 409
+
+    password_hash = generate_password_hash(password)
+
+    try:
+        db.create_user(username, email, password_hash)
+    except Exception as e:
+        return jsonify({"error": f"Lỗi khi tạo tài khoản: {str(e)}"}), 500
+
+    return jsonify({"message": "Đăng ký thành công."}), 201
+
+
+@app.route("/api/login", methods=["POST"])
+def api_login():
+    data = request.get_json(silent=True) or {}
+    email = data.get("email", "").strip().lower()
+    password = data.get("password", "")
+
+    if not email or not password:
+        return jsonify({"error": "Vui lòng nhập đầy đủ email và mật khẩu."}), 400
+
+    user = db.get_user_by_email(email)
+    if not user or not check_password_hash(user["password_hash"], password):
+        return jsonify({"error": "Email hoặc mật khẩu không đúng."}), 401
+
+    session["user_id"] = user["id"]
+    session["username"] = user["username"]
+
+    return jsonify({"message": "Đăng nhập thành công.", "username": user["username"]})
+
+
+@app.route("/api/logout", methods=["POST"])
+def api_logout():
+    session.clear()
+    return jsonify({"message": "Đã đăng xuất."})
+
+
+# ======================== API: THƯ VIỆN CÂY ========================
+
+@app.route("/api/plants")
+def api_plants():
+    return jsonify(db.get_all_plants())
+
+
+# ======================== API: CHAT AI ========================
+
+@app.route("/api/chat", methods=["POST"])
+def api_chat():
+    data = request.get_json(silent=True) or {}
+    message = data.get("message", "").strip()
+    history = data.get("history", [])
+
+    if not message:
+        return jsonify({"error": "Vui lòng nhập nội dung."}), 400
+
+    try:
+        reply = ai.chat_with_ai(message, history)
+    except Exception as e:
+        return jsonify({"error": f"Lỗi khi trò chuyện với AI: {str(e)}"}), 500
+
+    return jsonify({"reply": reply})
+
+
+# ======================== API: LỊCH SỬ ========================
+
+@app.route("/api/history")
+def api_history():
+    return jsonify(db.get_history())
+
+
+# ======================== KHỞI ĐỘNG APP ========================
+
+if __name__ == "__main__":
+    db.init_db()
+    db.seed_plants_if_empty()
+    app.run(debug=True, port=5000)

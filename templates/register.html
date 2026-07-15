@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký | Verdexa AI</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+</head>
+<body>
+
+<div class="background-blur blur1"></div>
+<div class="background-blur blur2"></div>
+
+<a href="/" class="back-home">
+    <i class="fa-solid fa-arrow-left"></i>
+    Về trang chủ
+</a>
+
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-logo">
+            <i class="fa-solid fa-seedling"></i>
+            <span>Verdexa AI</span>
+        </div>
+
+        <h1>Đăng ký</h1>
+        <p class="auth-subtitle">Tạo tài khoản để sử dụng đầy đủ tính năng</p>
+
+        <div class="auth-error" id="registerError"></div>
+
+        <form class="auth-form" id="registerForm">
+            <div class="form-group">
+                <label for="username">Tên người dùng</label>
+                <div class="input-wrap">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" id="username" name="username" placeholder="Tên hiển thị của bạn" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <div class="input-wrap">
+                    <i class="fa-solid fa-envelope"></i>
+                    <input type="email" id="email" name="email" placeholder="ban@email.com" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Mật khẩu</label>
+                <div class="input-wrap">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="password" name="password" placeholder="Tối thiểu 6 ký tự" required>
+                    <i class="fa-solid fa-eye toggle-password" id="togglePassword"></i>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Xác nhận mật khẩu</label>
+                <div class="input-wrap">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Nhập lại mật khẩu" required>
+                    <i class="fa-solid fa-eye toggle-password" id="toggleConfirm"></i>
+                </div>
+            </div>
+
+            <button type="submit" class="auth-submit" id="registerSubmit">
+                <i class="fa-solid fa-user-plus"></i>
+                Tạo tài khoản
+            </button>
+        </form>
+
+        <div class="auth-divider">hoặc</div>
+
+        <p class="auth-switch">
+            Đã có tài khoản? <a href="/login">Đăng nhập</a>
+        </p>
+    </div>
+</div>
+
+<script>
+    // Hiện/ẩn mật khẩu
+    document.getElementById('togglePassword').addEventListener('click', function () {
+        const input = document.getElementById('password');
+        const isHidden = input.type === 'password';
+        input.type = isHidden ? 'text' : 'password';
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+    });
+
+    document.getElementById('toggleConfirm').addEventListener('click', function () {
+        const input = document.getElementById('confirmPassword');
+        const isHidden = input.type === 'password';
+        input.type = isHidden ? 'text' : 'password';
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+    });
+
+    // Xử lý đăng ký
+    const registerForm = document.getElementById('registerForm');
+    const registerError = document.getElementById('registerError');
+    const registerSubmit = document.getElementById('registerSubmit');
+
+    registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        registerError.classList.remove('show');
+        registerError.textContent = '';
+
+        const username = document.getElementById('username').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        if (!username || !email || !password || !confirmPassword) {
+            registerError.textContent = 'Vui lòng điền đầy đủ tất cả các trường.';
+            registerError.classList.add('show');
+            return;
+        }
+
+        if (password.length < 6) {
+            registerError.textContent = 'Mật khẩu phải có ít nhất 6 ký tự.';
+            registerError.classList.add('show');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            registerError.textContent = 'Mật khẩu xác nhận không khớp.';
+            registerError.classList.add('show');
+            return;
+        }
+
+        const originalHtml = registerSubmit.innerHTML;
+        registerSubmit.disabled = true;
+        registerSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang tạo tài khoản...';
+
+        try {
+            const res = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, email, password })
+            });
+
+            let data = {};
+            try { data = await res.json(); } catch (_) {}
+
+            if (res.ok) {
+                window.location.href = '/login';
+                return;
+            }
+
+            registerError.textContent = data.error || 'Đăng ký thất bại. Vui lòng thử lại.';
+            registerError.classList.add('show');
+        } catch (err) {
+            registerError.textContent = 'Không thể kết nối tới máy chủ. Vui lòng thử lại sau.';
+            registerError.classList.add('show');
+        } finally {
+            registerSubmit.disabled = false;
+            registerSubmit.innerHTML = originalHtml;
+        }
+    });
+</script>
+
+</body>
+</html>

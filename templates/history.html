@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verdexa AI | Nhận Diện Cây Trồng & Chẩn Đoán Bệnh</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+</head>
+<body>
+
+<div class="background-blur blur1"></div>
+<div class="background-blur blur2"></div>
+
+<header>
+    <div class="logo">
+        <i class="fa-solid fa-seedling"></i>
+        <span>Verdexa AI</span>
+    </div>
+
+    <nav>
+        <a href="#home">Trang chủ</a>
+        <a href="#identify">Nhận diện</a>
+        <a href="#disease">Bệnh cây</a>
+        <a href="#library">Thư viện</a>
+        <a href="#chat">Trò chuyện AI</a>
+        <a href="/history">Lịch sử</a>
+    </nav>
+
+    {% if username %}
+    <div class="user-menu">
+        <span class="user-greeting"><i class="fa-solid fa-circle-user"></i> {{ username }}</span>
+        <button class="login" id="logoutBtn">Đăng xuất</button>
+    </div>
+    {% else %}
+    <button class="login" onclick="window.location.href='/login'">Đăng nhập</button>
+    {% endif %}
+</header>
+
+<section class="hero" id="home">
+    <div class="hero-left">
+        <span class="badge">Nông nghiệp ứng dụng AI</span>
+        <h1>
+            Nhận diện cây trồng<br>
+            Chẩn đoán bệnh<br>
+            bằng Trí tuệ nhân tạo
+        </h1>
+        <p>
+            Tải lên ảnh cây trồng để nhận diện loài,
+            phân tích bệnh và nhận đề xuất điều trị
+            chính xác nhờ trí tuệ nhân tạo.
+        </p>
+
+        <div class="hero-buttons">
+            <button class="primary" onclick="document.getElementById('identify').scrollIntoView({behavior:'smooth'})">
+                <i class="fa-solid fa-camera"></i>
+                Bắt đầu quét
+            </button>
+            <button class="secondary" onclick="document.getElementById('library').scrollIntoView({behavior:'smooth'})">
+                Tìm hiểu thêm
+            </button>
+        </div>
+
+        <div class="stats">
+            <div><h2>8K+</h2><span>Ảnh cây trồng</span></div>
+            <div><h2>350+</h2><span>Loài cây</span></div>
+            <div><h2>97%</h2><span>Độ chính xác AI</span></div>
+        </div>
+    </div>
+
+    <div class="hero-right">
+        <div class="hero-card">
+            <img src="https://images.unsplash.com/photo-1592928302636-c83cf1e1d5f4?auto=format&fit=crop&w=700&q=80">
+            <div class="scan"><div class="line"></div></div>
+        </div>
+    </div>
+</section>
+
+<section class="upload-section" id="identify">
+    <div class="section-title">
+        <h2>Nhận diện cây trồng</h2>
+        <p>Tải lên hoặc kéo thả ảnh để nhận diện cây trồng.</p>
+    </div>
+
+    <div class="upload-box" id="uploadBox">
+        <i class="fa-solid fa-cloud-arrow-up"></i>
+        <h3>Kéo & thả ảnh vào đây</h3>
+        <span>hoặc</span>
+        <button type="button" id="uploadBtn">Chọn ảnh</button>
+        <input type="file" id="imageInput" accept="image/*" hidden>
+        <button type="button" id="analyzeBtn" class="primary" style="margin-top:16px;">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            Phân tích ảnh
+        </button>
+    </div>
+
+    <div class="result-card">
+        <div class="image">
+            <img id="previewImage" src="https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?auto=format&fit=crop&w=600&q=80">
+        </div>
+        <div class="info">
+            <span class="confidence">Độ tin cậy AI</span>
+            <h2 id="plantName">Chưa có kết quả</h2>
+            <div class="percent" id="confidence">--</div>
+            <ul>
+                <li id="plantDescription">Tải ảnh lên để xem kết quả nhận diện AI tại đây.</li>
+            </ul>
+            <button type="button" onclick="document.getElementById('library').scrollIntoView({behavior:'smooth'})">
+                Xem thư viện cây trồng
+            </button>
+        </div>
+    </div>
+</section>
+
+<section class="features">
+    <div class="section-title">
+        <h2>Mọi thứ bạn cần</h2>
+    </div>
+    <div class="feature-grid">
+        <div class="card">
+            <i class="fa-solid fa-camera"></i>
+            <h3>Nhận diện cây trồng</h3>
+            <p>AI nhận diện hàng trăm loài cây khác nhau.</p>
+        </div>
+        <div class="card">
+            <i class="fa-solid fa-virus"></i>
+            <h3>Phát hiện bệnh</h3>
+            <p>Phát hiện bệnh từ hình ảnh lá cây.</p>
+        </div>
+        <div class="card">
+            <i class="fa-solid fa-leaf"></i>
+            <h3>Tư vấn điều trị</h3>
+            <p>Nhận các đề xuất điều trị phù hợp.</p>
+        </div>
+        <div class="card">
+            <i class="fa-solid fa-book-open"></i>
+            <h3>Thư viện cây trồng</h3>
+            <p>Khám phá thông tin chi tiết về từng loại cây.</p>
+        </div>
+    </div>
+</section>
+
+<section class="disease-section" id="disease">
+    <div class="section-title">
+        <h2>Chẩn đoán bệnh</h2>
+        <p>Mô tả triệu chứng hoặc tải ảnh lá cây để AI chẩn đoán.</p>
+    </div>
+
+    <div class="diagnosis-container">
+        <div class="diagnosis-form">
+            <label>Tên cây trồng</label>
+            <input type="text" id="diseasePlantName" placeholder="Ví dụ: Cà chua">
+
+            <label>Triệu chứng</label>
+            <textarea id="diseaseSymptoms" placeholder="Ví dụ: Lá vàng, đốm nâu, mép lá khô..."></textarea>
+
+            <button class="primary" type="button" id="analyzeSymptomsBtn">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                Phân tích bệnh
+            </button>
+
+            <label style="margin-top:10px;">Hoặc tải ảnh lá cây lên</label>
+            <input type="file" id="diseaseImageInput" accept="image/*">
+            <button class="primary" type="button" id="analyzeDiseaseImageBtn" style="margin-top:10px;">
+                <i class="fa-solid fa-camera"></i>
+                Phân tích ảnh lá
+            </button>
+        </div>
+
+        <div class="diagnosis-result">
+            <span class="status">Kết quả AI</span>
+            <h2 id="diseaseName">Chưa có kết quả</h2>
+            <h4>Độ tin cậy</h4>
+            <div class="percent" id="diseaseConfidence">--</div>
+            <h4>Nguyên nhân</h4>
+            <p id="diseaseCause">Nhập triệu chứng ở trên hoặc tải ảnh lá cây để nhận chẩn đoán.</p>
+            <h4>Giải pháp đề xuất</h4>
+            <ul id="diseaseSolution"></ul>
+        </div>
+    </div>
+</section>
+
+<section class="library" id="library">
+    <div class="section-title">
+        <h2>Thư viện cây trồng</h2>
+        <p>Khám phá các loại cây trồng và cây ăn quả phổ biến.</p>
+    </div>
+
+    <div class="library-grid">
+        {% for plant in plants %}
+        <div class="plant-card">
+            <img src="{{ url_for('static', filename='images/plants/' + plant.image) if plant.image else 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=600&q=80' }}"
+                 onerror="this.src='https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=600&q=80'">
+            <h3>{{ plant.name }}</h3>
+            <p>{{ plant.category }}</p>
+            <button onclick="window.location.href='/plant/{{ plant.id }}'">Chi tiết</button>
+        </div>
+        {% else %}
+        <p>Chưa có dữ liệu cây trồng.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="chat-section" id="chat">
+    <div class="section-title">
+        <h2>Hỏi AI</h2>
+        <p>Hỏi bất cứ điều gì về cây trồng và sâu bệnh.</p>
+    </div>
+
+    <div class="chat-box">
+        <div class="chat-history" id="chatHistory">
+            <div class="bot">
+                Xin chào 👋 Hôm nay tôi có thể giúp gì cho cây trồng của bạn?
+            </div>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="chatInput" placeholder="Hỏi AI...">
+            <button type="button" id="chatSendBtn">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+</section>
+
+<section class="cta">
+    <div class="cta-box">
+        <h2>Sẵn sàng bảo vệ cây trồng của bạn?</h2>
+        <p>Bắt đầu sử dụng AI ngay hôm nay để nhận diện cây trồng và chẩn đoán bệnh.</p>
+        <button onclick="document.getElementById('identify').scrollIntoView({behavior:'smooth'})">Bắt đầu ngay</button>
+    </div>
+</section>
+
+<footer>
+    <div class="footer-content">
+        <div>
+            <h2>🌿 Verdexa AI</h2>
+            <p>Trí tuệ nhân tạo cho nông nghiệp thông minh.</p>
+        </div>
+        <div>
+            <h3>Tính năng</h3>
+            <a href="#identify">Nhận diện cây trồng</a>
+            <a href="#disease">Phát hiện bệnh</a>
+            <a href="#disease">Điều trị</a>
+            <a href="#library">Thư viện cây trồng</a>
+        </div>
+        <div>
+            <h3>Công ty</h3>
+            <a href="#">Giới thiệu</a>
+            <a href="#">Liên hệ</a>
+            <a href="#">Bảo mật</a>
+            <a href="#">Điều khoản</a>
+        </div>
+    </div>
+    <div class="copyright">
+        © 2026 Verdexa AI. Bảo lưu mọi quyền.
+    </div>
+</footer>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+<script src="{{ url_for('static', filename='js/disease.js') }}"></script>
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    var logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", function () {
+            fetch("/api/logout", { method: "POST" }).finally(function () {
+                window.location.href = "/";
+            });
+        });
+    }
+});
+</script>
+</body>
+</html>

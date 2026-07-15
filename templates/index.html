@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verdexa AI | Nhận Diện Cây Trồng & Chẩn Đoán Bệnh</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+</head>
+<body class="sidebar-layout">
+
+<div class="background-blur blur1"></div>
+<div class="background-blur blur2"></div>
+
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <i class="fa-solid fa-seedling"></i>
+        <span>Verdexa AI</span>
+    </div>
+
+    <nav class="sidebar-nav">
+        <a href="#" class="sidebar-link active" data-tab="identify">
+            <i class="fa-solid fa-camera"></i>
+            <span>Nhận diện cây</span>
+        </a>
+        <a href="#" class="sidebar-link" data-tab="disease">
+            <i class="fa-solid fa-virus"></i>
+            <span>Bệnh cây</span>
+        </a>
+        <a href="#" class="sidebar-link" data-tab="library">
+            <i class="fa-solid fa-book-open"></i>
+            <span>Thư viện</span>
+        </a>
+        <a href="#" class="sidebar-link" data-tab="chat">
+            <i class="fa-solid fa-comments"></i>
+            <span>Trò chuyện AI</span>
+        </a>
+
+    </nav>
+
+    <div class="sidebar-bottom">
+        {% if username %}
+        <div class="sidebar-user">
+            <i class="fa-solid fa-circle-user"></i>
+            <span>{{ username }}</span>
+        </div>
+        <button class="sidebar-logout" id="logoutBtn">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            Đăng xuất
+        </button>
+        {% else %}
+        <a href="/login" class="sidebar-login-btn">
+            <i class="fa-solid fa-right-to-bracket"></i>
+            Đăng nhập
+        </a>
+        {% endif %}
+    </div>
+</aside>
+
+<!-- ===== NỘI DUNG CHÍNH ===== -->
+<main class="main-content">
+
+    <!-- TAB: NHẬN DIỆN CÂY -->
+    <section class="tab-panel active" id="tab-identify">
+        <div class="panel-header">
+            <h1><i class="fa-solid fa-camera"></i> Nhận diện cây trồng</h1>
+            <p>Tải lên hoặc kéo thả ảnh để nhận diện cây trồng bằng AI.</p>
+        </div>
+
+        <div class="upload-box" id="uploadBox">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <h3>Kéo & thả ảnh vào đây</h3>
+            <span>hoặc</span>
+            <div class="upload-actions">
+                <button type="button" id="uploadBtn">Chọn ảnh</button>
+                <button type="button" id="cameraBtn"><i class="fa-solid fa-camera"></i> Chụp ảnh</button>
+            </div>
+            <input type="file" id="imageInput" accept="image/*" hidden>
+            <input type="file" id="cameraInput" accept="image/*" capture="environment" hidden>
+            <button type="button" id="analyzeBtn" class="primary" style="margin-top:16px;">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                Phân tích ảnh
+            </button>
+        </div>
+
+        <div class="result-card">
+            <div class="image">
+                <img id="previewImage" src="https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?auto=format&fit=crop&w=600&q=80">
+            </div>
+            <div class="info">
+                <span class="confidence">Độ tin cậy AI</span>
+                <h2 id="plantName">Chưa có kết quả</h2>
+                <div class="percent" id="confidence">--</div>
+                <ul>
+                    <li id="plantDescription">Tải ảnh lên để xem kết quả nhận diện AI tại đây.</li>
+                </ul>
+                <button type="button" onclick="switchTab('library')">
+                    Xem thư viện cây trồng
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- TAB: BỆNH CÂY -->
+    <section class="tab-panel" id="tab-disease">
+        <div class="panel-header">
+            <h1><i class="fa-solid fa-virus"></i> Chẩn đoán bệnh</h1>
+            <p>Mô tả triệu chứng hoặc tải ảnh lá cây để AI chẩn đoán.</p>
+        </div>
+
+        <div class="diagnosis-container">
+            <div class="diagnosis-form">
+                <label>Tên cây trồng</label>
+                <input type="text" id="diseasePlantName" placeholder="Ví dụ: Cà chua">
+
+                <label>Triệu chứng</label>
+                <textarea id="diseaseSymptoms" placeholder="Ví dụ: Lá vàng, đốm nâu, mép lá khô..."></textarea>
+
+                <button class="primary" type="button" id="analyzeSymptomsBtn">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    Phân tích bệnh
+                </button>
+
+                <label style="margin-top:20px;">Hoặc tải ảnh lá cây lên</label>
+                <div class="upload-actions" style="justify-content:flex-start;">
+                    <input type="file" id="diseaseImageInput" accept="image/*" style="margin-bottom:14px;">
+                    <button type="button" id="diseaseCameraBtn" class="secondary"><i class="fa-solid fa-camera"></i> Chụp ảnh lá</button>
+                </div>
+                <input type="file" id="diseaseCameraInput" accept="image/*" capture="environment" hidden>
+                <img id="diseasePreviewImage" style="display:none;max-width:100%;border-radius:14px;margin-bottom:14px;">
+                <button class="primary" type="button" id="analyzeDiseaseImageBtn">
+                    <i class="fa-solid fa-camera"></i>
+                    Phân tích ảnh lá
+                </button>
+            </div>
+
+            <div class="diagnosis-result">
+                <span class="status">Kết quả AI</span>
+                <h2 id="diseaseName">Chưa có kết quả</h2>
+                <h4>Độ tin cậy</h4>
+                <div class="percent" id="diseaseConfidence">--</div>
+                <h4>Nguyên nhân</h4>
+                <p id="diseaseCause">Nhập triệu chứng ở trên hoặc tải ảnh lá cây để nhận chẩn đoán.</p>
+                <h4>Giải pháp đề xuất</h4>
+                <ul id="diseaseSolution"></ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- TAB: THƯ VIỆN -->
+    <section class="tab-panel" id="tab-library">
+        <div class="panel-header">
+            <h1><i class="fa-solid fa-book-open"></i> Thư viện cây trồng</h1>
+            <p>Khám phá các loại cây trồng và cây ăn quả phổ biến.</p>
+        </div>
+
+        <div class="library-grid">
+            {% for plant in plants %}
+            <div class="plant-card">
+                <img src="{{ url_for('static', filename='images/plants/' + plant.image) if plant.image else 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=600&q=80' }}"
+                     onerror="this.src='https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=600&q=80'">
+                <h3>{{ plant.name }}</h3>
+                <p>{{ plant.category }}</p>
+                <button onclick="window.location.href='/plant/{{ plant.id }}'">Chi tiết</button>
+            </div>
+            {% else %}
+            <p>Chưa có dữ liệu cây trồng.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- TAB: TRÒ CHUYỆN AI -->
+    <section class="tab-panel" id="tab-chat">
+        <div class="panel-header">
+            <h1><i class="fa-solid fa-comments"></i> Hỏi AI</h1>
+            <p>Hỏi bất cứ điều gì về cây trồng và sâu bệnh.</p>
+        </div>
+
+        <div class="chat-box">
+            <div class="chat-history" id="chatHistory">
+                <div class="bot">
+                    Xin chào 👋 Hôm nay tôi có thể giúp gì cho cây trồng của bạn?
+                </div>
+            </div>
+            <div class="chat-input">
+                <input type="text" id="chatInput" placeholder="Hỏi AI...">
+                <button type="button" id="chatSendBtn">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+<script src="{{ url_for('static', filename='js/disease.js') }}"></script>
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+<script>
+// ===== TRẠNG THÁI ĐĂNG NHẬP (từ server) =====
+const IS_LOGGED_IN = {{ 'true' if username else 'false' }};
+
+// ===== CHUYỂN HƯỚNG NẾU CHƯA ĐĂNG NHẬP =====
+function requireLogin() {
+    if (!IS_LOGGED_IN) {
+        window.location.href = '/login';
+        return true;
+    }
+    return false;
+}
+
+// ===== CHUYỂN TAB =====
+function switchTab(tabId) {
+    if (requireLogin()) return;
+
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+
+    const panel = document.getElementById('tab-' + tabId);
+    if (panel) panel.classList.add('active');
+
+    const link = document.querySelector('.sidebar-link[data-tab="' + tabId + '"]');
+    if (link) link.classList.add('active');
+}
+
+document.querySelectorAll('.sidebar-link[data-tab]').forEach(link => {
+    link.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (requireLogin()) return;
+        switchTab(link.dataset.tab);
+    });
+});
+
+// ===== CHẶN MỌI THAO TÁC KHI CHƯA ĐĂNG NHẬP =====
+if (!IS_LOGGED_IN) {
+    // Chặn click vào toàn bộ main content
+    document.querySelector('.main-content').addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        window.location.href = '/login';
+    }, true);
+
+    // Chặn gõ vào input / textarea
+    document.querySelector('.main-content').addEventListener('keydown', (e) => {
+        e.preventDefault();
+        window.location.href = '/login';
+    }, true);
+}
+
+// ===== ĐĂNG XUẤT =====
+var logoutBtn = document.getElementById("logoutBtn");
+if (logoutBtn) {
+    logoutBtn.addEventListener("click", function () {
+        fetch("/api/logout", { method: "POST" }).finally(function () {
+            window.location.href = "/";
+        });
+    });
+}
+</script>
+</body>
+</html>

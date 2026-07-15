@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ plant.name }} | Verdexa AI</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+</head>
+<body>
+
+<div class="background-blur blur1"></div>
+<div class="background-blur blur2"></div>
+
+<!-- HEADER -->
+<header>
+    <div class="logo">
+        <i class="fa-solid fa-seedling"></i>
+        <span>Verdexa AI</span>
+    </div>
+    <nav>
+        <a href="/">Trang chủ</a>
+        <a href="/#identify">Nhận diện</a>
+        <a href="/#disease">Bệnh cây</a>
+        <a href="/#library">Thư viện</a>
+        <a href="/#chat">Trò chuyện AI</a>
+        <a href="/history">Lịch sử</a>
+    </nav>
+    {% if username %}
+    <div class="user-menu">
+        <span class="user-greeting"><i class="fa-solid fa-circle-user"></i> {{ username }}</span>
+        <button class="login" id="logoutBtn">Đăng xuất</button>
+    </div>
+    {% else %}
+    <button class="login" onclick="window.location.href='/login'">Đăng nhập</button>
+    {% endif %}
+</header>
+
+<!-- NỘI DUNG CHÍNH -->
+<div class="plant-detail-page">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <a href="/">Trang chủ</a> &rsaquo;
+        <a href="/#library">Thư viện cây</a> &rsaquo;
+        {{ plant.name }}
+    </div>
+
+    <!-- Hero: ảnh + thông tin tóm tắt -->
+    <div class="plant-detail-hero">
+        <img
+            src="{{ url_for('static', filename='images/plants/' + plant.image) if plant.image else '' }}"
+            onerror="this.src='https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=800&q=80'"
+            alt="{{ plant.name }}"
+        >
+
+        <div class="plant-detail-info">
+            <span class="badge">{{ plant.category or 'Cây trồng' }}</span>
+            <h1>{{ plant.name }}</h1>
+            <p class="desc">{{ plant.description or 'Chưa có mô tả cho loại cây này.' }}</p>
+
+            <div class="info-grid">
+                <div class="info-item">
+                    <i class="fa-solid fa-temperature-half"></i>
+                    <div>
+                        <div class="label">Nhiệt độ</div>
+                        <div class="value">{{ plant.temperature or '—' }}</div>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fa-solid fa-clock"></i>
+                    <div>
+                        <div class="label">Thời gian thu hoạch</div>
+                        <div class="value">{{ plant.harvest_time or '—' }}</div>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fa-solid fa-droplet"></i>
+                    <div>
+                        <div class="label">Nhu cầu nước</div>
+                        <div class="value">{{ plant.water_need or '—' }}</div>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fa-solid fa-flask"></i>
+                    <div>
+                        <div class="label">Phân bón</div>
+                        <div class="value">{{ plant.fertilizer or '—' }}</div>
+                    </div>
+                </div>
+                {% if plant.family %}
+                <div class="info-item">
+                    <i class="fa-solid fa-sitemap"></i>
+                    <div>
+                        <div class="label">Họ thực vật</div>
+                        <div class="value">{{ plant.family }}</div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Sâu bệnh thường gặp -->
+    {% if plant.common_diseases %}
+    <div class="plant-detail-diseases">
+        <h2><i class="fa-solid fa-bug"></i> Sâu bệnh thường gặp</h2>
+        <div class="disease-tags">
+            {% for disease in plant.common_diseases.split(',') %}
+            <span class="disease-tag">{{ disease.strip() }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Nút hành động -->
+    <div class="plant-detail-actions">
+        <button class="primary" onclick="window.location.href='/#disease'">
+            <i class="fa-solid fa-stethoscope"></i>
+            Chẩn đoán bệnh cho cây này
+        </button>
+        <button class="secondary" onclick="window.history.back()">
+            <i class="fa-solid fa-arrow-left"></i>
+            Quay lại thư viện
+        </button>
+    </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-content">
+        <div>
+            <h2>🌿 Verdexa AI</h2>
+            <p>Trí tuệ nhân tạo cho nông nghiệp thông minh.</p>
+        </div>
+        <div>
+            <h3>Tính năng</h3>
+            <a href="/#identify">Nhận diện cây trồng</a>
+            <a href="/#disease">Phát hiện bệnh</a>
+            <a href="/#library">Thư viện cây trồng</a>
+        </div>
+        <div>
+            <h3>Công ty</h3>
+            <a href="#">Giới thiệu</a>
+            <a href="#">Liên hệ</a>
+            <a href="#">Bảo mật</a>
+        </div>
+    </div>
+    <div class="copyright">
+        © 2026 Verdexa AI. Bảo lưu mọi quyền.
+    </div>
+</footer>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    var logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", function () {
+            fetch("/api/logout", { method: "POST" }).finally(function () {
+                window.location.href = "/";
+            });
+        });
+    }
+});
+</script>
+</body>
+</html>
