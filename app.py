@@ -292,6 +292,15 @@ def api_chat_update(chat_id):
     return jsonify({"id": chat_id, "message": "Đã cập nhật."})
 
 
+@app.route("/api/chat/history/<int:chat_id>", methods=["DELETE"])
+def api_chat_delete(chat_id):
+    if not db.get_chat_session(chat_id):
+        return jsonify({"error": "Không tìm thấy cuộc trò chuyện."}), 404
+
+    db.delete_chat_history(chat_id)
+    return jsonify({"message": "Đã xoá cuộc trò chuyện."})
+
+
 # ======================== API: LỊCH SỬ ========================
 
 @app.route("/api/history")
