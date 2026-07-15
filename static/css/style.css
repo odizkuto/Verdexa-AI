@@ -1076,6 +1076,55 @@ nav a:hover{
 
 }
 
+/* ===== Lưu / danh sách cuộc trò chuyện đã lưu ===== */
+.chat-toolbar{
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+    padding:18px 24px;
+    border-bottom:1px solid #eee;
+    background:#fafafa;
+}
+
+.chat-saved-label{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    color:#2e7d32;
+    font-size:13px;
+    font-weight:600;
+    flex-shrink:0;
+}
+
+.chat-saved-list{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+    overflow-x:auto;
+}
+
+.chat-saved-item{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:#edf7ed;
+    color:#2e7d32;
+    border:none;
+    padding:8px 14px;
+    border-radius:40px;
+    font-size:13px;
+    font-weight:600;
+    white-space:nowrap;
+    transition:.2s;
+}
+
+.chat-saved-item:hover{
+    background:#2e7d32;
+    color:#fff;
+}
+
 .chat-history{
 
     padding:40px;
@@ -1132,6 +1181,42 @@ nav a:hover{
 
 .bot li:last-child{
     margin-bottom:0;
+}
+
+/* ===== Hiệu ứng "đang trả lời" (typing dots) ===== */
+.typing-dots{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    padding:4px 2px;
+}
+
+.typing-dots span{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:#2e7d32;
+    opacity:.4;
+    animation:typingBounce 1.2s infinite ease-in-out;
+}
+
+.typing-dots span:nth-child(2){
+    animation-delay:.2s;
+}
+
+.typing-dots span:nth-child(3){
+    animation-delay:.4s;
+}
+
+@keyframes typingBounce{
+    0%, 60%, 100%{
+        transform:translateY(0);
+        opacity:.4;
+    }
+    30%{
+        transform:translateY(-6px);
+        opacity:1;
+    }
 }
 
 .user{
