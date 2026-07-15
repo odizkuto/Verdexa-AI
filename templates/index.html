@@ -90,6 +90,10 @@
         <div class="result-card">
             <div class="image">
                 <img id="previewImage" src="https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?auto=format&fit=crop&w=600&q=80">
+                <div class="scan-overlay" id="scanOverlay">
+                    <div class="scan-line"></div>
+                    <span class="scan-label"><i class="fa-solid fa-satellite-dish"></i> Đang quét ảnh...</span>
+                </div>
             </div>
             <div class="info">
                 <span class="confidence">Độ tin cậy AI</span>
@@ -131,7 +135,13 @@
                     <button type="button" id="diseaseCameraBtn" class="secondary"><i class="fa-solid fa-camera"></i> Chụp ảnh lá</button>
                 </div>
                 <input type="file" id="diseaseCameraInput" accept="image/*" capture="environment" hidden>
-                <img id="diseasePreviewImage" style="display:none;max-width:100%;border-radius:14px;margin-bottom:14px;">
+                <div class="scan-wrapper" id="diseaseImageWrap" style="display:none;">
+                    <img id="diseasePreviewImage" style="max-width:100%;border-radius:14px;">
+                    <div class="scan-overlay" id="diseaseScanOverlay">
+                        <div class="scan-line"></div>
+                        <span class="scan-label"><i class="fa-solid fa-satellite-dish"></i> Đang quét ảnh...</span>
+                    </div>
+                </div>
                 <button class="primary" type="button" id="analyzeDiseaseImageBtn">
                     <i class="fa-solid fa-camera"></i>
                     Phân tích ảnh lá
