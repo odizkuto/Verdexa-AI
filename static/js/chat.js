@@ -236,10 +236,28 @@ function startNewChat() {
         <div class="bot">
             Xin chào 👋 Hôm nay tôi có thể giúp gì cho cây trồng của bạn?
         </div>
+        <div class="chat-suggestions" id="chatSuggestions">
+            <span class="chat-suggestions-label">Gợi ý câu hỏi</span>
+            <div class="chat-suggestions-grid">
+                <button type="button" class="chat-suggestion-chip">
+                    <i class="fa-solid fa-leaf"></i> Vì sao lá cây bị vàng?
+                </button>
+                <button type="button" class="chat-suggestion-chip">
+                    <i class="fa-solid fa-droplet"></i> Bao lâu tưới nước 1 lần?
+                </button>
+                <button type="button" class="chat-suggestion-chip">
+                    <i class="fa-solid fa-bug"></i> Cách trị rệp sáp trên cây cảnh
+                </button>
+                <button type="button" class="chat-suggestion-chip">
+                    <i class="fa-solid fa-seedling"></i> Loại phân bón nào tốt cho hoa hồng?
+                </button>
+            </div>
+        </div>
     `;
     chatInput.value = "";
     chatInput.focus();
     loadSavedChatsList();
+    bindSuggestionChips();
 }
 
 if (chatNewBtn) {
@@ -259,6 +277,10 @@ async function sendChatMessage() {
     // Khoá ô nhập + nút gửi để tránh gửi chồng nhiều tin khi AI chưa trả lời xong
     chatInput.disabled = true;
     chatSendBtn.disabled = true;
+
+    // Đã bắt đầu chat thật -> bỏ khối gợi ý câu hỏi đi cho gọn
+    const suggestions = document.getElementById("chatSuggestions");
+    if (suggestions) suggestions.remove();
 
     appendMessage("user", message, false);
     chatInput.value = "";
@@ -310,6 +332,20 @@ async function sendChatMessage() {
         chatInput.focus();
     }
 }
+
+/*============================*/
+/* Chip gợi ý câu hỏi: bấm vào là điền câu hỏi và gửi luôn */
+
+function bindSuggestionChips() {
+    document.querySelectorAll(".chat-suggestion-chip").forEach((chip) => {
+        chip.addEventListener("click", () => {
+            chatInput.value = chip.textContent.trim();
+            sendChatMessage();
+        });
+    });
+}
+
+bindSuggestionChips();
 
 /*============================*/
 /* Sự kiện gửi tin nhắn */
