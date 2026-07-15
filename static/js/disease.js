@@ -13,6 +13,8 @@ const analyzeDiseaseImageBtn = document.getElementById("analyzeDiseaseImageBtn")
 const diseaseCameraBtn = document.getElementById("diseaseCameraBtn");
 const diseaseCameraInput = document.getElementById("diseaseCameraInput");
 const diseasePreviewImage = document.getElementById("diseasePreviewImage");
+const diseaseImageWrap = document.getElementById("diseaseImageWrap");
+const diseaseScanOverlay = document.getElementById("diseaseScanOverlay");
 
 let selectedDiseaseFile = null;
 
@@ -30,7 +32,7 @@ function setSelectedDiseaseFile(file) {
     const reader = new FileReader();
     reader.onload = (e) => {
         diseasePreviewImage.src = e.target.result;
-        diseasePreviewImage.style.display = "block";
+        diseaseImageWrap.style.display = "inline-block";
     };
     reader.readAsDataURL(file);
 }
@@ -140,6 +142,7 @@ analyzeDiseaseImageBtn.addEventListener("click", async () => {
     }
 
     showDiseaseLoading();
+    diseaseScanOverlay.classList.add("active");
 
     const formData = new FormData();
     formData.append("image", selectedDiseaseFile);
@@ -159,5 +162,7 @@ analyzeDiseaseImageBtn.addEventListener("click", async () => {
         renderDiseaseResult(data);
     } catch (err) {
         showDiseaseError(err.message);
+    } finally {
+        diseaseScanOverlay.classList.remove("active");
     }
 });
