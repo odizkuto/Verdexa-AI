@@ -85,6 +85,32 @@ function appendMessage(role, content, isHtml) {
 }
 
 /*============================*/
+/* Hiện ngay 1 mục tạm trong sidebar khi bắt đầu cuộc trò chuyện mới,
+   tránh để sidebar hiển thị "Chưa có cuộc trò chuyện nào" trong lúc
+   server còn đang tự đặt tên + lưu (có thể mất vài giây). */
+
+function addPendingSidebarItem(tempTitle) {
+    const empty = chatSavedList.querySelector(".chat-saved-empty");
+    if (empty) empty.remove();
+
+    chatSavedList.querySelectorAll(".chat-saved-item.active").forEach((el) => el.classList.remove("active"));
+
+    const old = document.getElementById("chatSavedPending");
+    if (old) old.remove();
+
+    const item = document.createElement("div");
+    item.id = "chatSavedPending";
+    item.className = "chat-saved-item active chat-saved-item-pending";
+
+    const titleSpan = document.createElement("span");
+    titleSpan.className = "chat-saved-title";
+    titleSpan.textContent = tempTitle;
+    item.appendChild(titleSpan);
+
+    chatSavedList.insertBefore(item, chatSavedList.firstChild);
+}
+
+/*============================*/
 /* Tự động lưu / cập nhật cuộc trò chuyện vào lịch sử */
 
 async function autoSaveOrUpdateChat() {
@@ -236,6 +262,12 @@ async function sendChatMessage() {
 
     appendMessage("user", message, false);
     chatInput.value = "";
+
+    // Nếu đây là tin nhắn đầu tiên của cuộc trò chuyện mới -> hiện ngay mục tạm trong sidebar
+    if (savedChatId === null && conversation.length === 0) {
+        const tempTitle = message.length > 28 ? message.slice(0, 28) + "…" : message;
+        addPendingSidebarItem(tempTitle);
+    }
 
     const typingBubble = appendMessage(
         "bot",
