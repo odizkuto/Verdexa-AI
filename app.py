@@ -238,6 +238,60 @@ def api_chat():
     return jsonify({"reply": reply})
 
 
+# ======================== API: LỊCH SỬ TRÒ CHUYỆN AI ========================
+
+@app.route("/api/chat/save", methods=["POST"])
+def api_chat_save():
+    data = request.get_json(silent=True) or {}
+    messages = data.get("messages", [])
+
+    if not messages or not isinstance(messages, list):
+        return jsonify({"error": "Không có nội dung để lưu."}), 400
+
+    try:
+        title = ai.generate_chat_title(messages)
+    except Exception:
+        title = "Cuộc trò chuyện với AI"
+
+    import json as _json
+    chat_id = db.add_chat_history(title, _json.dumps(messages, ensure_ascii=False))
+
+    return jsonify({"id": chat_id, "title": title})
+
+
+@app.route("/api/chat/history")
+def api_chat_history_list():
+    return jsonify(db.get_chat_sessions())
+
+
+@app.route("/api/chat/history/<int:chat_id>")
+def api_chat_history_detail(chat_id):
+    import json as _json
+    session_row = db.get_chat_session(chat_id)
+    if not session_row:
+        return jsonify({"error": "Không tìm thấy cuộc trò chuyện."}), 404
+
+    session_row["messages"] = _json.loads(session_row["messages"])
+    return jsonify(session_row)
+
+
+@app.route("/api/chat/save/<int:chat_id>", methods=["PUT"])
+def api_chat_update(chat_id):
+    data = request.get_json(silent=True) or {}
+    messages = data.get("messages", [])
+
+    if not messages or not isinstance(messages, list):
+        return jsonify({"error": "Không có nội dung để cập nhật."}), 400
+
+    if not db.get_chat_session(chat_id):
+        return jsonify({"error": "Không tìm thấy cuộc trò chuyện."}), 404
+
+    import json as _json
+    db.update_chat_history(chat_id, _json.dumps(messages, ensure_ascii=False))
+
+    return jsonify({"id": chat_id, "message": "Đã cập nhật."})
+
+
 # ======================== API: LỊCH SỬ ========================
 
 @app.route("/api/history")
