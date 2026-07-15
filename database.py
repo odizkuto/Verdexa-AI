@@ -60,6 +60,16 @@ def init_db():
         )
     """)
 
+    # Bảng lưu lại các cuộc trò chuyện với AI, tự đặt tên theo nội dung
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS chat_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            messages TEXT NOT NULL,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
     conn.commit()
     conn.close()
 
@@ -156,3 +166,49 @@ def get_user_by_username(username):
     user = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
     conn.close()
     return dict(user) if user else None
+
+
+# ======================== LỊCH SỬ TRÒ CHUYỆN AI ========================
+
+def add_chat_history(title, messages_json):
+    """Lưu 1 cuộc trò chuyện. messages_json là chuỗi JSON của list [{role, content}]."""
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO chat_history (title, messages) VALUES (?, ?)",
+        (title, messages_json),
+    )
+    conn.commit()
+    chat_id = cur.lastrowid
+    conn.close()
+    return chat_id
+
+
+def get_chat_sessions(limit=50):
+    """Danh sách các cuộc trò chuyện đã lưu (không kèm nội dung đầy đủ), mới nhất trước."""
+    conn = get_connection()
+    rows = conn.execute(
+        "SELECT id, title, created_at FROM chat_history ORDER BY created_at DESC LIMIT ?",
+        (limit,),
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_chat_session(chat_id):
+    """Lấy đầy đủ 1 cuộc trò chuyện đã lưu theo id."""
+    conn = get_connection()
+    row = conn.execute("SELECT * FROM chat_history WHERE id = ?", (chat_id,)).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def update_chat_history(chat_id, messages_json):
+    """Cập nhật nội dung tin nhắn của 1 cuộc trò chuyện đã lưu (giữ nguyên tiêu đề)."""
+    conn = get_connection()
+    conn.execute(
+        "UPDATE chat_history SET messages = ? WHERE id = ?",
+        (messages_json, chat_id),
+    )
+    conn.commit()
+    conn.close()
