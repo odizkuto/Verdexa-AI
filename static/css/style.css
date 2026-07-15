@@ -1325,52 +1325,79 @@ nav a:hover{
 /*============================*/
 /* Hiệu ứng đèn neon chạy vòng quanh bảng kết quả */
 
-.search-result-card.neon-active{
+.neon-frame{
 
     position:relative;
 
-    z-index:0;
-
     border-radius:25px;
-
-    animation:neonCardPulse 2.4s ease-in-out infinite;
 
 }
 
-.search-result-card.neon-active::before,
-.search-result-card.neon-active::after{
+/* Vòng viền neon sắc nét - chỉ hiện đúng phần viền nhờ mask-composite,
+   không tô lên nền/ảnh bên trong thẻ. Đặt trên khung bọc ngoài (neon-frame)
+   vì .search-result-card có overflow:hidden để bo góc ảnh, sẽ cắt mất phần
+   viền/glow nằm ngoài mép nếu đặt trực tiếp lên nó. */
+
+.neon-frame.neon-active::before{
 
     content:"";
 
     position:absolute;
 
-    inset:-4px;
+    inset:-3px;
 
-    border-radius:29px;
+    border-radius:28px;
 
-    z-index:-1;
+    padding:3px;
+
+    z-index:1;
+
+    pointer-events:none;
 
     background:conic-gradient(from 0deg, #00ff9d, #00e0ff, #7b2ff7, #ff2fd0, #00ff9d);
+
+    -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite:xor;
+
+    mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite:exclude;
 
     animation:neonRotate 3s linear infinite;
 
 }
 
-.search-result-card.neon-active::before{
+/* Vòng glow mờ, mỏng, đặt ngay sát mép ngoài viền để tạo sắc neon
+   mà không loang ra thành mảng nền */
 
-    filter:blur(10px) brightness(1.3);
+.neon-frame.neon-active::after{
 
-    opacity:.9;
+    content:"";
 
-}
+    position:absolute;
 
-.search-result-card.neon-active::after{
+    inset:-6px;
 
-    inset:-1.5px;
+    border-radius:31px;
 
-    border-radius:26.5px;
+    padding:6px;
 
-    filter:blur(.5px);
+    z-index:-1;
+
+    pointer-events:none;
+
+    background:conic-gradient(from 0deg, #00ff9d, #00e0ff, #7b2ff7, #ff2fd0, #00ff9d);
+
+    -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite:xor;
+
+    mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite:exclude;
+
+    filter:blur(6px);
+
+    opacity:.8;
+
+    animation:neonRotate 3s linear infinite;
 
 }
 
@@ -1379,14 +1406,6 @@ nav a:hover{
     from{ transform:rotate(0deg); }
 
     to{ transform:rotate(360deg); }
-
-}
-
-@keyframes neonCardPulse{
-
-    0%,100%{ box-shadow:0 20px 45px rgba(0,0,0,.08); }
-
-    50%{ box-shadow:0 20px 55px rgba(0,224,255,.25); }
 
 }
 
