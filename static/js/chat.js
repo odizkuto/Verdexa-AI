@@ -75,7 +75,11 @@ async function sendChatMessage() {
     appendMessage("user", message, false);
     chatInput.value = "";
 
-    const typingBubble = appendMessage("bot", "Đang trả lời...", false);
+    const typingBubble = appendMessage(
+        "bot",
+        '<div class="typing-dots"><span></span><span></span><span></span></div>',
+        true
+    );
 
     try {
         const response = await fetch("/api/chat", {
