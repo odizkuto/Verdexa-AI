@@ -2627,6 +2627,19 @@ body.sidebar-layout {
     font-size: 28px;
 }
 
+.sidebar-logo-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+}
+
+.sidebar-logo-text small {
+    font-size: 11px;
+    font-weight: 600;
+    color: #8fa78f;
+    letter-spacing: .04em;
+}
+
 /* ===== NAV LINKS ===== */
 .sidebar-nav {
     display: flex;
