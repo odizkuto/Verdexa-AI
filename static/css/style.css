@@ -1323,7 +1323,7 @@ nav a:hover{
 }
 
 /*============================*/
-/* Hiệu ứng đèn neon chạy vòng quanh bảng kết quả */
+/* Viền đèn neon quanh bảng kết quả - đứng yên, không xoay */
 
 .neon-frame{
 
@@ -1331,81 +1331,23 @@ nav a:hover{
 
     border-radius:25px;
 
-}
-
-/* Vòng viền neon sắc nét - chỉ hiện đúng phần viền nhờ mask-composite,
-   không tô lên nền/ảnh bên trong thẻ. Đặt trên khung bọc ngoài (neon-frame)
-   vì .search-result-card có overflow:hidden để bo góc ảnh, sẽ cắt mất phần
-   viền/glow nằm ngoài mép nếu đặt trực tiếp lên nó. */
-
-.neon-frame.neon-active::before{
-
-    content:"";
-
-    position:absolute;
-
-    inset:-3px;
-
-    border-radius:28px;
-
     padding:3px;
 
-    z-index:1;
+}
 
-    pointer-events:none;
+.neon-frame.neon-active{
 
-    background:conic-gradient(from 0deg, #00ff9d, #00e0ff, #7b2ff7, #ff2fd0, #00ff9d);
+    background:linear-gradient(135deg, #00ff9d, #00e0ff, #7b2ff7, #ff2fd0);
 
-    -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite:xor;
-
-    mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask-composite:exclude;
-
-    animation:neonRotate 3s linear infinite;
+    box-shadow:0 0 18px 3px rgba(0,224,255,.5);
 
 }
 
-/* Vòng glow mờ, mỏng, đặt ngay sát mép ngoài viền để tạo sắc neon
-   mà không loang ra thành mảng nền */
+.neon-frame .search-result-card{
 
-.neon-frame.neon-active::after{
+    position:relative;
 
-    content:"";
-
-    position:absolute;
-
-    inset:-6px;
-
-    border-radius:31px;
-
-    padding:6px;
-
-    z-index:-1;
-
-    pointer-events:none;
-
-    background:conic-gradient(from 0deg, #00ff9d, #00e0ff, #7b2ff7, #ff2fd0, #00ff9d);
-
-    -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite:xor;
-
-    mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask-composite:exclude;
-
-    filter:blur(6px);
-
-    opacity:.8;
-
-    animation:neonRotate 3s linear infinite;
-
-}
-
-@keyframes neonRotate{
-
-    from{ transform:rotate(0deg); }
-
-    to{ transform:rotate(360deg); }
+    border-radius:22px;
 
 }
 
