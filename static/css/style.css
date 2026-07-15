@@ -1273,6 +1273,101 @@ nav a:hover{
 
 }
 
+/*============================*/
+/* Trạng thái trống của tab Thư viện - hiện gợi ý khi chưa tìm kiếm */
+
+.library-empty-state{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    text-align:center;
+
+    padding:70px 24px;
+
+    color:#666;
+
+}
+
+.library-empty-state i{
+
+    font-size:46px;
+
+    color:#a5d6a7;
+
+    margin-bottom:18px;
+
+}
+
+.library-empty-state h3{
+
+    font-size:20px;
+
+    color:#333;
+
+    margin-bottom:8px;
+
+}
+
+.library-empty-state p{
+
+    font-size:14px;
+
+    max-width:420px;
+
+    margin-bottom:28px;
+
+}
+
+.library-suggestions{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    justify-content:center;
+
+    gap:10px;
+
+    max-width:520px;
+
+}
+
+.library-suggestion-chip{
+
+    background:#f0f9f0;
+
+    border:1px solid rgba(46,125,50,0.2);
+
+    color:#2e7d32;
+
+    padding:9px 18px;
+
+    border-radius:20px;
+
+    font-size:14px;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:.2s;
+
+}
+
+.library-suggestion-chip:hover{
+
+    background:#2e7d32;
+
+    color:#fff;
+
+    transform:translateY(-2px);
+
+}
+
 .search-loading,
 .search-error{
 
@@ -2807,6 +2902,19 @@ body.sidebar-layout .chat-box {
 
     .chat-input input {
         font-size: 14px;
+    }
+
+    /* Thư viện: trạng thái trống gọn hơn trên màn hình nhỏ */
+    .library-empty-state {
+        padding: 40px 16px;
+    }
+
+    .library-empty-state i {
+        font-size: 36px;
+    }
+
+    .library-empty-state h3 {
+        font-size: 17px;
     }
 
     /* 3 nút: Chọn ảnh / Chụp ảnh / Phân tích ảnh — thu nhỏ vừa chữ */
