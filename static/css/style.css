@@ -2873,7 +2873,8 @@ body.sidebar-layout .chat-box {
     .sidebar-link span,
     .sidebar-user span,
     .sidebar-logout span,
-    .sidebar-login-btn span {
+    .sidebar-login-btn span,
+    .sidebar-logo-text {
         display: none;
     }
 
