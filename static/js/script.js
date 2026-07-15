@@ -11,6 +11,7 @@ const cameraBtn = document.getElementById("cameraBtn");
 const cameraInput = document.getElementById("cameraInput");
 
 const previewImage = document.getElementById("previewImage");
+const scanOverlay = document.getElementById("scanOverlay");
 const plantName = document.getElementById("plantName");
 const confidenceEl = document.getElementById("confidence");
 const plantDescription = document.getElementById("plantDescription");
@@ -116,6 +117,7 @@ analyzeBtn.addEventListener("click", async () => {
     }
 
     showResultLoading();
+    scanOverlay.classList.add("active");
 
     const formData = new FormData();
     formData.append("image", selectedFile);
@@ -135,5 +137,7 @@ analyzeBtn.addEventListener("click", async () => {
         renderResult(data);
     } catch (err) {
         showResultError(err.message);
+    } finally {
+        scanOverlay.classList.remove("active");
     }
 });
