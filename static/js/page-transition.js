@@ -9,36 +9,51 @@ phân biệt rõ ràng:
     "login"  - đăng nhập thành công: phủ từ trái sang, thoát về bên phải
     "logout" - đăng xuất: phủ từ phải sang, thoát về bên trái (ngược hướng login)
 
+Thời gian giữ màn hiệu ứng trước khi mở nội dung ra:
+    - Mở link mới / vào thẳng trang (gõ URL, bookmark, link ngoài...) : 5 giây
+    - Điều hướng nội bộ trong site (đăng nhập, đăng xuất, chuyển trang
+      qua các nút/link có gọi ptCoverAndGo)                             : 3 giây
+
 Vì trang đích được tải lại hoàn toàn (fresh JS context), hướng được lưu
-tạm vào sessionStorage để trang mới biết cần "thoát" theo hướng nào.
+tạm vào sessionStorage để trang mới biết cần "thoát" theo hướng nào và
+biết đây là điều hướng nội bộ (để dùng mốc 3 giây thay vì 5 giây).
 =========================================*/
 
 (function () {
     var STORAGE_KEY = "pt_direction";
 
+    var REVEAL_DELAY_FRESH_OPEN = 5000;
+    var REVEAL_DELAY_INTERNAL_NAV = 3000;
+
     function getOverlay() {
         return document.getElementById("pageTransitionOverlay");
     }
 
-    /* Khi trang đã tải xong: đọc hướng đã lưu (nếu có) rồi cuộn overlay
-       ra theo đúng hướng đó để lộ nội dung ra */
+    /* Khi trang đã tải xong: đọc hướng đã lưu (nếu có) rồi giữ overlay
+       trong khoảng thời gian tương ứng, sau đó cuộn ra để lộ nội dung */
     function ptReveal() {
         var el = getOverlay();
         if (!el) return;
 
         var direction = "down";
+        var isInternalNav = false;
+
         try {
-            direction = sessionStorage.getItem(STORAGE_KEY) || "down";
+            var stored = sessionStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                direction = stored;
+                isInternalNav = true;
+            }
             sessionStorage.removeItem(STORAGE_KEY);
         } catch (e) { /* sessionStorage có thể bị chặn - bỏ qua, dùng mặc định */ }
 
         el.setAttribute("data-direction", direction);
 
-        requestAnimationFrame(function () {
-            requestAnimationFrame(function () {
-                el.classList.add("pt-hidden");
-            });
-        });
+        var holdTime = isInternalNav ? REVEAL_DELAY_INTERNAL_NAV : REVEAL_DELAY_FRESH_OPEN;
+
+        setTimeout(function () {
+            el.classList.add("pt-hidden");
+        }, holdTime);
     }
 
     /* Trước khi chuyển trang: phủ overlay che toàn màn hình theo hướng
