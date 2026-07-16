@@ -2982,7 +2982,7 @@ body.sidebar-layout .chat-box {
         height: calc(100vh - 60px);
         height: calc(100dvh - 60px);
         width: 70px;
-        padding: 24px 10px;
+        padding: 20px 8px calc(18px + env(safe-area-inset-bottom, 0px));
     }
 
     .main-content {
@@ -2991,9 +2991,6 @@ body.sidebar-layout .chat-box {
 
     .sidebar-logo span,
     .sidebar-link span,
-    .sidebar-user span,
-    .sidebar-logout span,
-    .sidebar-login-btn span,
     .sidebar-logo-text {
         display: none;
     }
@@ -3012,10 +3009,40 @@ body.sidebar-layout .chat-box {
         padding: 14px;
     }
 
+    /* Khối user/đăng xuất trên mobile: giữ lại tên + chữ, xếp icon
+       trên - chữ nhỏ dưới thay vì ẩn hẳn, và không bị co lại khi
+       sidebar hết chỗ (tránh bị mất/khuất). */
+    .sidebar-bottom {
+        flex-shrink: 0;
+        margin-top: auto;
+        padding-top: 14px;
+        gap: 8px;
+    }
+
+    .sidebar-user,
     .sidebar-logout,
     .sidebar-login-btn {
+        flex-direction: column;
         justify-content: center;
-        padding: 13px;
+        gap: 3px;
+        padding: 9px 4px;
+        text-align: center;
+    }
+
+    .sidebar-user span,
+    .sidebar-logout span,
+    .sidebar-login-btn span {
+        display: block;
+        font-size: 9.5px;
+        line-height: 1.15;
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    .sidebar-user i,
+    .sidebar-logout i,
+    .sidebar-login-btn i {
+        font-size: 18px;
     }
 
     .main-content {
