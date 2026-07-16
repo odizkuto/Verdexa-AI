@@ -1653,6 +1653,184 @@ nav a:hover{
 }
 
 /*============================*/
+/* Hiệu ứng khung quét tia laser khi AI đang tra cứu */
+
+.scan-frame{
+    position:relative;
+    border-radius:25px;
+    padding:3px;
+    overflow:hidden;
+    isolation:isolate;
+    animation:scanFrameIn .45s ease;
+}
+
+@keyframes scanFrameIn{
+    from{ opacity:0; transform:scale(.97); }
+    to{ opacity:1; transform:scale(1); }
+}
+
+.scan-frame::before{
+    content:"";
+    position:absolute;
+    inset:-60%;
+    background:conic-gradient(from 0deg, #00ff9d, #00e0ff, #7b2ff7, #ff2fd0, #00ff9d);
+    animation:scanRotate 2.6s linear infinite;
+    z-index:0;
+}
+
+@keyframes scanRotate{
+    to{ transform:rotate(360deg); }
+}
+
+.scan-frame-inner{
+    position:relative;
+    z-index:1;
+    background:radial-gradient(circle at 50% 0%, #16233d 0%, #0a0f1c 70%);
+    border-radius:22px;
+    min-height:320px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:18px;
+    overflow:hidden;
+    padding:40px 24px;
+}
+
+.scan-grid{
+    position:absolute;
+    inset:0;
+    background-image:
+        linear-gradient(rgba(0,224,255,.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,224,255,.1) 1px, transparent 1px);
+    background-size:28px 28px;
+    -webkit-mask-image:radial-gradient(ellipse at center, #000 55%, transparent 100%);
+    mask-image:radial-gradient(ellipse at center, #000 55%, transparent 100%);
+    animation:scanGridMove 6s linear infinite;
+}
+
+@keyframes scanGridMove{
+    from{ background-position:0 0, 0 0; }
+    to{ background-position:0 56px, 56px 0; }
+}
+
+.scan-laser{
+    position:absolute;
+    left:0;
+    right:0;
+    height:120px;
+    top:-120px;
+    background:linear-gradient(to bottom, transparent, rgba(0,255,157,.5) 45%, rgba(0,224,255,.85) 50%, rgba(123,47,247,.5) 55%, transparent);
+    filter:blur(1px);
+    animation:scanLaserMove 2.3s cubic-bezier(.4,0,.2,1) infinite;
+    z-index:1;
+}
+
+.scan-laser::after{
+    content:"";
+    position:absolute;
+    left:0;
+    right:0;
+    top:50%;
+    height:2px;
+    background:#fff;
+    box-shadow:0 0 8px 2px #00e0ff, 0 0 22px 6px rgba(0,224,255,.6);
+}
+
+@keyframes scanLaserMove{
+    0%{ top:-120px; opacity:0; }
+    10%{ opacity:1; }
+    90%{ opacity:1; }
+    100%{ top:100%; opacity:0; }
+}
+
+.scan-corner{
+    position:absolute;
+    width:26px;
+    height:26px;
+    border:2px solid #00e0ff;
+    filter:drop-shadow(0 0 6px rgba(0,224,255,.8));
+    animation:scanCornerPulse 1.6s ease-in-out infinite;
+    z-index:2;
+}
+
+.scan-corner.tl{ top:14px; left:14px; border-right:none; border-bottom:none; border-radius:8px 0 0 0; }
+.scan-corner.tr{ top:14px; right:14px; border-left:none; border-bottom:none; border-radius:0 8px 0 0; }
+.scan-corner.bl{ bottom:14px; left:14px; border-right:none; border-top:none; border-radius:0 0 0 8px; }
+.scan-corner.br{ bottom:14px; right:14px; border-left:none; border-top:none; border-radius:0 0 8px 0; }
+
+@keyframes scanCornerPulse{
+    0%,100%{ opacity:.5; }
+    50%{ opacity:1; }
+}
+
+.scan-content{
+    position:relative;
+    z-index:3;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:14px;
+    text-align:center;
+}
+
+.scan-icon{
+    font-size:38px;
+    color:#00e0ff;
+    animation:scanIconPulse 1.4s ease-in-out infinite;
+    filter:drop-shadow(0 0 10px rgba(0,224,255,.7));
+}
+
+@keyframes scanIconPulse{
+    0%,100%{ transform:scale(1); opacity:.85; }
+    50%{ transform:scale(1.15); opacity:1; }
+}
+
+.scan-text{
+    color:#eafcff;
+    font-size:15px;
+    font-weight:600;
+    letter-spacing:.3px;
+}
+
+.scan-text .dots span{
+    display:inline-block;
+    animation:scanDotBlink 1.4s infinite;
+    opacity:0;
+}
+
+.scan-text .dots span:nth-child(2){ animation-delay:.2s; }
+.scan-text .dots span:nth-child(3){ animation-delay:.4s; }
+
+@keyframes scanDotBlink{
+    0%,100%{ opacity:0; }
+    50%{ opacity:1; }
+}
+
+.scan-bar{
+    width:220px;
+    height:4px;
+    border-radius:4px;
+    background:rgba(255,255,255,.14);
+    overflow:hidden;
+}
+
+.scan-bar span{
+    display:block;
+    height:100%;
+    width:40%;
+    border-radius:4px;
+    background:linear-gradient(90deg,#00ff9d,#00e0ff,#7b2ff7);
+    box-shadow:0 0 10px 1px rgba(0,224,255,.7);
+    animation:scanBarMove 1.3s ease-in-out infinite;
+}
+
+@keyframes scanBarMove{
+    0%{ margin-left:-40%; }
+    100%{ margin-left:100%; }
+}
+
+/*============================*/
 /* Viền đèn neon quanh bảng kết quả - đứng yên, không xoay */
 
 .neon-frame{
