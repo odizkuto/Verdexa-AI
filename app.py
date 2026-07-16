@@ -20,6 +20,10 @@ import mailer
 app = Flask(__name__)
 app.config.from_object(Config)
 
+# Session (đăng nhập) giữ trong 30 ngày dù người dùng đóng trình duyệt/app,
+# thay vì mặc định Flask sẽ xóa session ngay khi đóng trình duyệt.
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=30)
+
 os.makedirs(Config.UPLOAD_FOLDER, exist_ok=True)
 
 # Khởi tạo bảng + seed dữ liệu mẫu ngay khi module được nạp — chạy được dù
@@ -227,6 +231,7 @@ def api_login():
     if not user or not check_password_hash(user["password_hash"], password):
         return jsonify({"error": "Email hoặc mật khẩu không đúng."}), 401
 
+    session.permanent = True
     session["user_id"] = user["id"]
     session["username"] = user["username"]
 
