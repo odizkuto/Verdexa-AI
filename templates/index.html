@@ -52,11 +52,8 @@
             <i class="fa-solid fa-virus"></i>
             <span>Bệnh cây</span>
         </a>
-        <a href="#" class="sidebar-link sidebar-link-library" data-tab="library">
-            <span class="book-icon-wrap">
-                <i class="fa-solid fa-book book-icon-closed"></i>
-                <i class="fa-solid fa-book-open book-icon-open"></i>
-            </span>
+        <a href="#" class="sidebar-link" data-tab="library">
+            <i class="fa-solid fa-book-open"></i>
             <span>Thư viện</span>
         </a>
         <a href="#" class="sidebar-link" data-tab="chat">
@@ -304,57 +301,10 @@ function switchTab(tabId) {
     if (link) link.classList.add('active');
 }
 
-// ===== HIỆU ỨNG "SÁCH PHÌNH TO" KHI MỞ MỤC THƯ VIỆN =====
-// (chỉ áp dụng riêng cho nút "Thư viện" ở sidebar)
-function libraryBookZoomTransition(sourceEl) {
-    var rect = sourceEl.getBoundingClientRect();
-    var cx = rect.left + rect.width / 2;
-    var cy = rect.top + rect.height / 2;
-
-    var overlay = document.createElement('div');
-    overlay.className = 'book-zoom-overlay';
-    overlay.innerHTML = '<i class="fa-solid fa-book-open"></i>';
-    overlay.style.left = cx + 'px';
-    overlay.style.top = cy + 'px';
-    document.body.appendChild(overlay);
-
-    var diagonal = Math.sqrt(window.innerWidth * window.innerWidth + window.innerHeight * window.innerHeight);
-    var scale = (diagonal * 1.15) / 44;
-
-    requestAnimationFrame(function () {
-        requestAnimationFrame(function () {
-            overlay.classList.add('book-zoom-grow');
-            overlay.style.transform = 'scale(' + scale + ')';
-        });
-    });
-
-    var switched = false;
-    function doSwitch() {
-        if (switched) return;
-        switched = true;
-        switchTab('library');
-    }
-
-    setTimeout(doSwitch, 340);
-
-    overlay.addEventListener('transitionend', function onEnd(ev) {
-        if (ev.propertyName !== 'transform') return;
-        overlay.removeEventListener('transitionend', onEnd);
-        doSwitch();
-        overlay.classList.add('book-zoom-fade');
-        setTimeout(function () { overlay.remove(); }, 320);
-    });
-}
-
 document.querySelectorAll('.sidebar-link[data-tab]').forEach(link => {
     link.addEventListener('click', (e) => {
         e.preventDefault();
         if (requireLogin()) return;
-
-        if (link.dataset.tab === 'library' && !link.classList.contains('active')) {
-            libraryBookZoomTransition(link.querySelector('.book-icon-wrap') || link);
-            return;
-        }
         switchTab(link.dataset.tab);
     });
 });
