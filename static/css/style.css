@@ -681,13 +681,13 @@ nav a:hover{
 
 }
 
-.preview-change-btn{
+.upload-box .preview-change-btn{
 
     position:absolute;
 
-    top:12px;
+    top:10px;
 
-    right:12px;
+    right:10px;
 
     background:rgba(0,0,0,.55);
 
@@ -695,19 +695,23 @@ nav a:hover{
 
     border:none;
 
-    padding:8px 16px;
+    padding:6px 12px;
 
-    border-radius:30px;
+    border-radius:20px;
 
-    font-size:13px;
+    font-size:12px;
 
     font-weight:600;
 
-    display:flex;
+    line-height:1.2;
+
+    display:inline-flex;
 
     align-items:center;
 
-    gap:6px;
+    justify-content:center;
+
+    gap:5px;
 
     cursor:pointer;
 
@@ -715,9 +719,23 @@ nav a:hover{
 
     transition:.2s;
 
+    width:auto;
+
+    text-align:center;
+
 }
 
-.preview-change-btn:hover{
+.upload-box .preview-change-btn i{
+
+    font-size:11px;
+
+    color:#fff;
+
+    margin:0;
+
+}
+
+.upload-box .preview-change-btn:hover{
 
     background:rgba(0,0,0,.78);
 
