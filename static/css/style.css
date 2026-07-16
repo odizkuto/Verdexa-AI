@@ -3222,3 +3222,51 @@ body.sidebar-layout .chat-box {
         flex-wrap: wrap;
     }
 }
+
+/*============================*/
+/* Hiệu ứng chuyển cảnh mượt khi vào/rời trang (đăng nhập, đăng ký, trang chủ) */
+
+.page-transition-overlay{
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #2e7d32, #1b5e20);
+    transform: translateY(0);
+    transition: transform .65s cubic-bezier(.65,0,.35,1);
+    will-change: transform;
+    pointer-events: none;
+}
+
+.page-transition-overlay.pt-hidden{
+    transform: translateY(-100%);
+}
+
+.page-transition-overlay .pt-brand{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #fff;
+    font-size: 22px;
+    font-weight: 600;
+    opacity: 0;
+    transform: translateY(8px) scale(.96);
+    transition: opacity .4s ease .18s, transform .4s ease .18s;
+}
+
+.page-transition-overlay .pt-brand i{
+    font-size: 26px;
+}
+
+.page-transition-overlay:not(.pt-hidden) .pt-brand{
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+@media (prefers-reduced-motion: reduce){
+    .page-transition-overlay{
+        transition: none;
+    }
+}
