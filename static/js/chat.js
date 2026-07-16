@@ -19,16 +19,14 @@ let savedChatId = null;
 /* Tự chèn CSS cho hiệu ứng "đang trả lời" (không phụ thuộc style.css,
    tránh trường hợp trình duyệt/host còn cache bản CSS cũ) */
 
-(function injectTypingDotsStyle() {
-    if (document.getElementById("typing-dots-style")) return;
+(function injectTypingCursorStyle() {
+    if (document.getElementById("typing-cursor-style")) return;
     const style = document.createElement("style");
-    style.id = "typing-dots-style";
+    style.id = "typing-cursor-style";
     style.textContent = `
-        .typing-dots{display:flex;align-items:center;gap:5px;padding:4px 2px;}
-        .typing-dots span{width:8px;height:8px;border-radius:50%;background:#2e7d32;opacity:.4;display:inline-block;animation:typingBounce 1.2s infinite ease-in-out;}
-        .typing-dots span:nth-child(2){animation-delay:.2s;}
-        .typing-dots span:nth-child(3){animation-delay:.4s;}
-        @keyframes typingBounce{0%,60%,100%{transform:translateY(0);opacity:.4;}30%{transform:translateY(-6px);opacity:1;}}
+        .typewriter-text{white-space:pre-wrap;}
+        .typing-cursor{display:inline-block;color:#2e7d32;font-weight:600;animation:typingCursorBlink .85s steps(1) infinite;}
+        @keyframes typingCursorBlink{0%,50%{opacity:1;}51%,100%{opacity:0;}}
     `;
     document.head.appendChild(style);
 })();
@@ -66,6 +64,41 @@ function formatAiReply(rawText) {
 
     // Ngược lại render thành các đoạn văn, giữ dòng đánh số nếu có xen kẽ
     return lines.map((l) => `<p>${l}</p>`).join("");
+}
+
+/*============================*/
+/* Hiệu ứng "gõ chữ dần" (typewriter): hiện text AI trả lời từng ký tự
+   một thay vì hiện ngay toàn bộ. Gõ xong mới đổi sang bản đã định dạng
+   đầy đủ (đậm, danh sách...) để đảm bảo hiển thị đúng. */
+
+function typewriterReveal(bubble, rawText) {
+    return new Promise((resolve) => {
+        // Bỏ ký hiệu markdown (**) khi gõ dần, chỉ áp dụng định dạng đậm
+        // sau khi gõ xong, tránh hiện dấu ** lộ liễu trong lúc gõ.
+        const plainText = rawText.replace(/\*\*(.+?)\*\*/g, "$1");
+        const total = plainText.length;
+
+        // Chữ càng dài gõ càng nhanh (8-30ms mỗi ký tự) để không chờ quá lâu
+        const perCharDelay = Math.max(8, Math.min(30, Math.round(1400 / Math.max(total, 1))));
+
+        bubble.innerHTML = '<span class="typewriter-text"></span><span class="typing-cursor">▌</span>';
+        const textEl = bubble.querySelector(".typewriter-text");
+
+        let i = 0;
+        function step() {
+            if (i < total) {
+                textEl.textContent += plainText[i];
+                i++;
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+                setTimeout(step, perCharDelay);
+            } else {
+                bubble.innerHTML = formatAiReply(rawText);
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+                resolve();
+            }
+        }
+        step();
+    });
 }
 
 /*============================*/
@@ -293,7 +326,7 @@ async function sendChatMessage() {
 
     const typingBubble = appendMessage(
         "bot",
-        '<div class="typing-dots"><span></span><span></span><span></span></div>',
+        '<span class="typing-cursor">▌</span>',
         true
     );
 
@@ -310,7 +343,7 @@ async function sendChatMessage() {
             throw new Error(data.error || "Có lỗi xảy ra khi trò chuyện với AI.");
         }
 
-        typingBubble.innerHTML = formatAiReply(data.reply);
+        await typewriterReveal(typingBubble, data.reply);
 
         // Cập nhật lịch sử hội thoại
         conversation.push({ role: "user", content: message });
