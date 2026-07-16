@@ -30,7 +30,7 @@ let savedChatId = null;
 
         .watering-loader{display:inline-flex;align-items:center;padding:2px 0;}
 
-        .wl-can{transform-origin:60px 20px;animation:wlTilt 1.4s ease-in-out infinite;}
+        .wl-can{transform-origin:75px 20px;animation:wlTilt 1.4s ease-in-out infinite;}
         @keyframes wlTilt{0%,100%{transform:rotate(-20deg);}50%{transform:rotate(-28deg);}}
 
         .wl-drop{opacity:0;animation:wlDropFall 1.4s ease-in infinite;}
@@ -348,7 +348,7 @@ async function sendChatMessage() {
     const typingBubble = appendMessage(
         "bot",
         `<span class="watering-loader">
-            <svg viewBox="0 0 90 64" width="58" height="42" xmlns="http://www.w3.org/2000/svg">
+            <svg viewBox="0 0 108 64" width="66" height="39" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                     <linearGradient id="wlCanGrad" x1="0" y1="0" x2="1" y2="1">
                         <stop offset="0" stop-color="#66bb6a"/>
@@ -367,15 +367,16 @@ async function sendChatMessage() {
                 <path class="wl-leaf wl-leaf-l" d="M24 42 C14 41 8 34 6 24 C18 25 24 32 24 42 Z" fill="url(#wlLeafGrad)"/>
                 <path class="wl-leaf wl-leaf-r" d="M24 42 C34 41 40 34 42 24 C30 25 24 32 24 42 Z" fill="url(#wlLeafGrad)"/>
 
-                <circle class="wl-drop wl-drop-1" cx="25" cy="30" r="1.8" fill="#4fc3f7"/>
-                <circle class="wl-drop wl-drop-2" cx="23" cy="30" r="1.8" fill="#4fc3f7"/>
-                <circle class="wl-drop wl-drop-3" cx="27" cy="30" r="1.8" fill="#4fc3f7"/>
+                <!-- Giọt nước rơi trong khoảng trống giữa cây và bình, không chạm vào lá -->
+                <circle class="wl-drop wl-drop-1" cx="53" cy="20" r="1.8" fill="#4fc3f7"/>
+                <circle class="wl-drop wl-drop-2" cx="50" cy="22" r="1.8" fill="#4fc3f7"/>
+                <circle class="wl-drop wl-drop-3" cx="56" cy="23" r="1.8" fill="#4fc3f7"/>
 
                 <g class="wl-can">
-                    <rect x="46" y="10" width="26" height="17" rx="6" fill="url(#wlCanGrad)"/>
-                    <path d="M46 15 L30 24 C28 25 28 27 30 27 L46 22 Z" fill="url(#wlCanGrad)"/>
-                    <path d="M52 4 C56 -1 64 -1 68 4" stroke="#2e7d32" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-                    <circle cx="30" cy="25.5" r="1.6" fill="#1b5e20"/>
+                    <rect x="62" y="10" width="26" height="17" rx="6" fill="url(#wlCanGrad)"/>
+                    <path d="M62 16 L52 21 C50.5 21.8 50.5 23.2 52 23.6 L62 21 Z" fill="url(#wlCanGrad)"/>
+                    <path d="M68 4 C72 -1 80 -1 84 4" stroke="#2e7d32" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    <circle cx="52" cy="22.3" r="1.6" fill="#1b5e20"/>
                 </g>
             </svg>
         </span>`,
