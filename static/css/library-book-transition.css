@@ -1,8 +1,11 @@
 /* =========================================
    Verdexa AI
    library-book-transition.css
-   Hieu ung: bam "Xem thu vien cay trong" -> ca trang nga xuong,
+   Hieu ung: bam "Xem thu vien cay trong" -> main-content nga xuong,
    do ra sau -> muc Thu vien hien dan len.
+   (Chi ap dung cho #lbtStageContent = .main-content, KHONG dung cho
+   .sidebar vi sidebar dang position:fixed - neu boc chung se lam
+   sidebar mat mo neo va gay tran ngang/doc tren mobile.)
 ========================================= */
 
 html {
@@ -13,10 +16,8 @@ body.sidebar-layout {
     overflow-x: hidden;
 }
 
-.lbt-stage-content {
+#lbtStageContent {
     position: relative;
-    display: flex;
-    min-height: 100vh;
     transform-style: preserve-3d;
     transform-origin: 50% 100%;
     transition: transform .85s cubic-bezier(.55,0,.2,1),
@@ -24,7 +25,7 @@ body.sidebar-layout {
     will-change: transform, filter;
 }
 
-.lbt-stage-content.lbt-falling {
+#lbtStageContent.lbt-falling {
     transform: rotateX(60deg) translateY(110px) translateZ(-240px) scale(.88);
     filter: brightness(.35) blur(1px);
 }
@@ -62,7 +63,7 @@ body.sidebar-layout {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .lbt-stage-content, .tab-panel.lbt-reveal {
+    #lbtStageContent, .tab-panel.lbt-reveal {
         transition: none !important;
         animation: none !important;
     }
