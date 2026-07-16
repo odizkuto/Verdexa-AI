@@ -27,6 +27,27 @@ let savedChatId = null;
         .typewriter-text{white-space:pre-wrap;}
         .typing-cursor{display:inline-block;color:#2e7d32;font-weight:600;animation:typingCursorBlink .85s steps(1) infinite;}
         @keyframes typingCursorBlink{0%,50%{opacity:1;}51%,100%{opacity:0;}}
+
+        .watering-loader{display:inline-flex;align-items:center;padding:2px 0;}
+
+        .wl-can{transform-origin:60px 20px;animation:wlTilt 1.4s ease-in-out infinite;}
+        @keyframes wlTilt{0%,100%{transform:rotate(-20deg);}50%{transform:rotate(-28deg);}}
+
+        .wl-drop{opacity:0;animation:wlDropFall 1.4s ease-in infinite;}
+        .wl-drop-1{animation-delay:.1s;}
+        .wl-drop-2{animation-delay:.4s;}
+        .wl-drop-3{animation-delay:.7s;}
+        @keyframes wlDropFall{
+            0%{opacity:0;transform:translateY(0);}
+            12%{opacity:1;}
+            65%{opacity:1;transform:translateY(15px);}
+            85%{opacity:0;transform:translateY(17px);}
+            100%{opacity:0;transform:translateY(17px);}
+        }
+
+        .wl-leaf{transform-origin:24px 42px;animation:wlLeafSway 1.4s ease-in-out infinite;}
+        .wl-leaf-r{animation-delay:.7s;}
+        @keyframes wlLeafSway{0%,100%{transform:rotate(0deg) scale(1);}50%{transform:rotate(4deg) scale(1.05);}}
     `;
     document.head.appendChild(style);
 })();
@@ -326,7 +347,38 @@ async function sendChatMessage() {
 
     const typingBubble = appendMessage(
         "bot",
-        '<span class="typing-cursor">▌</span>',
+        `<span class="watering-loader">
+            <svg viewBox="0 0 90 64" width="58" height="42" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="wlCanGrad" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0" stop-color="#66bb6a"/>
+                        <stop offset="1" stop-color="#2e7d32"/>
+                    </linearGradient>
+                    <radialGradient id="wlLeafGrad" cx="35%" cy="30%" r="75%">
+                        <stop offset="0" stop-color="#c8f7c5"/>
+                        <stop offset="60%" stop-color="#66bb6a"/>
+                        <stop offset="100%" stop-color="#1b5e20"/>
+                    </radialGradient>
+                </defs>
+
+                <ellipse cx="24" cy="58" rx="14" ry="3" fill="#2e7d32" opacity=".15"/>
+
+                <path d="M24 58 C24 48 24 40 24 34" stroke="#2e7d32" stroke-width="3" stroke-linecap="round" fill="none"/>
+                <path class="wl-leaf wl-leaf-l" d="M24 42 C14 41 8 34 6 24 C18 25 24 32 24 42 Z" fill="url(#wlLeafGrad)"/>
+                <path class="wl-leaf wl-leaf-r" d="M24 42 C34 41 40 34 42 24 C30 25 24 32 24 42 Z" fill="url(#wlLeafGrad)"/>
+
+                <circle class="wl-drop wl-drop-1" cx="25" cy="30" r="1.8" fill="#4fc3f7"/>
+                <circle class="wl-drop wl-drop-2" cx="23" cy="30" r="1.8" fill="#4fc3f7"/>
+                <circle class="wl-drop wl-drop-3" cx="27" cy="30" r="1.8" fill="#4fc3f7"/>
+
+                <g class="wl-can">
+                    <rect x="46" y="10" width="26" height="17" rx="6" fill="url(#wlCanGrad)"/>
+                    <path d="M46 15 L30 24 C28 25 28 27 30 27 L46 22 Z" fill="url(#wlCanGrad)"/>
+                    <path d="M52 4 C56 -1 64 -1 68 4" stroke="#2e7d32" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    <circle cx="30" cy="25.5" r="1.6" fill="#1b5e20"/>
+                </g>
+            </svg>
+        </span>`,
         true
     );
 
