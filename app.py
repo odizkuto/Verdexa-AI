@@ -6,6 +6,8 @@ Chạy: python app.py
 
 import os
 import uuid
+import secrets
+from datetime import datetime, timedelta
 from flask import Flask, render_template, request, jsonify, send_from_directory, session
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -13,6 +15,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from config import Config
 import database as db
 import ai
+import mailer
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -70,6 +73,17 @@ def login_page():
 @app.route("/register")
 def register_page():
     return render_template("register.html")
+
+
+@app.route("/forgot-password")
+def forgot_password_page():
+    return render_template("forgot-password.html")
+
+
+@app.route("/reset-password")
+def reset_password_page():
+    token = request.args.get("token", "")
+    return render_template("reset-password.html", token=token)
 
 
 @app.route("/plant/<int:plant_id>")
@@ -223,6 +237,67 @@ def api_login():
 def api_logout():
     session.clear()
     return jsonify({"message": "Đã đăng xuất."})
+
+
+@app.route("/api/forgot-password", methods=["POST"])
+def api_forgot_password():
+    data = request.get_json(silent=True) or {}
+    email = data.get("email", "").strip().lower()
+
+    if not email:
+        return jsonify({"error": "Vui lòng nhập email."}), 400
+
+    # Thông điệp trả về LUÔN giống nhau dù email có tồn tại hay không,
+    # để tránh lộ thông tin email nào đã đăng ký (chống dò quét tài khoản).
+    generic_message = (
+        "Nếu email này đã đăng ký, một liên kết đặt lại mật khẩu đã được gửi tới hộp thư của bạn."
+    )
+
+    user = db.get_user_by_email(email)
+    if not user:
+        return jsonify({"message": generic_message})
+
+    token = secrets.token_urlsafe(32)
+    expires_at = datetime.utcnow() + timedelta(minutes=30)
+    db.create_password_reset(user["id"], token, expires_at)
+
+    reset_link = f"{Config.APP_BASE_URL}/reset-password?token={token}"
+
+    try:
+        mailer.send_password_reset_email(user["email"], user["username"], reset_link)
+    except Exception as e:
+        print(f"[FORGOT PASSWORD] Lỗi khi gửi email: {e}")
+
+    return jsonify({"message": generic_message})
+
+
+@app.route("/api/reset-password", methods=["POST"])
+def api_reset_password():
+    data = request.get_json(silent=True) or {}
+    token = data.get("token", "").strip()
+    password = data.get("password", "")
+
+    if not token or not password:
+        return jsonify({"error": "Thiếu thông tin cần thiết."}), 400
+
+    if len(password) < 6:
+        return jsonify({"error": "Mật khẩu phải có ít nhất 6 ký tự."}), 400
+
+    reset_row = db.get_password_reset(token)
+    if not reset_row:
+        return jsonify({"error": "Liên kết đặt lại mật khẩu không hợp lệ."}), 400
+
+    if reset_row["used"]:
+        return jsonify({"error": "Liên kết này đã được sử dụng. Vui lòng yêu cầu liên kết mới."}), 400
+
+    if reset_row["expires_at"] < datetime.utcnow():
+        return jsonify({"error": "Liên kết đã hết hạn. Vui lòng yêu cầu liên kết mới."}), 400
+
+    password_hash = generate_password_hash(password)
+    db.update_user_password(reset_row["user_id"], password_hash)
+    db.mark_password_reset_used(token)
+
+    return jsonify({"message": "Đặt lại mật khẩu thành công. Bạn có thể đăng nhập ngay bây giờ."})
 
 
 # ======================== API: THƯ VIỆN CÂY ========================
