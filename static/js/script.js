@@ -9,6 +9,7 @@ const imageInput = document.getElementById("imageInput");
 const analyzeBtn = document.getElementById("analyzeBtn");
 const cameraBtn = document.getElementById("cameraBtn");
 const cameraInput = document.getElementById("cameraInput");
+const removeImageBtn = document.getElementById("removeImageBtn");
 
 const previewImage = document.getElementById("previewImage");
 const scanOverlay = document.getElementById("scanOverlay");
@@ -19,7 +20,7 @@ const plantDescription = document.getElementById("plantDescription");
 let selectedFile = null;
 
 /*============================*/
-/* Hiển thị ảnh đã chọn lên khung xem trước */
+/* Hiển thị ảnh đã chọn ngay trong khung upload phía trên */
 
 function setSelectedFile(file) {
     if (!file || !file.type.startsWith("image/")) {
@@ -32,8 +33,31 @@ function setSelectedFile(file) {
     const reader = new FileReader();
     reader.onload = (e) => {
         previewImage.src = e.target.result;
+        uploadBox.classList.add("has-image");
     };
     reader.readAsDataURL(file);
+}
+
+/*============================*/
+/* Bấm "Đổi ảnh khác" -> quay lại trạng thái chưa chọn ảnh */
+
+function clearSelectedFile() {
+    selectedFile = null;
+    previewImage.src = "";
+    imageInput.value = "";
+    cameraInput.value = "";
+    uploadBox.classList.remove("has-image");
+
+    plantName.innerHTML = "Chưa có kết quả";
+    confidenceEl.innerHTML = "--";
+    plantDescription.innerHTML = "Tải ảnh lên để xem kết quả nhận diện AI tại đây.";
+}
+
+if (removeImageBtn) {
+    removeImageBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        clearSelectedFile();
+    });
 }
 
 /*============================*/
