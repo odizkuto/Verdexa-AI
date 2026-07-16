@@ -109,6 +109,56 @@ function renderLibraryResult(data) {
 }
 
 /*============================*/
+/* Hiệu ứng nút "Tìm kiếm": morph sang vòng tròn loading -> dấu tick (hoặc dấu x nếu lỗi) */
+
+let libraryBtnResetTimer = null;
+
+function libraryBtnStartLoading() {
+    const btn = librarySearchBtn;
+
+    clearTimeout(libraryBtnResetTimer);
+    btn.classList.remove("is-success", "is-error");
+
+    // Khoá kích thước hiện tại của nút để có điểm bắt đầu cho animation
+    const rect = btn.getBoundingClientRect();
+    btn.style.width = `${rect.width}px`;
+    btn.style.height = `${rect.height}px`;
+
+    // Ép trình duyệt reflow rồi mới đổi sang class loading, để width/height animate mượt
+    void btn.offsetWidth;
+    btn.classList.add("is-loading");
+
+    requestAnimationFrame(() => {
+        btn.style.width = `${rect.height}px`;
+        btn.style.padding = "0";
+        btn.style.borderRadius = "50%";
+    });
+}
+
+function libraryBtnShowSuccess() {
+    const btn = librarySearchBtn;
+    btn.classList.remove("is-loading");
+    btn.classList.add("is-success");
+    libraryBtnResetTimer = setTimeout(libraryBtnReset, 1100);
+}
+
+function libraryBtnShowError() {
+    const btn = librarySearchBtn;
+    btn.classList.remove("is-loading");
+    btn.classList.add("is-error");
+    libraryBtnResetTimer = setTimeout(libraryBtnReset, 1100);
+}
+
+function libraryBtnReset() {
+    const btn = librarySearchBtn;
+    btn.classList.remove("is-loading", "is-success", "is-error");
+    btn.style.width = "";
+    btn.style.height = "";
+    btn.style.padding = "";
+    btn.style.borderRadius = "";
+}
+
+/*============================*/
 /* Gọi API /api/plant-search */
 
 async function runLibrarySearch() {
@@ -124,6 +174,7 @@ async function runLibrarySearch() {
     }
 
     renderLibraryLoading();
+    libraryBtnStartLoading();
 
     try {
         const response = await fetch(`/api/plant-search?name=${encodeURIComponent(name)}`);
@@ -134,8 +185,10 @@ async function runLibrarySearch() {
         }
 
         renderLibraryResult(data);
+        libraryBtnShowSuccess();
     } catch (err) {
         renderLibraryError(err.message);
+        libraryBtnShowError();
     }
 }
 
