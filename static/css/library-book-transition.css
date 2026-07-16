@@ -3,14 +3,14 @@
    library-book-transition.css
    Hieu ung: bam "Xem thu vien cay trong" -> main-content nga xuong,
    do ra sau -> muc Thu vien hien dan len.
-   (Chi ap dung cho #lbtStageContent = .main-content, KHONG dung cho
-   .sidebar vi sidebar dang position:fixed - neu boc chung se lam
-   sidebar mat mo neo va gay tran ngang/doc tren mobile.)
-========================================= */
 
-html {
-    perspective: 1500px;
-}
+   QUAN TRONG: KHONG dat "perspective" len <html> hay <body> - lam vay
+   se bien html/body thanh containing block cho MOI phan tu
+   position:fixed trong trang (sidebar, mobile-topbar...), khien chung
+   mat moc neo theo man hinh va gay tran ngang/doc. Perspective duoc
+   nhet thang vao transform cua rieng #lbtStageContent bang ham
+   perspective(...) thay vi dung property rieng tren the cha.
+========================================= */
 
 body.sidebar-layout {
     overflow-x: hidden;
@@ -18,7 +18,6 @@ body.sidebar-layout {
 
 #lbtStageContent {
     position: relative;
-    transform-style: preserve-3d;
     transform-origin: 50% 100%;
     transition: transform .85s cubic-bezier(.55,0,.2,1),
                 filter .8s ease;
@@ -26,7 +25,7 @@ body.sidebar-layout {
 }
 
 #lbtStageContent.lbt-falling {
-    transform: rotateX(60deg) translateY(110px) translateZ(-240px) scale(.88);
+    transform: perspective(1500px) rotateX(60deg) translateY(110px) translateZ(-240px) scale(.88);
     filter: brightness(.35) blur(1px);
 }
 
