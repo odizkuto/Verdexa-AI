@@ -880,6 +880,121 @@ nav a:hover{
 }
 
 /* ======================== */
+/* NÚT "XEM THƯ VIỆN CÂY TRỒNG" - HIỆU ỨNG SPARKLE GLOW */
+/* ======================== */
+
+.result-card .library-cta{
+
+    --glow-ring:rgba(46,125,50,.55);
+    --glow-halo:rgba(105,240,174,.6);
+    --transition:.45s cubic-bezier(.4,0,.2,1);
+
+    position:relative;
+    isolation:isolate;
+    overflow:visible;
+
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+
+    margin-top:35px;
+    padding:15px 30px;
+
+    background:#eafbe9;
+    color:#1e6b23;
+    border:1.5px solid #bfe8c2;
+    border-radius:100px;
+
+    font-weight:600;
+    font-size:15px;
+
+    cursor:pointer;
+
+    transition:color var(--transition), background var(--transition),
+               border-color var(--transition), transform .25s ease,
+               box-shadow var(--transition);
+}
+
+.result-card .library-cta .sparkle{
+    width:18px;
+    height:18px;
+    flex-shrink:0;
+    color:#2e7d32;
+    transition:color var(--transition);
+}
+
+.result-card .library-cta .sparkle path{
+    transform-box:fill-box;
+    transform-origin:center;
+    animation:library-sparkle-twinkle 2.4s ease-in-out infinite;
+}
+
+.result-card .library-cta .sparkle path:nth-of-type(1){ animation-delay:0s; }
+.result-card .library-cta .sparkle path:nth-of-type(2){ animation-delay:.3s; --base-scale:.7; }
+.result-card .library-cta .sparkle path:nth-of-type(3){ animation-delay:.6s; --base-scale:.6; }
+
+@keyframes library-sparkle-twinkle{
+    0%,100%{ transform:scale(.8); opacity:.6; }
+    50%{ transform:scale(1.2); opacity:1; }
+}
+
+/* Viền glow xuất hiện khi hover */
+.result-card .library-cta::before{
+    content:"";
+    position:absolute;
+    inset:-4px;
+    z-index:-1;
+    border-radius:100px;
+    border:2px solid var(--glow-ring);
+    opacity:0;
+    transition:opacity var(--transition), inset var(--transition);
+    pointer-events:none;
+}
+
+/* Quầng sáng mờ lan tỏa phía sau nút khi hover */
+.result-card .library-cta::after{
+    content:"";
+    position:absolute;
+    inset:-22px;
+    z-index:-2;
+    border-radius:100px;
+    background:radial-gradient(circle, var(--glow-halo), transparent 70%);
+    filter:blur(20px);
+    opacity:0;
+    transition:opacity var(--transition);
+    pointer-events:none;
+}
+
+.result-card .library-cta:hover,
+.result-card .library-cta:focus-visible{
+    color:#fff;
+    background:linear-gradient(135deg,#2e7d32,#43a047 45%,#69f0ae);
+    border-color:transparent;
+    transform:translateY(-3px);
+    box-shadow:0 12px 28px rgba(46,125,50,.35);
+}
+
+.result-card .library-cta:hover .sparkle,
+.result-card .library-cta:focus-visible .sparkle{
+    color:#fff;
+}
+
+.result-card .library-cta:hover::before,
+.result-card .library-cta:focus-visible::before{
+    opacity:1;
+    inset:-6px;
+}
+
+.result-card .library-cta:hover::after,
+.result-card .library-cta:focus-visible::after{
+    opacity:1;
+}
+
+.result-card .library-cta:active{
+    transform:translateY(-1px) scale(.97);
+}
+
+/* ======================== */
 
 .features{
 
