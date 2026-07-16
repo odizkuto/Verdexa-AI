@@ -80,6 +80,18 @@ def init_db():
         )
     """)
 
+    # Bảng lưu token đặt lại mật khẩu (dùng cho tính năng "Quên mật khẩu")
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS password_resets (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            token TEXT UNIQUE NOT NULL,
+            expires_at TIMESTAMP NOT NULL,
+            used BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
     conn.commit()
     cur.close()
     conn.close()
@@ -195,6 +207,58 @@ def get_user_by_username(username):
     cur.close()
     conn.close()
     return dict(user) if user else None
+
+
+def update_user_password(user_id, password_hash):
+    """Cập nhật mật khẩu mới (đã hash) cho user."""
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "UPDATE users SET password_hash = %s WHERE id = %s",
+        (password_hash, user_id),
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+
+
+# ======================== QUÊN MẬT KHẨU / ĐẶT LẠI MẬT KHẨU ========================
+
+def create_password_reset(user_id, token, expires_at):
+    """Tạo một bản ghi token đặt lại mật khẩu mới cho user."""
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO password_resets (user_id, token, expires_at) VALUES (%s, %s, %s)",
+        (user_id, token, expires_at),
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+
+
+def get_password_reset(token):
+    """Lấy bản ghi reset theo token. Trả về None nếu không tồn tại."""
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM password_resets WHERE token = %s", (token,))
+    row = cur.fetchone()
+    cur.close()
+    conn.close()
+    return dict(row) if row else None
+
+
+def mark_password_reset_used(token):
+    """Đánh dấu token đã được sử dụng để không dùng lại được nữa."""
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "UPDATE password_resets SET used = TRUE WHERE token = %s",
+        (token,),
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
 
 
 # ======================== LỊCH SỬ TRÒ CHUYỆN AI ========================
