@@ -22,9 +22,22 @@ function escapeHtml(str) {
 
 function renderLibraryLoading() {
     librarySearchResult.innerHTML = `
-        <div class="search-loading">
-            <i class="fa-solid fa-spinner fa-spin"></i>
-            AI đang tra cứu thông tin, vui lòng chờ trong giây lát...
+        <div class="scan-frame">
+            <div class="scan-frame-inner">
+                <div class="scan-grid"></div>
+                <div class="scan-laser"></div>
+                <div class="scan-corner tl"></div>
+                <div class="scan-corner tr"></div>
+                <div class="scan-corner bl"></div>
+                <div class="scan-corner br"></div>
+                <div class="scan-content">
+                    <i class="fa-solid fa-leaf scan-icon"></i>
+                    <div class="scan-text">
+                        AI đang quét dữ liệu cây trồng<span class="dots"><span>.</span><span>.</span><span>.</span></span>
+                    </div>
+                    <div class="scan-bar"><span></span></div>
+                </div>
+            </div>
         </div>
     `;
 }
