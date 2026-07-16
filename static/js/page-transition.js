@@ -1,55 +1,74 @@
-{# ===================================================================
-   _page_transition.html
-   Overlay hiệu ứng chuyển cảnh: khói lan tỏa mờ dần trên nền xanh +
-   cây non nhỏ "nảy mầm" (giả 3D bằng gradient) + chấm loading.
-   Include file này ngay sau thẻ <body> ở mọi trang cần hiệu ứng.
-   =================================================================== #}
-<div class="page-transition-overlay" id="pageTransitionOverlay">
-    <div class="pt-smoke">
-        <span class="pt-smoke-blob b1"></span>
-        <span class="pt-smoke-blob b2"></span>
-        <span class="pt-smoke-blob b3"></span>
-        <span class="pt-smoke-blob b4"></span>
-    </div>
+/*=========================================
+Verdexa AI
+page-transition.js - Hiệu ứng chuyển cảnh mượt giữa các trang
+(dùng khi đăng nhập / đăng xuất / đăng ký / điều hướng trang)
 
-    <div class="pt-brand">
-        <div class="pt-sprout">
-            <svg viewBox="0 0 120 120" class="pt-sprout-svg" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <linearGradient id="ptStemGrad" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0" stop-color="#a5d6a7"/>
-                        <stop offset="1" stop-color="#2e7d32"/>
-                    </linearGradient>
-                    <radialGradient id="ptLeafGradL" cx="35%" cy="30%" r="75%">
-                        <stop offset="0" stop-color="#d4fbd0"/>
-                        <stop offset="55%" stop-color="#66bb6a"/>
-                        <stop offset="100%" stop-color="#1b5e20"/>
-                    </radialGradient>
-                    <radialGradient id="ptLeafGradR" cx="65%" cy="30%" r="75%">
-                        <stop offset="0" stop-color="#eafff0"/>
-                        <stop offset="55%" stop-color="#81c784"/>
-                        <stop offset="100%" stop-color="#2e7d32"/>
-                    </radialGradient>
-                </defs>
+Mỗi loại hành động trượt theo một HƯỚNG khác nhau để tạo cảm giác
+phân biệt rõ ràng:
+    "down"   (mặc định) - chuyển trang thường: phủ từ trên xuống, thoát lên trên
+    "login"  - đăng nhập thành công: phủ từ trái sang, thoát về bên phải
+    "logout" - đăng xuất: phủ từ phải sang, thoát về bên trái (ngược hướng login)
 
-                <ellipse class="pt-sprout-shadow" cx="60" cy="103" rx="24" ry="5.5" fill="#08260c" opacity=".4"/>
+Vì trang đích được tải lại hoàn toàn (fresh JS context), hướng được lưu
+tạm vào sessionStorage để trang mới biết cần "thoát" theo hướng nào.
+=========================================*/
 
-                <path d="M60 100 C60 80 60 62 60 46" stroke="url(#ptStemGrad)"
-                      stroke-width="6" stroke-linecap="round" fill="none"/>
+(function () {
+    var STORAGE_KEY = "pt_direction";
 
-                <path class="pt-leaf pt-leaf-l1" d="M60 60 C38 58 24 44 20 24 C44 26 58 40 60 60 Z" fill="url(#ptLeafGradL)"/>
-                <path class="pt-leaf pt-leaf-r1" d="M60 60 C82 58 96 44 100 24 C76 26 62 40 60 60 Z" fill="url(#ptLeafGradR)"/>
+    function getOverlay() {
+        return document.getElementById("pageTransitionOverlay");
+    }
 
-                <path class="pt-leaf pt-leaf-l2" d="M60 46 C50 44 42 36 40 26 C52 28 59 36 60 46 Z" fill="url(#ptLeafGradL)" opacity=".9"/>
-                <path class="pt-leaf pt-leaf-r2" d="M60 46 C70 44 78 36 80 26 C68 28 61 36 60 46 Z" fill="url(#ptLeafGradR)" opacity=".9"/>
-            </svg>
-        </div>
+    /* Khi trang đã tải xong: đọc hướng đã lưu (nếu có) rồi cuộn overlay
+       ra theo đúng hướng đó để lộ nội dung ra */
+    function ptReveal() {
+        var el = getOverlay();
+        if (!el) return;
 
-        <span class="pt-brand-text">Verdexa AI</span>
+        var direction = "down";
+        try {
+            direction = sessionStorage.getItem(STORAGE_KEY) || "down";
+            sessionStorage.removeItem(STORAGE_KEY);
+        } catch (e) { /* sessionStorage có thể bị chặn - bỏ qua, dùng mặc định */ }
 
-        <div class="pt-loading" aria-hidden="true">
-            <span></span><span></span><span></span>
-        </div>
-    </div>
-</div>
-<script src="{{ url_for('static', filename='js/page-transition.js') }}"></script>
+        el.setAttribute("data-direction", direction);
+
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+                el.classList.add("pt-hidden");
+            });
+        });
+    }
+
+    /* Trước khi chuyển trang: phủ overlay che toàn màn hình theo hướng
+       chỉ định, lưu hướng lại cho trang đích, rồi mới điều hướng */
+    window.ptCoverAndGo = function (url, delay, direction) {
+        delay = typeof delay === "number" ? delay : 650;
+        direction = direction || "down";
+
+        var el = getOverlay();
+
+        try {
+            sessionStorage.setItem(STORAGE_KEY, direction);
+        } catch (e) { /* bỏ qua nếu không lưu được */ }
+
+        if (!el) {
+            window.location.href = url;
+            return;
+        }
+
+        el.setAttribute("data-direction", direction);
+        el.classList.remove("pt-hidden");
+
+        setTimeout(function () {
+            window.location.href = url;
+        }, delay);
+    };
+
+    if (document.readyState === "complete") {
+        ptReveal();
+    } else {
+        window.addEventListener("load", ptReveal);
+    }
+})();
