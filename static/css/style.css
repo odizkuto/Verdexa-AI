@@ -564,6 +564,52 @@ nav a:hover{
 
 }
 
+.upload-box.has-image{
+
+    padding:40px;
+
+    cursor:default;
+
+}
+
+.upload-box.has-image:hover{
+
+    transform:none;
+
+    border-color:#7acb7e;
+
+    box-shadow:0 15px 40px rgba(0,0,0,.05);
+
+}
+
+.upload-visual{
+
+    width:100%;
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+}
+
+.upload-placeholder{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+}
+
+.upload-box.has-image .upload-placeholder{
+
+    display:none;
+
+}
+
 .upload-box i{
 
     font-size:70px;
@@ -589,6 +635,107 @@ nav a:hover{
     color:#777;
 
     margin:18px 0;
+
+}
+
+/* ============================= */
+/* Ảnh xem trước hiển thị ngay trong khung upload */
+
+.upload-preview-wrap{
+
+    display:none;
+
+    position:relative;
+
+    width:100%;
+
+    max-width:520px;
+
+    border-radius:20px;
+
+    overflow:hidden;
+
+    margin-bottom:8px;
+
+    box-shadow:0 15px 40px rgba(0,0,0,.12);
+
+}
+
+.upload-box.has-image .upload-preview-wrap{
+
+    display:block;
+
+}
+
+.upload-preview-wrap img{
+
+    width:100%;
+
+    max-height:360px;
+
+    object-fit:cover;
+
+    display:block;
+
+    transition:.35s;
+
+}
+
+.preview-change-btn{
+
+    position:absolute;
+
+    top:12px;
+
+    right:12px;
+
+    background:rgba(0,0,0,.55);
+
+    color:#fff;
+
+    border:none;
+
+    padding:8px 16px;
+
+    border-radius:30px;
+
+    font-size:13px;
+
+    font-weight:600;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:6px;
+
+    cursor:pointer;
+
+    z-index:6;
+
+    transition:.2s;
+
+}
+
+.preview-change-btn:hover{
+
+    background:rgba(0,0,0,.78);
+
+}
+
+.upload-hint{
+
+    display:block;
+
+    color:#777;
+
+    margin:18px 0;
+
+}
+
+.upload-box.has-image .upload-hint{
+
+    margin:6px 0 18px;
 
 }
 
@@ -652,43 +799,19 @@ nav a:hover{
 
 /* ======================== */
 
-.result-card{
-
-    margin-top:60px;
-
-    display:grid;
-
-    grid-template-columns:420px 1fr;
-
-    gap:40px;
-
-    background:#fff;
-
-    border-radius:30px;
-
-    overflow:hidden;
-
-    box-shadow:0 20px 60px rgba(0,0,0,.08);
-
-}
-
-.result-card .image{
-
-    height:420px;
-
-    position:relative;
-
-    overflow:hidden;
-
-}
-
-.result-card .image img{
+.result-info{
 
     width:100%;
 
-    height:100%;
+    max-width:560px;
 
-    object-fit:cover;
+    margin-top:26px;
+
+    padding-top:26px;
+
+    border-top:1px solid #eee;
+
+    text-align:left;
 
 }
 
@@ -798,13 +921,7 @@ nav a:hover{
 
 }
 
-.result-card .info{
-
-    padding:45px;
-
-}
-
-.confidence{
+.confidence-tag{
 
     display:inline-block;
 
@@ -822,19 +939,19 @@ nav a:hover{
 
 }
 
-.result-card h2{
+.result-info h2{
 
     margin-top:20px;
 
-    font-size:42px;
+    font-size:32px;
 
 }
 
 .percent{
 
-    width:110px;
+    width:90px;
 
-    height:110px;
+    height:90px;
 
     border-radius:50%;
 
@@ -848,31 +965,27 @@ nav a:hover{
 
     align-items:center;
 
-    font-size:30px;
+    font-size:24px;
 
     font-weight:700;
 
-    margin:30px 0;
+    margin:22px 0;
 
 }
 
-.result-card ul{
-
-    list-style:none;
-
-}
-
-.result-card ul li{
+.result-info p{
 
     padding:14px 0;
 
-    border-bottom:1px solid #eee;
+    border-top:1px solid #eee;
 
     color:#555;
 
+    line-height:1.6;
+
 }
 
-.result-card button{
+.result-info button{
 
     margin-top:35px;
 
@@ -894,7 +1007,7 @@ nav a:hover{
 /* NÚT "XEM THƯ VIỆN CÂY TRỒNG" - HIỆU ỨNG SPARKLE GLOW */
 /* ======================== */
 
-.result-card .library-cta{
+.result-info .library-cta{
 
     --glow-ring:rgba(46,125,50,.55);
     --glow-halo:rgba(105,240,174,.6);
@@ -926,7 +1039,7 @@ nav a:hover{
                box-shadow var(--transition);
 }
 
-.result-card .library-cta .sparkle{
+.result-info .library-cta .sparkle{
     width:18px;
     height:18px;
     flex-shrink:0;
@@ -934,15 +1047,15 @@ nav a:hover{
     transition:color var(--transition);
 }
 
-.result-card .library-cta .sparkle path{
+.result-info .library-cta .sparkle path{
     transform-box:fill-box;
     transform-origin:center;
     animation:library-sparkle-twinkle 2.4s ease-in-out infinite;
 }
 
-.result-card .library-cta .sparkle path:nth-of-type(1){ animation-delay:0s; }
-.result-card .library-cta .sparkle path:nth-of-type(2){ animation-delay:.3s; --base-scale:.7; }
-.result-card .library-cta .sparkle path:nth-of-type(3){ animation-delay:.6s; --base-scale:.6; }
+.result-info .library-cta .sparkle path:nth-of-type(1){ animation-delay:0s; }
+.result-info .library-cta .sparkle path:nth-of-type(2){ animation-delay:.3s; --base-scale:.7; }
+.result-info .library-cta .sparkle path:nth-of-type(3){ animation-delay:.6s; --base-scale:.6; }
 
 @keyframes library-sparkle-twinkle{
     0%,100%{ transform:scale(.8); opacity:.6; }
@@ -950,7 +1063,7 @@ nav a:hover{
 }
 
 /* Viền glow xuất hiện khi hover */
-.result-card .library-cta::before{
+.result-info .library-cta::before{
     content:"";
     position:absolute;
     inset:-4px;
@@ -963,7 +1076,7 @@ nav a:hover{
 }
 
 /* Quầng sáng mờ lan tỏa phía sau nút khi hover */
-.result-card .library-cta::after{
+.result-info .library-cta::after{
     content:"";
     position:absolute;
     inset:-22px;
@@ -976,8 +1089,8 @@ nav a:hover{
     pointer-events:none;
 }
 
-.result-card .library-cta:hover,
-.result-card .library-cta:focus-visible{
+.result-info .library-cta:hover,
+.result-info .library-cta:focus-visible{
     color:#fff;
     background:linear-gradient(135deg,#2e7d32,#43a047 45%,#69f0ae);
     border-color:transparent;
@@ -985,23 +1098,23 @@ nav a:hover{
     box-shadow:0 12px 28px rgba(46,125,50,.35);
 }
 
-.result-card .library-cta:hover .sparkle,
-.result-card .library-cta:focus-visible .sparkle{
+.result-info .library-cta:hover .sparkle,
+.result-info .library-cta:focus-visible .sparkle{
     color:#fff;
 }
 
-.result-card .library-cta:hover::before,
-.result-card .library-cta:focus-visible::before{
+.result-info .library-cta:hover::before,
+.result-info .library-cta:focus-visible::before{
     opacity:1;
     inset:-6px;
 }
 
-.result-card .library-cta:hover::after,
-.result-card .library-cta:focus-visible::after{
+.result-info .library-cta:hover::after,
+.result-info .library-cta:focus-visible::after{
     opacity:1;
 }
 
-.result-card .library-cta:active{
+.result-info .library-cta:active{
     transform:translateY(-1px) scale(.97);
 }
 
@@ -2606,7 +2719,7 @@ img{
 
 }
 
-.result-card:hover img{
+.upload-preview-wrap:hover img{
 
     transform:scale(1.05);
 
@@ -2680,9 +2793,7 @@ textarea:focus{
 
     }
 
-    .diagnosis-container,
-
-    .result-card{
+    .diagnosis-container{
 
         grid-template-columns:1fr;
 
@@ -3447,21 +3558,17 @@ body.sidebar-layout .chat-box {
         font-size: 14px;
     }
 
-    /* Card kết quả nhận diện */
-    .result-card {
-        margin-top: 26px;
-        border-radius: 20px;
+    /* Khung kết quả nhận diện (nằm trong upload-box) */
+    .result-info {
+        margin-top: 20px;
+        padding-top: 20px;
     }
 
-    .result-card .image {
-        height: 220px;
+    .upload-preview-wrap img {
+        max-height: 220px;
     }
 
-    .result-card .info {
-        padding: 22px;
-    }
-
-    .result-card h2 {
+    .result-info h2 {
         font-size: 24px;
         margin-top: 12px;
     }
@@ -3493,6 +3600,10 @@ body.sidebar-layout .chat-box {
     .upload-box {
         padding: 30px 16px;
         border-radius: 20px;
+    }
+
+    .upload-box.has-image {
+        padding: 24px 14px;
     }
 
     .upload-box i {
