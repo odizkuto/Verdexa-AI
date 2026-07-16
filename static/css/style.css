@@ -1259,6 +1259,111 @@ nav a:hover{
 
     white-space:nowrap;
 
+    position:relative;
+
+    overflow:hidden;
+
+    cursor:pointer;
+
+    transition:width .35s cubic-bezier(.65,0,.35,1), height .35s cubic-bezier(.65,0,.35,1), border-radius .35s cubic-bezier(.65,0,.35,1), padding .35s cubic-bezier(.65,0,.35,1), background-color .25s ease;
+
+}
+
+/*============================*/
+/* Hiệu ứng confirm: nút "Tìm kiếm" morph thành vòng tròn loading -> dấu tick khi thành công */
+
+.library-search button .btn-spinner,
+.library-search button .btn-check,
+.library-search button .btn-cross{
+
+    display:none;
+
+    align-items:center;
+
+    justify-content:center;
+
+}
+
+.library-search button .btn-icon-default,
+.library-search button .btn-label{
+
+    transition:opacity .12s ease;
+
+}
+
+.library-search button.is-loading,
+.library-search button.is-success,
+.library-search button.is-error{
+
+    pointer-events:none;
+
+}
+
+.library-search button.is-loading .btn-icon-default,
+.library-search button.is-loading .btn-label,
+.library-search button.is-success .btn-icon-default,
+.library-search button.is-success .btn-label,
+.library-search button.is-error .btn-icon-default,
+.library-search button.is-error .btn-label{
+
+    display:none;
+
+}
+
+.library-search button.is-loading .btn-spinner{
+
+    display:inline-flex;
+
+}
+
+.library-search button.is-loading .btn-spinner i{
+
+    animation:librarybtn-spin .7s linear infinite;
+
+}
+
+.library-search button.is-success{
+
+    background:#2e7d32;
+
+}
+
+.library-search button.is-success .btn-check{
+
+    display:inline-flex;
+
+    animation:librarybtn-pop .38s cubic-bezier(.34,1.56,.64,1);
+
+}
+
+.library-search button.is-error{
+
+    background:#c62828;
+
+}
+
+.library-search button.is-error .btn-cross{
+
+    display:inline-flex;
+
+    animation:librarybtn-pop .38s cubic-bezier(.34,1.56,.64,1);
+
+}
+
+@keyframes librarybtn-spin{
+
+    to{ transform:rotate(360deg); }
+
+}
+
+@keyframes librarybtn-pop{
+
+    0%{ transform:scale(0); opacity:0; }
+
+    60%{ transform:scale(1.3); opacity:1; }
+
+    100%{ transform:scale(1); }
+
 }
 
 .library-search-result:empty{
