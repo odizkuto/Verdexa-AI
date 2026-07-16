@@ -20,13 +20,7 @@
 </head>
 <body>
 
-<div class="page-transition-overlay" id="pageTransitionOverlay">
-    <div class="pt-brand">
-        <i class="fa-solid fa-seedling"></i>
-        <span>Verdexa AI</span>
-    </div>
-</div>
-<script src="{{ url_for('static', filename='js/page-transition.js') }}"></script>
+{% include "_page_transition.html" %}
 
 <div class="background-blur blur1"></div>
 <div class="background-blur blur2"></div>
@@ -133,7 +127,7 @@
 
             if (res.ok) {
                 loginSubmit.innerHTML = '<i class="fa-solid fa-check"></i> Đăng nhập thành công';
-                ptCoverAndGo('/');
+                ptCoverAndGo('/', 650, 'login');
                 return;
             }
 
