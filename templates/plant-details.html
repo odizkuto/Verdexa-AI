@@ -20,6 +20,8 @@
 </head>
 <body>
 
+{% include "_page_transition.html" %}
+
 <div class="background-blur blur1"></div>
 <div class="background-blur blur2"></div>
 
@@ -169,7 +171,11 @@ document.addEventListener("DOMContentLoaded", function () {
     if (logoutBtn) {
         logoutBtn.addEventListener("click", function () {
             fetch("/api/logout", { method: "POST" }).finally(function () {
-                window.location.href = "/";
+                if (window.ptCoverAndGo) {
+                    ptCoverAndGo("/", 650, "logout");
+                } else {
+                    window.location.href = "/";
+                }
             });
         });
     }
