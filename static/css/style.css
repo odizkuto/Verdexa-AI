@@ -186,6 +186,10 @@ nav a:hover{
 
     background:#388e3c;
 
+    box-shadow:
+        0 0 0 2px rgba(46,125,50,.5),
+        0 0 22px 6px rgba(105,240,174,.55);
+
 }
 
 .user-menu{
@@ -334,7 +338,10 @@ nav a:hover{
 
     transform:translateY(-5px);
 
-    box-shadow:0 15px 30px rgba(46,125,50,.3);
+    box-shadow:
+        0 0 0 2px rgba(46,125,50,.5),
+        0 0 22px 6px rgba(105,240,174,.55),
+        0 15px 30px rgba(46,125,50,.3);
 
 }
 
@@ -359,6 +366,10 @@ nav a:hover{
 .secondary:hover{
 
     transform:translateY(-5px);
+
+    box-shadow:
+        0 0 0 2px rgba(46,125,50,.5),
+        0 0 22px 6px rgba(105,240,174,.55);
 
 }
 
@@ -1586,6 +1597,10 @@ nav a:hover{
 
     transform:translateY(-2px);
 
+    box-shadow:
+        0 0 0 2px rgba(46,125,50,.5),
+        0 0 16px 4px rgba(105,240,174,.55);
+
 }
 
 .search-loading,
@@ -1844,6 +1859,10 @@ nav a:hover{
 
 .chat-new-btn:hover{
     background:#1b5e20;
+    transform:translateY(-3px);
+    box-shadow:
+        0 0 0 2px rgba(46,125,50,.5),
+        0 0 22px 6px rgba(105,240,174,.55);
 }
 
 .chat-saved-label{
@@ -2068,6 +2087,10 @@ nav a:hover{
     border-color:rgba(46,125,50,0.25);
 
     transform:translateY(-2px);
+
+    box-shadow:
+        0 0 0 2px rgba(46,125,50,.5),
+        0 0 16px 4px rgba(105,240,174,.55);
 
 }
 
@@ -2367,13 +2390,29 @@ footer{
 
 button{
 
-    transition:.3s;
+    transition:transform .3s cubic-bezier(.4,0,.2,1),
+               box-shadow .4s cubic-bezier(.4,0,.2,1),
+               filter .4s ease;
 
 }
 
-button:hover{
+button:hover,
+button:focus-visible{
 
     transform:translateY(-4px);
+
+    box-shadow:
+        0 0 0 2px rgba(46,125,50,.5),
+        0 0 22px 6px rgba(105,240,174,.55),
+        0 12px 26px rgba(46,125,50,.25);
+
+    filter:brightness(1.05);
+
+}
+
+button:active{
+
+    transform:translateY(-1px) scale(.97);
 
 }
 
@@ -2727,7 +2766,10 @@ textarea:focus{
 
 .auth-submit:hover{
     transform:translateY(-3px);
-    box-shadow:0 15px 30px rgba(46,125,50,.3);
+    box-shadow:
+        0 0 0 2px rgba(46,125,50,.5),
+        0 0 22px 6px rgba(105,240,174,.55),
+        0 15px 30px rgba(46,125,50,.3);
 }
 
 .auth-error{
@@ -2962,6 +3004,9 @@ body.sidebar-layout {
     background: #2e7d32;
     color: #fff;
     transform: none;
+    box-shadow:
+        0 0 0 2px rgba(46,125,50,.5),
+        0 0 16px 4px rgba(105,240,174,.55);
 }
 
 .sidebar-login-btn {
