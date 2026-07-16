@@ -1,0 +1,69 @@
+/* =========================================
+   Verdexa AI
+   library-book-transition.css
+   Hieu ung: bam "Xem thu vien cay trong" -> ca trang nga xuong,
+   do ra sau -> muc Thu vien hien dan len.
+========================================= */
+
+html {
+    perspective: 1500px;
+}
+
+body.sidebar-layout {
+    overflow-x: hidden;
+}
+
+.lbt-stage-content {
+    position: relative;
+    display: flex;
+    min-height: 100vh;
+    transform-style: preserve-3d;
+    transform-origin: 50% 100%;
+    transition: transform .85s cubic-bezier(.55,0,.2,1),
+                filter .8s ease;
+    will-change: transform, filter;
+}
+
+.lbt-stage-content.lbt-falling {
+    transform: rotateX(60deg) translateY(110px) translateZ(-240px) scale(.88);
+    filter: brightness(.35) blur(1px);
+}
+
+.lbt-fall-fx {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .5s ease;
+    z-index: 998;
+}
+.lbt-fall-fx.show { opacity: 1; }
+.lbt-fall-fx span {
+    position: absolute;
+    top: -8%;
+    width: 6px;
+    height: 10px;
+    border-radius: 2px;
+    background: linear-gradient(160deg, #a5d6a7, #2e7d32);
+    opacity: .85;
+    animation: lbt-leaf-drift 1.4s ease-in forwards;
+}
+@keyframes lbt-leaf-drift {
+    to { transform: translateY(115vh) rotate(340deg); opacity: 0; }
+}
+
+/* muc Thu vien hien dan len moi lan duoc kich hoat qua hieu ung nay */
+.tab-panel.lbt-reveal {
+    animation: lbt-panel-reveal .7s cubic-bezier(.2,.8,.25,1) .55s both;
+}
+@keyframes lbt-panel-reveal {
+    from { opacity: 0; transform: translateY(22px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .lbt-stage-content, .tab-panel.lbt-reveal {
+        transition: none !important;
+        animation: none !important;
+    }
+}
