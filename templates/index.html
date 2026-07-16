@@ -94,9 +94,26 @@
         </div>
 
         <div class="upload-box" id="uploadBox">
-            <i class="fa-solid fa-cloud-arrow-up"></i>
-            <h3>Kéo & thả ảnh vào đây</h3>
-            <span>hoặc</span>
+            <div class="upload-visual" id="uploadVisual">
+                <div class="upload-placeholder" id="uploadPlaceholder">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <h3>Kéo & thả ảnh vào đây</h3>
+                </div>
+
+                <div class="upload-preview-wrap" id="uploadPreviewWrap">
+                    <img id="previewImage" alt="Ảnh xem trước">
+                    <div class="scan-overlay" id="scanOverlay">
+                        <div class="scan-line"></div>
+                        <span class="scan-label"><i class="fa-solid fa-satellite-dish"></i> Đang quét ảnh...</span>
+                    </div>
+                    <button type="button" class="preview-change-btn" id="removeImageBtn">
+                        <i class="fa-solid fa-rotate-left"></i> Đổi ảnh khác
+                    </button>
+                </div>
+            </div>
+
+            <span class="upload-hint" id="uploadHint">hoặc</span>
+
             <div class="upload-actions">
                 <button type="button" id="uploadBtn">Chọn ảnh</button>
                 <button type="button" id="cameraBtn"><i class="fa-solid fa-camera"></i> Chụp ảnh</button>
@@ -107,23 +124,12 @@
                 <i class="fa-solid fa-magnifying-glass"></i>
                 Phân tích ảnh
             </button>
-        </div>
 
-        <div class="result-card">
-            <div class="image">
-                <img id="previewImage" src="https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?auto=format&fit=crop&w=600&q=80">
-                <div class="scan-overlay" id="scanOverlay">
-                    <div class="scan-line"></div>
-                    <span class="scan-label"><i class="fa-solid fa-satellite-dish"></i> Đang quét ảnh...</span>
-                </div>
-            </div>
-            <div class="info">
-                <span class="confidence">Độ tin cậy AI</span>
+            <div class="result-info" id="resultInfo">
+                <span class="confidence-tag">Độ tin cậy AI</span>
                 <h2 id="plantName">Chưa có kết quả</h2>
                 <div class="percent" id="confidence">--</div>
-                <ul>
-                    <li id="plantDescription">Tải ảnh lên để xem kết quả nhận diện AI tại đây.</li>
-                </ul>
+                <p id="plantDescription">Tải ảnh lên để xem kết quả nhận diện AI tại đây.</p>
                 <button type="button" class="library-cta" id="goLibraryBtn">
                     <svg class="sparkle" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                         <path d="M12 2c.45 3.75 1.05 5.6 2.5 7.05C15.95 10.5 17.8 11.1 21.5 11.5c-3.7.4-5.55 1-7 2.45-1.45 1.45-2.05 3.3-2.5 7.05-.45-3.75-1.05-5.6-2.5-7.05C8.05 12.5 6.2 11.9 2.5 11.5c3.7-.4 5.55-1 7-2.45C10.95 7.6 11.55 5.75 12 2Z" fill="currentColor"/>
