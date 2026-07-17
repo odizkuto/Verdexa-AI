@@ -9,15 +9,21 @@ const chatSendBtn = document.getElementById("chatSendBtn");
 const chatSavedList = document.getElementById("chatSavedList");
 const chatNewBtn = document.getElementById("chatNewBtn");
 
-const chatAttachBtn = document.getElementById("chatAttachBtn");
-const chatCameraBtn = document.getElementById("chatCameraBtn");
-const chatImageInput = document.getElementById("chatImageInput");
+const chatPlusBtn = document.getElementById("chatPlusBtn");
+const chatAttachMenu = document.getElementById("chatAttachMenu");
+const chatMenuCamera = document.getElementById("chatMenuCamera");
+const chatMenuFile = document.getElementById("chatMenuFile");
+const chatMenuPhoto = document.getElementById("chatMenuPhoto");
 const chatCameraInput = document.getElementById("chatCameraInput");
+const chatFileInput = document.getElementById("chatFileInput");
+const chatImageInput = document.getElementById("chatImageInput");
 const chatImagePreviewWrap = document.getElementById("chatImagePreviewWrap");
 const chatImagePreviewImg = document.getElementById("chatImagePreviewImg");
+const chatFileChip = document.getElementById("chatFileChip");
+const chatFileChipName = document.getElementById("chatFileChipName");
 const chatImageRemoveBtn = document.getElementById("chatImageRemoveBtn");
 
-// Ảnh người dùng đang đính kèm để gửi kèm tin nhắn (chưa gửi thì giữ ở đây)
+// Tệp (ảnh hoặc file) người dùng đang đính kèm, chờ gửi kèm tin nhắn
 let selectedChatFile = null;
 
 // Lưu lịch sử hội thoại để gửi kèm cho AI (giúp AI hiểu ngữ cảnh)
@@ -333,55 +339,106 @@ if (chatNewBtn) {
 loadSavedChatsList();
 
 /*============================*/
-/* Đính kèm ảnh: chọn từ máy hoặc chụp trực tiếp bằng camera */
+/* Đính kèm tệp/ảnh: nút "+" trong ô nhập mở popup nhỏ với các lựa chọn
+   Camera / Tệp / Drive (sắp có) / Ảnh. Chọn xong chỉ xem trước, không tự
+   gửi — người dùng bấm nút gửi hoặc gõ thêm chữ rồi gửi cùng lúc. */
+
+function openAttachMenu() {
+    chatAttachMenu.hidden = false;
+    chatPlusBtn.classList.add("open");
+}
+
+function closeAttachMenu() {
+    chatAttachMenu.hidden = true;
+    chatPlusBtn.classList.remove("open");
+}
+
+if (chatPlusBtn) {
+    chatPlusBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (chatAttachMenu.hidden) openAttachMenu();
+        else closeAttachMenu();
+    });
+}
+
+// Bấm ra ngoài popup thì tự đóng lại
+document.addEventListener("click", (e) => {
+    if (!chatAttachMenu.hidden && !chatAttachMenu.contains(e.target) && e.target !== chatPlusBtn) {
+        closeAttachMenu();
+    }
+});
+
+if (chatMenuCamera) {
+    chatMenuCamera.addEventListener("click", () => {
+        closeAttachMenu();
+        chatCameraInput.click();
+    });
+}
+
+if (chatMenuFile) {
+    chatMenuFile.addEventListener("click", () => {
+        closeAttachMenu();
+        chatFileInput.click();
+    });
+}
+
+if (chatMenuPhoto) {
+    chatMenuPhoto.addEventListener("click", () => {
+        closeAttachMenu();
+        chatImageInput.click();
+    });
+}
+
+// Nút "Drive" tạm khoá (disabled) — sẽ bật khi có Google API Key/Client ID
 
 function setSelectedChatFile(file) {
-    if (!file || !file.type.startsWith("image/")) {
-        alert("Vui lòng chọn một tệp ảnh hợp lệ.");
-        return Promise.resolve(false);
-    }
-
+    if (!file) return;
     selectedChatFile = file;
 
-    return new Promise((resolve) => {
+    if (file.type.startsWith("image/")) {
+        chatFileChip.style.display = "none";
         const reader = new FileReader();
         reader.onload = (e) => {
             chatImagePreviewImg.src = e.target.result;
+            chatImagePreviewImg.style.display = "block";
             chatImagePreviewWrap.style.display = "flex";
-            resolve(true);
         };
         reader.readAsDataURL(file);
-    });
+    } else {
+        // Tệp không phải ảnh (VD: PDF) -> hiện dạng "chip" tên tệp thay vì thumbnail
+        chatImagePreviewImg.style.display = "none";
+        chatFileChip.style.display = "flex";
+        chatFileChipName.textContent = file.name;
+        chatImagePreviewWrap.style.display = "flex";
+    }
 }
 
 function clearSelectedChatFile() {
     selectedChatFile = null;
     chatImagePreviewImg.src = "";
+    chatImagePreviewImg.style.display = "block";
+    chatFileChip.style.display = "none";
     chatImagePreviewWrap.style.display = "none";
     chatImageInput.value = "";
     chatCameraInput.value = "";
+    chatFileInput.value = "";
 }
 
-if (chatAttachBtn) {
-    chatAttachBtn.addEventListener("click", () => chatImageInput.click());
+if (chatCameraInput) {
+    chatCameraInput.addEventListener("change", () => {
+        if (chatCameraInput.files.length > 0) setSelectedChatFile(chatCameraInput.files[0]);
+    });
+}
+
+if (chatFileInput) {
+    chatFileInput.addEventListener("change", () => {
+        if (chatFileInput.files.length > 0) setSelectedChatFile(chatFileInput.files[0]);
+    });
 }
 
 if (chatImageInput) {
     chatImageInput.addEventListener("change", () => {
         if (chatImageInput.files.length > 0) setSelectedChatFile(chatImageInput.files[0]);
-    });
-}
-
-if (chatCameraBtn) {
-    chatCameraBtn.addEventListener("click", () => chatCameraInput.click());
-}
-
-if (chatCameraInput) {
-    chatCameraInput.addEventListener("change", async () => {
-        if (chatCameraInput.files.length > 0) {
-            await setSelectedChatFile(chatCameraInput.files[0]);
-            sendChatMessage();
-        }
     });
 }
 
@@ -394,8 +451,8 @@ if (chatImageRemoveBtn) {
 
 async function sendChatMessage() {
     const message = chatInput.value.trim();
-    const imageFile = selectedChatFile;
-    if (!message && !imageFile) return;
+    const attachedFile = selectedChatFile;
+    if (!message && !attachedFile) return;
 
     // Khoá ô nhập + nút gửi để tránh gửi chồng nhiều tin khi AI chưa trả lời xong
     chatInput.disabled = true;
@@ -405,10 +462,12 @@ async function sendChatMessage() {
     const suggestions = document.getElementById("chatSuggestions");
     if (suggestions) suggestions.remove();
 
-    // Hiện bong bóng của người dùng, kèm ảnh xem trước nếu có đính kèm
+    // Hiện bong bóng của người dùng, kèm ảnh/tệp xem trước nếu có đính kèm
     let userBubbleHtml = "";
-    if (imageFile) {
+    if (attachedFile && attachedFile.type.startsWith("image/")) {
         userBubbleHtml += `<img class="chat-msg-image" src="${chatImagePreviewImg.src}" alt="Ảnh đã gửi">`;
+    } else if (attachedFile) {
+        userBubbleHtml += `<span class="chat-msg-file"><i class="fa-solid fa-file-lines"></i> ${escapeHtml(attachedFile.name)}</span>`;
     }
     if (message) {
         userBubbleHtml += `<span>${escapeHtml(message)}</span>`;
@@ -466,11 +525,11 @@ async function sendChatMessage() {
 
     try {
         let response;
-        if (imageFile) {
+        if (attachedFile) {
             const formData = new FormData();
             formData.append("message", message);
             formData.append("history", JSON.stringify(conversation));
-            formData.append("image", imageFile);
+            formData.append("image", attachedFile);
             response = await fetch("/api/chat", { method: "POST", body: formData });
         } else {
             response = await fetch("/api/chat", {
