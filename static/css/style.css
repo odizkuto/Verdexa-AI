@@ -4418,15 +4418,15 @@ body.sidebar-layout .chat-box {
    ========================================================== */
 
 #chatInput.neon-input{
-    background: #3a3d3d;
+    background: #CCFF99;
     border: 2px solid #0ff;
-    color: #fff;
+    color: #1b3a1b;
     letter-spacing: 0.3px;
     transition: box-shadow 0.4s ease, transform 0.4s ease, background 0.4s ease;
 }
 
 #chatInput.neon-input::placeholder{
-    color: rgba(0, 255, 255, 0.55);
+    color: rgba(27, 58, 27, 0.6);
     opacity: 1;
 }
 
