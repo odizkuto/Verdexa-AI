@@ -2721,6 +2721,8 @@ nav a:hover{
 
     height:38px;
 
+    z-index:2;
+
 }
 
 #chatPlusBtn{
@@ -4402,5 +4404,60 @@ body.sidebar-layout .chat-box {
     .pt-loading span{
         animation: none !important;
         opacity: 1;
+    }
+}
+
+/* ==========================================================
+   Neon chat input override (ô nhập chat AI)
+   Ghi đè nền sáng mặc định của #chatInput bằng viền neon cyan
+   ========================================================== */
+
+#chatInput.neon-input{
+    background: rgba(10, 20, 16, 0.85);
+    border: 2px solid #0ff;
+    color: #fff;
+    letter-spacing: 0.3px;
+    transition: box-shadow 0.4s ease, transform 0.4s ease, background 0.4s ease;
+}
+
+#chatInput.neon-input::placeholder{
+    color: rgba(0, 255, 255, 0.55);
+    opacity: 1;
+}
+
+#chatInput.neon-input:focus{
+    box-shadow: 0 0 8px #0ff, 0 0 16px #0ff, 0 0 32px rgba(0, 255, 255, 0.55);
+    transform: scale(1.01);
+}
+
+/* Sapuan cahaya (ánh sáng quét qua) — chạy trên wrapper vì input
+   không render ::before. .chat-input-field-wrap đã có position:relative sẵn. */
+.chat-input-field-wrap.neon-input-wrapper::after{
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(0, 255, 255, 0.25),
+        transparent
+    );
+    border-radius: 14px;
+    transition: left 0.8s ease;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.chat-input-field-wrap.neon-input-wrapper:focus-within::after{
+    left: 100%;
+}
+
+@media (prefers-reduced-motion: reduce){
+    #chatInput.neon-input,
+    .chat-input-field-wrap.neon-input-wrapper::after{
+        transition: none;
     }
 }
