@@ -2625,6 +2625,12 @@ nav a:hover{
 
 }
 
+.chat-attach-menu[hidden]{
+
+    display:none;
+
+}
+
 .chat-attach-menu{
 
     position:absolute;
