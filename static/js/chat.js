@@ -455,6 +455,7 @@ async function sendChatMessage() {
     // Khoá ô nhập + nút gửi để tránh gửi chồng nhiều tin khi AI chưa trả lời xong
     chatInput.disabled = true;
     chatSendBtn.disabled = true;
+    chatSendBtn.classList.add("sending");
 
     // Đã bắt đầu chat thật -> bỏ khối gợi ý câu hỏi đi cho gọn
     const suggestions = document.getElementById("chatSuggestions");
@@ -562,6 +563,7 @@ async function sendChatMessage() {
         // Mở khoá lại ô nhập sau khi AI trả lời xong (dù thành công hay lỗi)
         chatInput.disabled = false;
         chatSendBtn.disabled = false;
+        chatSendBtn.classList.remove("sending");
         chatInput.focus();
     }
 }
