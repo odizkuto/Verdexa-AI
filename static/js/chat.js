@@ -143,6 +143,10 @@ function typewriterReveal(bubble, rawText) {
 /* Thêm 1 dòng chat vào khung hiển thị */
 
 function scrollChatToBottom() {
+    // Ép cuộn tức thì (không dùng hiệu ứng "smooth"), tránh trường hợp
+    // CSS scroll-behavior:smooth làm các lệnh cuộn liên tục (mỗi ký tự)
+    // bị huỷ giữa chừng và chỉ thấy khung chat "nhảy" xuống ở cuối cùng.
+    chatHistory.style.scrollBehavior = "auto";
     chatHistory.scrollTop = chatHistory.scrollHeight;
 }
 
