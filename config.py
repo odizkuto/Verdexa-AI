@@ -24,7 +24,7 @@ class Config:
 
     # Thư mục lưu ảnh người dùng upload
     UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
-    ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}
+    ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp", "pdf"}
     MAX_CONTENT_LENGTH = 8 * 1024 * 1024  # Giới hạn upload 8MB
 
     # API key cho Google Gemini (dùng cho nhận diện cây, chẩn đoán bệnh và AI Chat)
