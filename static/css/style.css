@@ -2565,9 +2565,11 @@ nav a:hover{
 
 }
 
-.chat-input button{
+.chat-input button#chatSendBtn{
 
     width:65px;
+
+    height:60px;
 
     border:none;
 
@@ -2578,6 +2580,102 @@ nav a:hover{
     border-radius:14px;
 
     font-size:22px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    overflow:hidden;
+
+    cursor:pointer;
+
+    padding:0;
+
+    transition:width 0.3s ease-in-out, background 0.2s;
+
+}
+
+.chat-input button#chatSendBtn span{
+
+    display:block;
+
+    margin-left:0.3em;
+
+    max-width:0;
+
+    opacity:0;
+
+    white-space:nowrap;
+
+    font-size:16px;
+
+    transition:all 0.3s ease-in-out;
+
+}
+
+.chat-input button#chatSendBtn svg{
+
+    display:block;
+
+    width:22px;
+
+    height:22px;
+
+    flex-shrink:0;
+
+    transform-origin:center center;
+
+    transition:transform 0.3s ease-in-out;
+
+}
+
+.chat-input button#chatSendBtn.sending{
+
+    width:105px;
+
+}
+
+.chat-input button#chatSendBtn.sending .svg-wrapper{
+
+    animation:chatSendFly 0.6s ease-in-out infinite alternate;
+
+}
+
+.chat-input button#chatSendBtn.sending svg{
+
+    transform:translateX(0.2em) rotate(45deg) scale(1.1);
+
+}
+
+.chat-input button#chatSendBtn.sending span{
+
+    max-width:60px;
+
+    opacity:1;
+
+}
+
+.chat-input button#chatSendBtn:active{
+
+    transform:scale(0.95);
+
+}
+
+.chat-input button#chatSendBtn:disabled{
+
+    opacity:0.6;
+
+    cursor:default;
+
+}
+
+@keyframes chatSendFly{
+
+    from{ transform:translateY(0.1em); }
+
+    to{ transform:translateY(-0.1em); }
 
 }
 
