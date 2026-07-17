@@ -9,6 +9,17 @@ const chatSendBtn = document.getElementById("chatSendBtn");
 const chatSavedList = document.getElementById("chatSavedList");
 const chatNewBtn = document.getElementById("chatNewBtn");
 
+const chatAttachBtn = document.getElementById("chatAttachBtn");
+const chatCameraBtn = document.getElementById("chatCameraBtn");
+const chatImageInput = document.getElementById("chatImageInput");
+const chatCameraInput = document.getElementById("chatCameraInput");
+const chatImagePreviewWrap = document.getElementById("chatImagePreviewWrap");
+const chatImagePreviewImg = document.getElementById("chatImagePreviewImg");
+const chatImageRemoveBtn = document.getElementById("chatImageRemoveBtn");
+
+// Ảnh người dùng đang đính kèm để gửi kèm tin nhắn (chưa gửi thì giữ ở đây)
+let selectedChatFile = null;
+
 // Lưu lịch sử hội thoại để gửi kèm cho AI (giúp AI hiểu ngữ cảnh)
 let conversation = [];
 
@@ -322,11 +333,63 @@ if (chatNewBtn) {
 loadSavedChatsList();
 
 /*============================*/
+/* Đính kèm ảnh: chọn từ máy hoặc chụp trực tiếp bằng camera */
+
+function setSelectedChatFile(file) {
+    if (!file || !file.type.startsWith("image/")) {
+        alert("Vui lòng chọn một tệp ảnh hợp lệ.");
+        return;
+    }
+
+    selectedChatFile = file;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        chatImagePreviewImg.src = e.target.result;
+        chatImagePreviewWrap.style.display = "flex";
+    };
+    reader.readAsDataURL(file);
+}
+
+function clearSelectedChatFile() {
+    selectedChatFile = null;
+    chatImagePreviewImg.src = "";
+    chatImagePreviewWrap.style.display = "none";
+    chatImageInput.value = "";
+    chatCameraInput.value = "";
+}
+
+if (chatAttachBtn) {
+    chatAttachBtn.addEventListener("click", () => chatImageInput.click());
+}
+
+if (chatImageInput) {
+    chatImageInput.addEventListener("change", () => {
+        if (chatImageInput.files.length > 0) setSelectedChatFile(chatImageInput.files[0]);
+    });
+}
+
+if (chatCameraBtn) {
+    chatCameraBtn.addEventListener("click", () => chatCameraInput.click());
+}
+
+if (chatCameraInput) {
+    chatCameraInput.addEventListener("change", () => {
+        if (chatCameraInput.files.length > 0) setSelectedChatFile(chatCameraInput.files[0]);
+    });
+}
+
+if (chatImageRemoveBtn) {
+    chatImageRemoveBtn.addEventListener("click", clearSelectedChatFile);
+}
+
+/*============================*/
 /* Gửi tin nhắn tới AI */
 
 async function sendChatMessage() {
     const message = chatInput.value.trim();
-    if (!message) return;
+    const imageFile = selectedChatFile;
+    if (!message && !imageFile) return;
 
     // Khoá ô nhập + nút gửi để tránh gửi chồng nhiều tin khi AI chưa trả lời xong
     chatInput.disabled = true;
@@ -336,12 +399,24 @@ async function sendChatMessage() {
     const suggestions = document.getElementById("chatSuggestions");
     if (suggestions) suggestions.remove();
 
-    appendMessage("user", message, false);
+    // Hiện bong bóng của người dùng, kèm ảnh xem trước nếu có đính kèm
+    let userBubbleHtml = "";
+    if (imageFile) {
+        userBubbleHtml += `<img class="chat-msg-image" src="${chatImagePreviewImg.src}" alt="Ảnh đã gửi">`;
+    }
+    if (message) {
+        userBubbleHtml += `<span>${escapeHtml(message)}</span>`;
+    }
+    appendMessage("user", userBubbleHtml, true);
+
     chatInput.value = "";
+    clearSelectedChatFile();
 
     // Nếu đây là tin nhắn đầu tiên của cuộc trò chuyện mới -> hiện ngay mục tạm trong sidebar
     if (savedChatId === null && conversation.length === 0) {
-        const tempTitle = message.length > 28 ? message.slice(0, 28) + "…" : message;
+        const tempTitle = message
+            ? (message.length > 28 ? message.slice(0, 28) + "…" : message)
+            : "📷 Ảnh đính kèm";
         addPendingSidebarItem(tempTitle);
     }
 
@@ -384,11 +459,20 @@ async function sendChatMessage() {
     );
 
     try {
-        const response = await fetch("/api/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message: message, history: conversation }),
-        });
+        let response;
+        if (imageFile) {
+            const formData = new FormData();
+            formData.append("message", message);
+            formData.append("history", JSON.stringify(conversation));
+            formData.append("image", imageFile);
+            response = await fetch("/api/chat", { method: "POST", body: formData });
+        } else {
+            response = await fetch("/api/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: message, history: conversation }),
+            });
+        }
 
         const data = await response.json();
 
@@ -398,8 +482,8 @@ async function sendChatMessage() {
 
         await typewriterReveal(typingBubble, data.reply);
 
-        // Cập nhật lịch sử hội thoại
-        conversation.push({ role: "user", content: message });
+        // Cập nhật lịch sử hội thoại (ảnh không lưu lại trong lịch sử văn bản)
+        conversation.push({ role: "user", content: message || "[Đã gửi kèm 1 ảnh]" });
         conversation.push({ role: "assistant", content: data.reply });
 
         // Giới hạn lịch sử gửi đi để tránh quá dài
