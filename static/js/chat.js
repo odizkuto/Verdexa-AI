@@ -127,11 +127,11 @@ function typewriterReveal(bubble, rawText) {
             if (i < total) {
                 textEl.textContent += plainText[i];
                 i++;
-                chatHistory.scrollTop = chatHistory.scrollHeight;
+                scrollChatToBottom();
                 setTimeout(step, perCharDelay);
             } else {
                 bubble.innerHTML = formatAiReply(rawText);
-                chatHistory.scrollTop = chatHistory.scrollHeight;
+                scrollChatToBottom();
                 resolve();
             }
         }
@@ -142,6 +142,10 @@ function typewriterReveal(bubble, rawText) {
 /*============================*/
 /* Thêm 1 dòng chat vào khung hiển thị */
 
+function scrollChatToBottom() {
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+}
+
 function appendMessage(role, content, isHtml) {
     const bubble = document.createElement("div");
     bubble.className = role === "user" ? "user" : "bot";
@@ -151,7 +155,17 @@ function appendMessage(role, content, isHtml) {
         bubble.textContent = content;
     }
     chatHistory.appendChild(bubble);
-    chatHistory.scrollTop = chatHistory.scrollHeight;
+    scrollChatToBottom();
+
+    // Nếu bong bóng có chứa ảnh (vd. ảnh người dùng gửi kèm), ảnh sẽ mất
+    // một chút thời gian để tải xong và làm bong bóng cao thêm ra -> phải
+    // cuộn lại lần nữa sau khi ảnh tải xong để không bị hụt xuống dưới.
+    bubble.querySelectorAll("img").forEach((img) => {
+        if (!img.complete) {
+            img.addEventListener("load", scrollChatToBottom);
+        }
+    });
+
     return bubble;
 }
 
