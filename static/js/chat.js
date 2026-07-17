@@ -344,26 +344,24 @@ loadSavedChatsList();
    gửi — người dùng bấm nút gửi hoặc gõ thêm chữ rồi gửi cùng lúc. */
 
 function openAttachMenu() {
-    chatAttachMenu.hidden = false;
     chatPlusBtn.classList.add("open");
 }
 
 function closeAttachMenu() {
-    chatAttachMenu.hidden = true;
     chatPlusBtn.classList.remove("open");
 }
 
 if (chatPlusBtn) {
     chatPlusBtn.addEventListener("click", (e) => {
         e.stopPropagation();
-        if (chatAttachMenu.hidden) openAttachMenu();
-        else closeAttachMenu();
+        if (chatPlusBtn.classList.contains("open")) closeAttachMenu();
+        else openAttachMenu();
     });
 }
 
 // Bấm ra ngoài popup thì tự đóng lại
 document.addEventListener("click", (e) => {
-    if (!chatAttachMenu.hidden && !chatAttachMenu.contains(e.target) && e.target !== chatPlusBtn) {
+    if (chatPlusBtn.classList.contains("open") && !chatAttachMenu.contains(e.target) && e.target !== chatPlusBtn) {
         closeAttachMenu();
     }
 });
