@@ -338,17 +338,20 @@ loadSavedChatsList();
 function setSelectedChatFile(file) {
     if (!file || !file.type.startsWith("image/")) {
         alert("Vui lòng chọn một tệp ảnh hợp lệ.");
-        return;
+        return Promise.resolve(false);
     }
 
     selectedChatFile = file;
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        chatImagePreviewImg.src = e.target.result;
-        chatImagePreviewWrap.style.display = "flex";
-    };
-    reader.readAsDataURL(file);
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            chatImagePreviewImg.src = e.target.result;
+            chatImagePreviewWrap.style.display = "flex";
+            resolve(true);
+        };
+        reader.readAsDataURL(file);
+    });
 }
 
 function clearSelectedChatFile() {
@@ -374,8 +377,11 @@ if (chatCameraBtn) {
 }
 
 if (chatCameraInput) {
-    chatCameraInput.addEventListener("change", () => {
-        if (chatCameraInput.files.length > 0) setSelectedChatFile(chatCameraInput.files[0]);
+    chatCameraInput.addEventListener("change", async () => {
+        if (chatCameraInput.files.length > 0) {
+            await setSelectedChatFile(chatCameraInput.files[0]);
+            sendChatMessage();
+        }
     });
 }
 
