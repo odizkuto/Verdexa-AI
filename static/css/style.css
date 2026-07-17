@@ -4363,40 +4363,107 @@ body.sidebar-layout .chat-box {
     100% { opacity: 1; transform: scale(1) rotate(0deg) translateY(0); }
 }
 
-.pt-brand-text{
+/* ---------- Chữ "Verdexa AI" hiệu ứng loader ---------- */
+.pt-loader-wrapper{
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 60px;
+    width: auto;
+    margin-top: 6px;
+    font-family: "Poppins", sans-serif;
     font-size: 21px;
     font-weight: 700;
     letter-spacing: .3px;
-    margin-top: 2px;
+    user-select: none;
+    color: #fff;
 }
 
-/* ---------- Chấm loading nhấp nháy ---------- */
-.pt-loading{
-    display: flex;
-    gap: 7px;
-    margin-top: 10px;
+.pt-loader{
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 1;
+    background-color: transparent;
+    mask: repeating-linear-gradient(
+        90deg,
+        transparent 0,
+        transparent 6px,
+        black 7px,
+        black 8px
+    );
 }
 
-.pt-loading span{
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: #fff;
-    opacity: .5;
-    animation: pt-loading-pulse 1.3s ease-in-out infinite;
+.pt-loader::after{
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: radial-gradient(circle at 50% 50%, #ff0 0%, transparent 50%),
+        radial-gradient(circle at 45% 45%, #f00 0%, transparent 45%),
+        radial-gradient(circle at 55% 55%, #0ff 0%, transparent 45%),
+        radial-gradient(circle at 45% 55%, #0f0 0%, transparent 45%),
+        radial-gradient(circle at 55% 45%, #00f 0%, transparent 45%);
+    mask: radial-gradient(
+        circle at 50% 50%,
+        transparent 0%,
+        transparent 10%,
+        black 25%
+    );
+    animation:
+        pt-loader-transform 2s infinite alternate,
+        pt-loader-opacity 4s infinite;
+    animation-timing-function: cubic-bezier(0.6, 0.8, 0.5, 1);
 }
 
-.pt-loading span:nth-child(2){ animation-delay: .18s; }
-.pt-loading span:nth-child(3){ animation-delay: .36s; }
+@keyframes pt-loader-transform{
+    0%   { transform: translate(-55%); }
+    100% { transform: translate(55%); }
+}
 
-@keyframes pt-loading-pulse{
-    0%, 80%, 100% { transform: scale(.55); opacity: .35; }
-    40%           { transform: scale(1);   opacity: 1; }
+@keyframes pt-loader-opacity{
+    0%, 100% { opacity: 0; }
+    15%      { opacity: 1; }
+    65%      { opacity: 0; }
+}
+
+.pt-loader-letter{
+    display: inline-block;
+    opacity: 0;
+    animation: pt-loader-letter-anim 4s infinite linear;
+    z-index: 2;
+}
+
+.pt-loader-letter:nth-child(1){ animation-delay: 0.1s; }
+.pt-loader-letter:nth-child(2){ animation-delay: 0.205s; }
+.pt-loader-letter:nth-child(3){ animation-delay: 0.31s; }
+.pt-loader-letter:nth-child(4){ animation-delay: 0.415s; }
+.pt-loader-letter:nth-child(5){ animation-delay: 0.521s; }
+.pt-loader-letter:nth-child(6){ animation-delay: 0.626s; }
+.pt-loader-letter:nth-child(7){ animation-delay: 0.731s; }
+.pt-loader-letter:nth-child(8){ animation-delay: 0.837s; }
+.pt-loader-letter:nth-child(9){ animation-delay: 0.942s; }
+.pt-loader-letter:nth-child(10){ animation-delay: 1.047s; }
+
+@keyframes pt-loader-letter-anim{
+    0%   { opacity: 0; }
+    5%   {
+        opacity: 1;
+        text-shadow: 0 0 4px #fff;
+        transform: scale(1.1) translateY(-2px);
+    }
+    20%  { opacity: 0.2; }
+    100% { opacity: 0; }
 }
 
 @media (max-width: 640px){
     .pt-sprout{ width: 66px; height: 66px; }
-    .pt-brand-text{ font-size: 18px; }
+    .pt-loader-wrapper{ font-size: 16px; }
     .pt-smoke-blob{ width: 220px; height: 220px; }
 }
 
@@ -4406,7 +4473,7 @@ body.sidebar-layout .chat-box {
     }
     .pt-smoke-blob,
     .pt-sprout-svg,
-    .pt-loading span{
+    .pt-loader-letter{
         animation: none !important;
         opacity: 1;
     }
