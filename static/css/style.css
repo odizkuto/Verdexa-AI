@@ -2609,7 +2609,7 @@ nav a:hover{
 
 }
 
-#chatPlusBtn{
+.chat-attach-radial{
 
     position:absolute;
 
@@ -2618,6 +2618,18 @@ nav a:hover{
     top:50%;
 
     transform:translateY(-50%);
+
+    width:38px;
+
+    height:38px;
+
+}
+
+#chatPlusBtn{
+
+    position:absolute;
+
+    inset:0;
 
     width:38px;
 
@@ -2641,6 +2653,10 @@ nav a:hover{
 
     justify-content:center;
 
+    z-index:5;
+
+    transition:transform .35s ease, background .2s ease;
+
 }
 
 #chatPlusBtn:hover{
@@ -2651,91 +2667,122 @@ nav a:hover{
 
 #chatPlusBtn.open{
 
-    transform:translateY(-50%) rotate(45deg);
+    transform:rotate(45deg);
+
+    background:#1e6b23;
 
 }
 
-.chat-attach-menu[hidden]{
-
-    display:none;
-
-}
-
+/* Menu radial: 3 nut Camera / Tep / Anh bay ra hinh quat phia tren nut + */
 .chat-attach-menu{
 
     position:absolute;
 
-    right:0;
+    inset:0;
 
-    bottom:70px;
+    list-style:none;
 
-    background:#fff;
+    margin:0;
 
-    border-radius:14px;
+    padding:0;
 
-    box-shadow:0 8px 24px rgba(0,0,0,.15);
-
-    padding:8px;
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:2px;
-
-    min-width:160px;
-
-    z-index:20;
+    pointer-events:none;
 
 }
 
-.chat-attach-menu button{
+.chat-radial-item{
+
+    position:absolute;
+
+    inset:0;
 
     display:flex;
 
     align-items:center;
 
-    gap:10px;
+    justify-content:center;
 
-    background:none;
+    opacity:0;
+
+    transform:translate(0, 0) scale(.35);
+
+    transition:transform .45s cubic-bezier(.34,1.56,.64,1), opacity .25s ease;
+
+    pointer-events:none;
+
+}
+
+.chat-radial-item:nth-of-type(1){ --tx:-55px; --ty:-32px; }
+.chat-radial-item:nth-of-type(2){ --tx:0px;    --ty:-64px; }
+.chat-radial-item:nth-of-type(3){ --tx:55px;  --ty:-32px; }
+
+#chatPlusBtn.open ~ .chat-attach-menu .chat-radial-item{
+
+    opacity:1;
+
+    pointer-events:auto;
+
+    transform:translate(var(--tx), var(--ty)) scale(1);
+
+    transition-delay:calc(.05s * var(--i));
+
+}
+
+.chat-radial-anchor{
+
+    position:relative;
+
+    width:42px;
+
+    height:42px;
+
+    border-radius:50%;
 
     border:none;
 
-    text-align:left;
-
-    padding:10px 12px;
-
-    border-radius:10px;
-
-    font-size:14.5px;
-
-    color:#263a2a;
-
     cursor:pointer;
 
-}
+    color:#fff;
 
-.chat-attach-menu button i{
+    font-size:15px;
 
-    width:18px;
+    display:flex;
 
-    color:#2e7d32;
+    align-items:center;
 
-    text-align:center;
+    justify-content:center;
 
-}
+    box-shadow:0 6px 16px rgba(0,0,0,.28);
 
-.chat-attach-menu button:hover:not(:disabled){
-
-    background:#eef5ee;
+    transition:transform .2s ease;
 
 }
 
-.chat-attach-menu button:disabled{
+.chat-radial-anchor:hover{
 
-    opacity:.45;
+    transform:scale(1.1);
 
-    cursor:not-allowed;
+}
+
+.chat-radial-item:nth-of-type(1) .chat-radial-anchor{ background:linear-gradient(45deg, #62daca, #10d4a9); }
+.chat-radial-item:nth-of-type(2) .chat-radial-anchor{ background:linear-gradient(45deg, #f97d98, #d41f46); }
+.chat-radial-item:nth-of-type(3) .chat-radial-anchor{ background:linear-gradient(45deg, #b6e0fe, #5aa9e6); }
+
+.chat-radial-anchor::before{
+
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+    background-image:inherit;
+
+    border-radius:inherit;
+
+    z-index:-1;
+
+    filter:blur(14px) saturate(160%) opacity(.55);
 
 }
 
