@@ -2159,6 +2159,11 @@ nav a:hover{
 
     overflow:hidden;
 
+    /* clip-path là lớp chặn tràn thứ 2, đáng tin cậy hơn overflow:hidden
+       khi con bên trong có box-shadow/transform (glow neon của ô chat) -
+       tránh lỗi trình duyệt khiến box-shadow "thoát" ra ngoài góc bo tròn */
+    clip-path: inset(0 round 30px);
+
     box-shadow:0 20px 50px rgba(0,0,0,.08);
 
     display:flex;
@@ -4426,8 +4431,10 @@ body.sidebar-layout .chat-box {
 }
 
 #chatInput.neon-input:focus{
+    /* Bỏ transform:scale ở đây vì nó tạo layer compositing riêng, khiến
+       box-shadow (glow) bị tràn ra ngoài overflow:hidden của .chat-box
+       trên một số trình duyệt. Glow vẫn giữ nguyên hiệu ứng sáng. */
     box-shadow: 0 0 8px #0ff, 0 0 16px #0ff, 0 0 32px rgba(0, 255, 255, 0.55);
-    transform: scale(1.01);
 }
 
 /* Sapuan cahaya (ánh sáng quét qua) — chạy trên wrapper vì input
