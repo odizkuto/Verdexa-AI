@@ -15,6 +15,7 @@ const scanOverlay = document.getElementById("scanOverlay");
 const plantName = document.getElementById("plantName");
 const confidenceEl = document.getElementById("confidence");
 const plantDescription = document.getElementById("plantDescription");
+const resultInfo = document.getElementById("resultInfo");
 
 let selectedFile = null;
 
@@ -162,5 +163,8 @@ async function analyzeSelectedImage() {
         showResultError(err.message);
     } finally {
         scanOverlay.classList.remove("active");
+        if (resultInfo) {
+            resultInfo.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
     }
 }
