@@ -61,6 +61,7 @@ const diseaseName = document.getElementById("diseaseName");
 const diseaseConfidence = document.getElementById("diseaseConfidence");
 const diseaseCause = document.getElementById("diseaseCause");
 const diseaseSolution = document.getElementById("diseaseSolution");
+const diagnosisResult = document.getElementById("diagnosisResult");
 
 /*============================*/
 /* Hiển thị kết quả chẩn đoán ra giao diện */
@@ -100,6 +101,12 @@ function showDiseaseError(message) {
     diseaseSolution.innerHTML = "";
 }
 
+function scrollToDiagnosisResult() {
+    if (diagnosisResult) {
+        diagnosisResult.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+}
+
 /*============================*/
 /* Cách 1: Chẩn đoán bằng tên cây + triệu chứng */
 
@@ -130,6 +137,8 @@ analyzeSymptomsBtn.addEventListener("click", async () => {
         renderDiseaseResult(data);
     } catch (err) {
         showDiseaseError(err.message);
+    } finally {
+        scrollToDiagnosisResult();
     }
 });
 
@@ -163,5 +172,6 @@ async function analyzeSelectedDiseaseImage() {
         showDiseaseError(err.message);
     } finally {
         diseaseScanOverlay.classList.remove("active");
+        scrollToDiagnosisResult();
     }
 }
