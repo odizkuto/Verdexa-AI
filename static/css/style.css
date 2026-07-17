@@ -1485,6 +1485,9 @@ nav a:hover{
     display:flex;
     margin-bottom:35px;
     padding:6px;
+    overflow:hidden;
+    border-radius:16px;
+    isolation:isolate;
 }
 
 .poda-white,
