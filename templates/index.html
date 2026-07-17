@@ -208,15 +208,25 @@
             <p>Nhập tên bất kỳ loại cây nào, AI sẽ tra cứu và tổng hợp thông tin cho bạn.</p>
         </div>
 
-        <div class="library-search">
-            <input type="text" id="librarySearchInput" placeholder="Nhập tên cây cần tra cứu... (VD: Sầu riêng, Hoa hồng, Cây bơ)">
-            <button type="button" id="librarySearchBtn">
-                <span class="btn-icon-default"><i class="fa-solid fa-magnifying-glass"></i></span>
-                <span class="btn-label">Tìm kiếm</span>
-                <span class="btn-spinner"><i class="fa-solid fa-spinner"></i></span>
-                <span class="btn-check"><i class="fa-solid fa-check"></i></span>
-                <span class="btn-cross"><i class="fa-solid fa-xmark"></i></span>
-            </button>
+        <div class="poda-search-wrap" id="libraryPoda">
+            <div class="poda-grid"></div>
+            <div class="poda-glow"></div>
+            <div class="poda-darkBorderBg"></div>
+            <div class="poda-darkBorderBg"></div>
+            <div class="poda-darkBorderBg"></div>
+            <div class="poda-white"></div>
+            <div class="poda-border"></div>
+
+            <div class="library-search" id="poda-main">
+                <input type="text" id="librarySearchInput" placeholder="Nhập tên cây cần tra cứu... (VD: Sầu riêng, Hoa hồng, Cây bơ)">
+                <button type="button" id="librarySearchBtn">
+                    <span class="btn-icon-default"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    <span class="btn-label">Tìm kiếm</span>
+                    <span class="btn-spinner"><i class="fa-solid fa-spinner"></i></span>
+                    <span class="btn-check"><i class="fa-solid fa-check"></i></span>
+                    <span class="btn-cross"><i class="fa-solid fa-xmark"></i></span>
+                </button>
+            </div>
         </div>
 
         <div class="library-empty-state" id="libraryEmptyState">
