@@ -270,7 +270,21 @@
                         </div>
                     </div>
                 </div>
+                <div class="chat-image-preview" id="chatImagePreviewWrap" style="display:none;">
+                    <img id="chatImagePreviewImg" alt="Ảnh đính kèm">
+                    <button type="button" id="chatImageRemoveBtn" title="Bỏ ảnh">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
                 <div class="chat-input">
+                    <button type="button" id="chatAttachBtn" class="chat-icon-btn" title="Tải ảnh lên">
+                        <i class="fa-solid fa-paperclip"></i>
+                    </button>
+                    <button type="button" id="chatCameraBtn" class="chat-icon-btn" title="Chụp ảnh">
+                        <i class="fa-solid fa-camera"></i>
+                    </button>
+                    <input type="file" id="chatImageInput" accept="image/*" hidden>
+                    <input type="file" id="chatCameraInput" accept="image/*" capture="environment" hidden>
                     <input type="text" id="chatInput" placeholder="Hỏi AI...">
                     <button type="button" id="chatSendBtn">
                         <i class="fa-solid fa-paper-plane"></i>
