@@ -5,6 +5,7 @@ Chạy: python app.py
 """
 
 import os
+import json
 import uuid
 import secrets
 from datetime import datetime, timedelta
@@ -336,19 +337,37 @@ def api_plant_search():
 
 @app.route("/api/chat", methods=["POST"])
 def api_chat():
-    data = request.get_json(silent=True) or {}
-    message = data.get("message", "").strip()
-    history = data.get("history", [])
+    image_url = None
+    image_path = None
 
-    if not message:
-        return jsonify({"error": "Vui lòng nhập nội dung."}), 400
+    # Nếu người dùng đính kèm ảnh (upload hoặc chụp camera) -> request sẽ là multipart/form-data
+    if request.files and "image" in request.files and request.files["image"].filename != "":
+        message = request.form.get("message", "").strip()
+        try:
+            history = json.loads(request.form.get("history", "[]"))
+        except (TypeError, ValueError):
+            history = []
+
+        file = request.files["image"]
+        if not allowed_file(file.filename):
+            return jsonify({"error": "Định dạng ảnh không hợp lệ."}), 400
+
+        image_path, unique_name = save_uploaded_image(file)
+        image_url = f"/uploads/{unique_name}"
+    else:
+        data = request.get_json(silent=True) or {}
+        message = data.get("message", "").strip()
+        history = data.get("history", [])
+
+    if not message and not image_path:
+        return jsonify({"error": "Vui lòng nhập nội dung hoặc đính kèm ảnh."}), 400
 
     try:
-        reply = ai.chat_with_ai(message, history)
+        reply = ai.chat_with_ai(message, history, image_path=image_path)
     except Exception as e:
         return jsonify({"error": f"Lỗi khi trò chuyện với AI: {str(e)}"}), 500
 
-    return jsonify({"reply": reply})
+    return jsonify({"reply": reply, "image_url": image_url})
 
 
 # ======================== API: LỊCH SỬ TRÒ CHUYỆN AI ========================
