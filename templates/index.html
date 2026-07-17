@@ -30,10 +30,12 @@
     <button type="button" id="sidebarToggleBtn" class="mobile-topbar-toggle" aria-label="Đóng/mở danh mục">
         <i class="fa-solid fa-bars"></i>
     </button>
-    <i class="fa-solid fa-seedling"></i>
-    <div class="mobile-topbar-text">
-        <span>Verdexa AI</span>
-        <small>PHT 2010</small>
+    <div class="mobile-topbar-brand">
+        <i class="fa-solid fa-seedling"></i>
+        <div class="mobile-topbar-text">
+            <span>Verdexa AI</span>
+            <small>PHT 2010</small>
+        </div>
     </div>
 </div>
 
@@ -346,6 +348,22 @@ if (sidebarToggleBtn) {
         document.body.classList.toggle("sidebar-collapsed");
     });
 }
+
+// Thao tác ở bất kỳ đâu ngoài cột danh mục (nội dung chính, tab...) -> tự đóng
+// cột lại, giao diện giãn rộng ra theo đúng cơ chế của nút 3 gạch ở trên.
+document.addEventListener("click", function (e) {
+    if (document.body.classList.contains("sidebar-collapsed")) return;
+
+    var sidebarEl = document.querySelector(".sidebar");
+    if (!sidebarEl) return;
+
+    var clickedInsideSidebar = sidebarEl.contains(e.target);
+    var clickedToggleBtn = sidebarToggleBtn && sidebarToggleBtn.contains(e.target);
+
+    if (!clickedInsideSidebar && !clickedToggleBtn) {
+        document.body.classList.add("sidebar-collapsed");
+    }
+});
 
 // ===== CHUYỂN TAB =====
 function switchTab(tabId) {
