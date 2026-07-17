@@ -233,12 +233,13 @@ def _is_founder_question(message):
     return any(keyword in text for keyword in FOUNDER_KEYWORDS)
 
 
-def chat_with_ai(message, history=None):
+def chat_with_ai(message, history=None, image_path=None):
     """
     Chat AI tự do về nông nghiệp / cây trồng.
     history: list các cặp {"role": "user"/"assistant", "content": str} trước đó (tùy chọn).
+    image_path: đường dẫn ảnh đính kèm (upload hoặc chụp camera), tùy chọn.
     """
-    if _is_founder_question(message):
+    if message and _is_founder_question(message):
         return FOUNDER_INTRO
 
     if Config.DEMO_MODE:
@@ -249,6 +250,7 @@ def chat_with_ai(message, history=None):
         GEMINI_MODEL,
         system_instruction=(
             "Bạn là trợ lý AI nông nghiệp của Verdexa AI, trả lời ngắn gọn, hữu ích, bằng tiếng Việt. "
+            "Nếu người dùng gửi kèm ảnh, hãy quan sát kỹ ảnh (cây, lá, sâu bệnh...) để trả lời sát với nội dung ảnh. "
             + NO_THINKING_INSTRUCTION
         ),
     )
@@ -261,7 +263,15 @@ def chat_with_ai(message, history=None):
             gemini_history.append({"role": role, "parts": [turn.get("content", "")]})
 
     chat = model.start_chat(history=gemini_history)
-    response = _send_chat_message(chat, message, max_tokens=800)
+
+    if image_path:
+        image_part = _load_image_part(image_path)
+        text_part = message or "Hãy xem ảnh này và cho tôi biết thông tin hữu ích về cây trồng/sâu bệnh trong ảnh."
+        content = [text_part, image_part]
+    else:
+        content = message
+
+    response = _send_chat_message(chat, content, max_tokens=800)
 
     return response.text.strip()
 
