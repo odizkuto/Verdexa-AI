@@ -1,69 +1,80 @@
-/* =========================================
-   Verdexa AI
-   library-book-transition.css
-   Hieu ung: bam "Xem thu vien cay trong" -> main-content nga xuong,
-   do ra sau -> muc Thu vien hien dan len.
+/*=========================================
+Verdexa AI
+library-book-transition.js
 
-   QUAN TRONG: KHONG dat "perspective" len <html> hay <body> - lam vay
-   se bien html/body thanh containing block cho MOI phan tu
-   position:fixed trong trang (sidebar, mobile-topbar...), khien chung
-   mat moc neo theo man hinh va gay tran ngang/doc. Perspective duoc
-   nhet thang vao transform cua rieng #lbtStageContent bang ham
-   perspective(...) thay vi dung property rieng tren the cha.
-========================================= */
+Hieu ung cho nut "Xem thu vien cay trong":
+1) Toan bo trang (sidebar + main-content) nga xuong, do ra sau, toi dan
+2) Dung luc trang dang "nga", noi dung duoc doi sang tab Thu vien that
+3) Trang dung lai, sang dan len -> muc Thu vien hien dan ra truoc mat
 
-body.sidebar-layout {
-    overflow-x: hidden;
-}
+Yeu cau trong index.html:
+- Bao sidebar + main-content trong <div id="lbtStageContent" class="lbt-stage-content">
+- Co 1 div rong <div id="lbtFallFx" class="lbt-fall-fx"></div> trong <body>
+- Nut "Xem thu vien cay trong" co id="goLibraryBtn" (bo onclick="switchTab('library')" cu di)
+- File nay duoc nap SAU script co dinh nghia ham switchTab()
+=========================================*/
 
-#lbtStageContent {
-    position: relative;
-    transform-origin: 50% 100%;
-    transition: transform .85s cubic-bezier(.55,0,.2,1),
-                filter .8s ease;
-    will-change: transform, filter;
-}
+(function () {
+    var stageContent = document.getElementById('lbtStageContent');
+    var fallFx = document.getElementById('lbtFallFx');
+    var goLibraryBtn = document.getElementById('goLibraryBtn');
 
-#lbtStageContent.lbt-falling {
-    transform: perspective(1500px) rotateX(60deg) translateY(110px) translateZ(-240px) scale(.88);
-    filter: brightness(.35) blur(1px);
-}
+    if (!stageContent || !fallFx || !goLibraryBtn) return;
 
-.lbt-fall-fx {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity .5s ease;
-    z-index: 998;
-}
-.lbt-fall-fx.show { opacity: 1; }
-.lbt-fall-fx span {
-    position: absolute;
-    top: -8%;
-    width: 6px;
-    height: 10px;
-    border-radius: 2px;
-    background: linear-gradient(160deg, #a5d6a7, #2e7d32);
-    opacity: .85;
-    animation: lbt-leaf-drift 1.4s ease-in forwards;
-}
-@keyframes lbt-leaf-drift {
-    to { transform: translateY(115vh) rotate(340deg); opacity: 0; }
-}
-
-/* muc Thu vien hien dan len moi lan duoc kich hoat qua hieu ung nay */
-.tab-panel.lbt-reveal {
-    animation: lbt-panel-reveal .7s cubic-bezier(.2,.8,.25,1) .55s both;
-}
-@keyframes lbt-panel-reveal {
-    from { opacity: 0; transform: translateY(22px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    #lbtStageContent, .tab-panel.lbt-reveal {
-        transition: none !important;
-        animation: none !important;
+    function spawnLeaves() {
+        fallFx.innerHTML = '';
+        var n = 22;
+        for (var i = 0; i < n; i++) {
+            var s = document.createElement('span');
+            s.style.left = (Math.random() * 100) + '%';
+            s.style.animationDelay = (Math.random() * 0.5) + 's';
+            s.style.animationDuration = (1.1 + Math.random() * 0.8) + 's';
+            s.style.opacity = 0.5 + Math.random() * 0.5;
+            s.style.width = (4 + Math.random() * 4) + 'px';
+            fallFx.appendChild(s);
+        }
     }
-}
+
+    function replayRevealAnim(panel) {
+        panel.classList.remove('lbt-reveal');
+        void panel.offsetWidth;
+        panel.classList.add('lbt-reveal');
+    }
+
+    var TRANSITION_DELAY = 3000; // thoi gian cho tu luc bam nut den luc chuyen muc (ms)
+    var FALL_START_DELAY = TRANSITION_DELAY - 380; // trang bat dau "nga" ngay truoc khi chuyen muc
+
+    function playFallAndReveal() {
+        // Kich hoat animation la bay ra tren nut ngay khi bam (giong hieu ung hover)
+        goLibraryBtn.classList.remove('is-active');
+        void goLibraryBtn.offsetWidth;
+        goLibraryBtn.classList.add('is-active');
+
+        stageContent.classList.remove('lbt-falling');
+        fallFx.classList.remove('show');
+        void stageContent.offsetWidth;
+
+        setTimeout(function () {
+            requestAnimationFrame(function () {
+                stageContent.classList.add('lbt-falling');
+                fallFx.classList.add('show');
+                spawnLeaves();
+            });
+        }, FALL_START_DELAY);
+
+        setTimeout(function () {
+            if (typeof switchTab === 'function') {
+                switchTab('library');
+            }
+            var libraryPanel = document.getElementById('tab-library');
+            if (libraryPanel) replayRevealAnim(libraryPanel);
+            goLibraryBtn.classList.remove('is-active');
+        }, TRANSITION_DELAY);
+
+        setTimeout(function () {
+            stageContent.classList.remove('lbt-falling');
+        }, TRANSITION_DELAY + 80);
+    }
+
+    goLibraryBtn.addEventListener('click', playFallAndReveal);
+})();
