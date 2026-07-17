@@ -827,6 +827,8 @@ nav a:hover{
 
     padding-top:26px;
 
+    scroll-margin-top:80px;
+
     border-top:1px solid #eee;
 
     text-align:left;
@@ -1303,6 +1305,8 @@ nav a:hover{
     border-radius:28px;
 
     box-shadow:0 20px 60px rgba(0,0,0,.08);
+
+    scroll-margin-top:80px;
 
 }
 
