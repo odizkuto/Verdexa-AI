@@ -9,7 +9,6 @@ const diseaseSymptoms = document.getElementById("diseaseSymptoms");
 const analyzeSymptomsBtn = document.getElementById("analyzeSymptomsBtn");
 
 const diseaseImageInput = document.getElementById("diseaseImageInput");
-const analyzeDiseaseImageBtn = document.getElementById("analyzeDiseaseImageBtn");
 const diseaseCameraBtn = document.getElementById("diseaseCameraBtn");
 const diseaseCameraInput = document.getElementById("diseaseCameraInput");
 const diseasePreviewImage = document.getElementById("diseasePreviewImage");
@@ -33,6 +32,8 @@ function setSelectedDiseaseFile(file) {
     reader.onload = (e) => {
         diseasePreviewImage.src = e.target.result;
         diseaseImageWrap.style.display = "inline-block";
+        // Có ảnh hợp lệ -> tự động quét luôn, không cần bấm nút
+        analyzeSelectedDiseaseImage();
     };
     reader.readAsDataURL(file);
 }
@@ -133,13 +134,11 @@ analyzeSymptomsBtn.addEventListener("click", async () => {
 });
 
 /*============================*/
-/* Cách 2: Chẩn đoán bằng ảnh lá cây */
+/* Tự động quét ảnh lá cây (gọi API /api/diagnose) ngay khi có ảnh hợp lệ,
+   không cần bấm nút "Phân tích ảnh lá" nữa */
 
-analyzeDiseaseImageBtn.addEventListener("click", async () => {
-    if (!selectedDiseaseFile) {
-        alert("Vui lòng chọn hoặc chụp ảnh lá cây trước khi phân tích.");
-        return;
-    }
+async function analyzeSelectedDiseaseImage() {
+    if (!selectedDiseaseFile) return;
 
     showDiseaseLoading();
     diseaseScanOverlay.classList.add("active");
@@ -165,4 +164,4 @@ analyzeDiseaseImageBtn.addEventListener("click", async () => {
     } finally {
         diseaseScanOverlay.classList.remove("active");
     }
-});
+}
