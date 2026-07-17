@@ -6,7 +6,6 @@ script.js - Nhận diện cây trồng (chọn ảnh / kéo-thả / xem trước
 const uploadBox = document.getElementById("uploadBox");
 const uploadBtn = document.getElementById("uploadBtn");
 const imageInput = document.getElementById("imageInput");
-const analyzeBtn = document.getElementById("analyzeBtn");
 const cameraBtn = document.getElementById("cameraBtn");
 const cameraInput = document.getElementById("cameraInput");
 const removeImageBtn = document.getElementById("removeImageBtn");
@@ -34,6 +33,8 @@ function setSelectedFile(file) {
     reader.onload = (e) => {
         previewImage.src = e.target.result;
         uploadBox.classList.add("has-image");
+        // Có ảnh hợp lệ -> tự động quét luôn, không cần bấm nút
+        analyzeSelectedImage();
     };
     reader.readAsDataURL(file);
 }
@@ -132,13 +133,11 @@ function renderResult(data) {
 }
 
 /*============================*/
-/* Bấm "Phân tích ảnh" -> gọi API /api/predict */
+/* Tự động quét ảnh (gọi API /api/predict) ngay khi có ảnh hợp lệ,
+   không cần bấm nút "Phân tích ảnh" nữa */
 
-analyzeBtn.addEventListener("click", async () => {
-    if (!selectedFile) {
-        alert("Vui lòng chọn hoặc kéo thả một ảnh trước khi phân tích.");
-        return;
-    }
+async function analyzeSelectedImage() {
+    if (!selectedFile) return;
 
     showResultLoading();
     scanOverlay.classList.add("active");
@@ -164,4 +163,4 @@ analyzeBtn.addEventListener("click", async () => {
     } finally {
         scanOverlay.classList.remove("active");
     }
-});
+}
