@@ -4413,7 +4413,7 @@ body.sidebar-layout .chat-box {
    ========================================================== */
 
 #chatInput.neon-input{
-    background: rgba(10, 20, 16, 0.85);
+    background: #3a3d3d;
     border: 2px solid #0ff;
     color: #fff;
     letter-spacing: 0.3px;
