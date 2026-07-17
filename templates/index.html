@@ -27,6 +27,9 @@
 
 <!-- ===== MOBILE TOP BAR (chỉ hiện trên điện thoại) ===== -->
 <div class="mobile-topbar">
+    <button type="button" id="sidebarToggleBtn" class="mobile-topbar-toggle" aria-label="Đóng/mở danh mục">
+        <i class="fa-solid fa-bars"></i>
+    </button>
     <i class="fa-solid fa-seedling"></i>
     <div class="mobile-topbar-text">
         <span>Verdexa AI</span>
@@ -334,6 +337,14 @@ function requireLogin() {
         return true;
     }
     return false;
+}
+
+// ===== ĐÓNG/MỞ DANH MỤC (SIDEBAR) BẰNG NÚT 3 GẠCH TRÊN ĐIỆN THOẠI =====
+var sidebarToggleBtn = document.getElementById("sidebarToggleBtn");
+if (sidebarToggleBtn) {
+    sidebarToggleBtn.addEventListener("click", function () {
+        document.body.classList.toggle("sidebar-collapsed");
+    });
 }
 
 // ===== CHUYỂN TAB =====
