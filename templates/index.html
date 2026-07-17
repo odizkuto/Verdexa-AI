@@ -365,6 +365,13 @@ document.addEventListener("click", function (e) {
     }
 });
 
+// Kéo (cuộn) trang lên/xuống -> cũng tự đóng cột danh mục lại
+window.addEventListener("scroll", function () {
+    if (!document.body.classList.contains("sidebar-collapsed")) {
+        document.body.classList.add("sidebar-collapsed");
+    }
+}, { passive: true });
+
 // ===== CHUYỂN TAB =====
 function switchTab(tabId) {
     if (requireLogin()) return;
