@@ -120,8 +120,14 @@
             <span class="upload-hint" id="uploadHint">hoặc</span>
 
             <div class="upload-actions">
-                <button type="button" id="uploadBtn">Chọn ảnh</button>
-                <button type="button" id="cameraBtn"><i class="fa-solid fa-camera"></i> Chụp ảnh</button>
+                <button type="button" id="uploadBtn" class="glow-btn">
+                    Chọn ảnh
+                    <div class="glow-hover"><div></div></div>
+                </button>
+                <button type="button" id="cameraBtn" class="glow-btn">
+                    <i class="fa-solid fa-camera"></i> Chụp ảnh
+                    <div class="glow-hover"><div></div></div>
+                </button>
             </div>
             <input type="file" id="imageInput" accept="image/*" hidden>
             <input type="file" id="cameraInput" accept="image/*" capture="environment" hidden>
@@ -168,9 +174,10 @@
                 <label>Triệu chứng</label>
                 <textarea id="diseaseSymptoms" placeholder="Ví dụ: Lá vàng, đốm nâu, mép lá khô..."></textarea>
 
-                <button class="primary" type="button" id="analyzeSymptomsBtn">
+                <button class="primary glow-btn" type="button" id="analyzeSymptomsBtn">
                     <i class="fa-solid fa-magnifying-glass"></i>
                     Phân tích bệnh
+                    <div class="glow-hover"><div></div></div>
                 </button>
 
                 <label style="margin-top:20px;">Hoặc tải ảnh lá cây lên</label>
