@@ -1028,115 +1028,141 @@ nav a:hover{
 /* ======================== */
 
 .result-info .library-cta{
-
-    --glow-ring:rgba(46,125,50,.55);
-    --glow-halo:rgba(105,240,174,.6);
-    --transition:.45s cubic-bezier(.4,0,.2,1);
-
     position:relative;
     isolation:isolate;
     overflow:visible;
 
     display:inline-flex;
     align-items:center;
-    gap:10px;
 
     margin-top:35px;
-    padding:15px 30px;
+    padding:15px 35px;
 
-    background:#eafbe9;
-    color:#1e6b23;
-    border:1.5px solid #bfe8c2;
-    border-radius:100px;
+    background:#f5ddb7;
+    color:#181818;
+    border:none;
+    border-radius:8px;
 
-    font-weight:600;
+    font-weight:900;
     font-size:15px;
 
     cursor:pointer;
-
-    transition:color var(--transition), background var(--transition),
-               border-color var(--transition), transform .25s ease,
-               box-shadow var(--transition);
+    box-shadow:2px 2px 5px #18181869, inset 2px 2px 10px #ffffffb0;
+    transition:all .3s ease-in-out;
 }
 
-.result-info .library-cta .sparkle{
-    width:18px;
-    height:18px;
-    flex-shrink:0;
-    color:#2e7d32;
-    transition:color var(--transition);
-}
-
-.result-info .library-cta .sparkle path{
-    transform-box:fill-box;
-    transform-origin:center;
-    animation:library-sparkle-twinkle 2.4s ease-in-out infinite;
-}
-
-.result-info .library-cta .sparkle path:nth-of-type(1){ animation-delay:0s; }
-.result-info .library-cta .sparkle path:nth-of-type(2){ animation-delay:.3s; --base-scale:.7; }
-.result-info .library-cta .sparkle path:nth-of-type(3){ animation-delay:.6s; --base-scale:.6; }
-
-@keyframes library-sparkle-twinkle{
-    0%,100%{ transform:scale(.8); opacity:.6; }
-    50%{ transform:scale(1.2); opacity:1; }
-}
-
-/* Viền glow xuất hiện khi hover */
-.result-info .library-cta::before{
-    content:"";
+.result-info .library-cta .leaf-icon{
     position:absolute;
-    inset:-4px;
-    z-index:-1;
-    border-radius:100px;
-    border:2px solid var(--glow-ring);
-    opacity:0;
-    transition:opacity var(--transition), inset var(--transition);
+    top:10%;
+    left:50%;
+    transform:translate(-50%, 0);
+    width:0;
+    height:auto;
+    transition:all .5s ease-in-out;
     pointer-events:none;
 }
 
-/* Quầng sáng mờ lan tỏa phía sau nút khi hover */
-.result-info .library-cta::after{
-    content:"";
-    position:absolute;
-    inset:-22px;
-    z-index:-2;
-    border-radius:100px;
-    background:radial-gradient(circle, var(--glow-halo), transparent 70%);
-    filter:blur(20px);
-    opacity:0;
-    transition:opacity var(--transition);
-    pointer-events:none;
-}
+.result-info .library-cta .leaf-icon-1{ z-index:-1; }
+.result-info .library-cta .leaf-icon-2,
+.result-info .library-cta .leaf-icon-3,
+.result-info .library-cta .leaf-icon-4,
+.result-info .library-cta .leaf-icon-5{ z-index:-2; }
 
 .result-info .library-cta:hover,
-.result-info .library-cta:focus-visible{
-    color:#fff;
-    background:linear-gradient(135deg,#2e7d32,#43a047 45%,#69f0ae);
-    border-color:transparent;
-    transform:translateY(-3px);
-    box-shadow:0 12px 28px rgba(46,125,50,.35);
+.result-info .library-cta.is-active{
+    padding:15px 25px;
+    border-radius:8px 8px 24px 24px;
 }
 
-.result-info .library-cta:hover .sparkle,
-.result-info .library-cta:focus-visible .sparkle{
-    color:#fff;
+.result-info .library-cta:hover .leaf-icon-1,
+.result-info .library-cta.is-active .leaf-icon-1{
+    top:-250%;
+    left:50%;
+    transform:translate(-50%, 0);
+    width:50px;
+    height:auto;
+    animation:libLeafIn1 1s ease .45s forwards;
 }
 
-.result-info .library-cta:hover::before,
-.result-info .library-cta:focus-visible::before{
-    opacity:1;
-    inset:-6px;
+@keyframes libLeafIn1{
+    0%{ transform-origin:0 100%; transform:translate(-50%, 0) rotate(0deg); }
+    25%{ transform-origin:0 100%; transform:translate(-50%, 0) rotate(5deg); }
+    50%{ transform-origin:0 100%; transform:translate(-50%, 0) rotate(1deg); }
+    65%{ transform-origin:0 100%; transform:translate(-50%, 0) rotate(3deg); }
+    100%{ transform-origin:0 100%; transform:translate(-50%, 0) rotate(0deg); }
 }
 
-.result-info .library-cta:hover::after,
-.result-info .library-cta:focus-visible::after{
-    opacity:1;
+.result-info .library-cta:hover .leaf-icon-2,
+.result-info .library-cta.is-active .leaf-icon-2{
+    top:-200%;
+    left:90%;
+    transform:translate(-50%, 0);
+    width:75px;
+    height:auto;
+    animation:libLeafIn2 1s ease .45s forwards;
 }
 
-.result-info .library-cta:active{
-    transform:translateY(-1px) scale(.97);
+@keyframes libLeafIn2{
+    0%{ transform-origin:0 100%; transform:translate(-50%, 0) rotate(0deg); }
+    35%{ transform-origin:0 100%; transform:translate(-50%, 0) rotate(10deg); }
+    50%{ transform-origin:0 100%; transform:translate(-50%, 0) rotate(4deg); }
+    80%{ transform-origin:0 100%; transform:translate(-50%, 0) rotate(5deg); }
+    100%{ transform-origin:0 100%; transform:translate(-50%, 0) rotate(0deg); }
 }
+
+.result-info .library-cta:hover .leaf-icon-3,
+.result-info .library-cta.is-active .leaf-icon-3{
+    top:-130%;
+    left:20%;
+    transform:translate(-50%, 0);
+    width:60px;
+    height:auto;
+    animation:libLeafIn3 1s ease .45s forwards;
+}
+
+@keyframes libLeafIn3{
+    0%{ transform-origin:0 100%; transform:translate(-50%, 0) rotate(0deg); }
+    35%{ transform-origin:0 100%; transform:translate(-50%, 0) rotate(-2deg); }
+    100%{ transform-origin:0 100%; transform:translate(-50%, 0) rotate(0deg); }
+}
+
+.result-info .library-cta:hover .leaf-icon-4,
+.result-info .library-cta.is-active .leaf-icon-4{
+    top:-300%;
+    left:10%;
+    transform:translate(-50%, 0);
+    width:85px;
+    height:auto;
+    animation:libLeafIn4 1s ease .45s forwards;
+}
+
+@keyframes libLeafIn4{
+    0%{ transform-origin:0 100%; transform:translate(-50%, 0) rotate(0deg); }
+    40%{ transform-origin:0 100%; transform:translate(-50%, 0) rotate(-3deg); }
+    100%{ transform-origin:0 100%; transform:translate(-50%, 0) rotate(0deg); }
+}
+
+.result-info .library-cta:hover .leaf-icon-5,
+.result-info .library-cta.is-active .leaf-icon-5{
+    top:-350%;
+    left:90%;
+    transform:translate(-50%, 0);
+    width:85px;
+    height:auto;
+    animation:libLeafIn5 1s ease .45s forwards;
+}
+
+@keyframes libLeafIn5{
+    0%{ transform-origin:0 100%; transform:translate(-50%, 0) rotate(0deg); }
+    35%{ transform-origin:0 100%; transform:translate(-50%, 0) rotate(-3deg); }
+    100%{ transform-origin:0 100%; transform:translate(-50%, 0) rotate(0deg); }
+}
+
+.result-info .library-cta .fil-leaf-1{ fill:#7B9B3A; }
+.result-info .library-cta .fil-leaf-2{ fill:#556729; fill-rule:nonzero; }
+.result-info .library-cta .fil-leaf-3{ fill:#556729; }
+.result-info .library-cta .fil-leaf-4{ fill:#3C4819; }
+.result-info .library-cta .fil-leaf-5{ fill:#3C4819; }
 
 /* ======================== */
 
