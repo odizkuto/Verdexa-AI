@@ -2551,6 +2551,84 @@ nav a:hover{
 
 }
 
+.chat-input button.chat-icon-btn{
+
+    width:50px;
+
+    background:#f2f4f5;
+
+    color:#2e7d32;
+
+    font-size:19px;
+
+    flex-shrink:0;
+
+}
+
+.chat-input button.chat-icon-btn:hover{
+
+    background:#e3f2e3;
+
+}
+
+.chat-image-preview{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    padding:0 20px 12px;
+
+}
+
+.chat-image-preview img{
+
+    width:64px;
+
+    height:64px;
+
+    object-fit:cover;
+
+    border-radius:10px;
+
+    border:1px solid #d8e0d8;
+
+}
+
+.chat-image-preview button{
+
+    width:26px;
+
+    height:26px;
+
+    border:none;
+
+    border-radius:50%;
+
+    background:#e53935;
+
+    color:#fff;
+
+    font-size:13px;
+
+    cursor:pointer;
+
+}
+
+.chat-msg-image{
+
+    max-width:220px;
+
+    border-radius:12px;
+
+    display:block;
+
+    margin-bottom:8px;
+
+}
+
 /* ========================= */
 
 .cta{
