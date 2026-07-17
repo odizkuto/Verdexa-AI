@@ -41,8 +41,10 @@ Yeu cau trong index.html:
         panel.classList.add('lbt-reveal');
     }
 
-    var TRANSITION_DELAY = 3000; // thoi gian cho tu luc bam nut den luc chuyen muc (ms)
-    var FALL_START_DELAY = TRANSITION_DELAY - 380; // trang bat dau "nga" ngay truoc khi chuyen muc
+    var TRANSITION_DELAY = 2950;  // thoi gian cho tu luc bam nut den luc chuyen muc (ms)
+    var FALL_START_DELAY = 1300;  // doi la bay ra tren nut xong roi moi bat dau "nga" trang
+    // Luu y: transform cua #lbtStageContent.lbt-falling mat 0.85s (xem library-book-transition.css),
+    // nen FALL_START_DELAY + 850 phai < TRANSITION_DELAY de trang sap XONG HAN roi moi chuyen tab.
 
     function playFallAndReveal() {
         // Kich hoat animation la bay ra tren nut ngay khi bam (giong hieu ung hover)
