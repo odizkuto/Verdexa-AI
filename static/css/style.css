@@ -4453,13 +4453,19 @@ body.sidebar-layout .chat-box {
         transparent
     );
     border-radius: 14px;
-    transition: left 0.8s ease;
+    /* opacity:0 khi nghỉ — đây mới là nguyên nhân chính khiến vệt sáng
+       hiện ra ở bên trái (đè lên sidebar) ngay cả khi chưa focus vào ô
+       chat: left:-100% chỉ đẩy nó ra khỏi vùng input, không có nghĩa là
+       nó vô hình, nên nó vẫn "lộ" ra trên các vùng lân cận. */
+    opacity: 0;
+    transition: left 0.8s ease, opacity 0.3s ease;
     z-index: 1;
     pointer-events: none;
 }
 
 .chat-input-field-wrap.neon-input-wrapper:focus-within::after{
     left: 100%;
+    opacity: 1;
 }
 
 @media (prefers-reduced-motion: reduce){
