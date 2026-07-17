@@ -290,23 +290,28 @@
                 <div class="chat-input">
                     <div class="chat-input-field-wrap">
                         <input type="text" id="chatInput" placeholder="Hỏi AI...">
-                        <button type="button" id="chatPlusBtn" title="Đính kèm">
-                            <i class="fa-solid fa-plus"></i>
-                        </button>
+                        <div class="chat-attach-radial">
+                            <button type="button" id="chatPlusBtn" title="Đính kèm">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
 
-                        <div class="chat-attach-menu" id="chatAttachMenu" hidden>
-                            <button type="button" id="chatMenuCamera">
-                                <i class="fa-solid fa-camera"></i> Camera
-                            </button>
-                            <button type="button" id="chatMenuFile">
-                                <i class="fa-solid fa-file"></i> Tệp
-                            </button>
-                            <button type="button" id="chatMenuDrive" disabled title="Sắp ra mắt">
-                                <i class="fa-brands fa-google-drive"></i> Drive
-                            </button>
-                            <button type="button" id="chatMenuPhoto">
-                                <i class="fa-solid fa-image"></i> Ảnh
-                            </button>
+                            <ul class="chat-attach-menu" id="chatAttachMenu">
+                                <li style="--i: 0" class="chat-radial-item">
+                                    <button type="button" id="chatMenuCamera" class="chat-radial-anchor" title="Camera">
+                                        <i class="fa-solid fa-camera"></i>
+                                    </button>
+                                </li>
+                                <li style="--i: 1" class="chat-radial-item">
+                                    <button type="button" id="chatMenuFile" class="chat-radial-anchor" title="Tệp">
+                                        <i class="fa-solid fa-file-lines"></i>
+                                    </button>
+                                </li>
+                                <li style="--i: 2" class="chat-radial-item">
+                                    <button type="button" id="chatMenuPhoto" class="chat-radial-anchor" title="Ảnh">
+                                        <i class="fa-solid fa-image"></i>
+                                    </button>
+                                </li>
+                            </ul>
                         </div>
                     </div>
 
