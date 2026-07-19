@@ -1186,6 +1186,81 @@ nav a:hover{
 
 }
 
+/* ---- Thanh tìm kiếm + lọc theo loại thuốc ---- */
+.store-filter-bar{
+    display:flex;
+    gap:14px;
+    flex-wrap:wrap;
+    margin-bottom:24px;
+}
+
+.store-search-wrap{
+    flex:1;
+    min-width:220px;
+    position:relative;
+    display:flex;
+    align-items:center;
+}
+
+.store-search-wrap i{
+    position:absolute;
+    left:16px;
+    color:#8a9b8c;
+    font-size:14px;
+    pointer-events:none;
+}
+
+.store-search-wrap input{
+    width:100%;
+    box-sizing:border-box;
+    padding:12px 16px 12px 42px;
+    border:1px solid #ddd;
+    border-radius:12px;
+    font-size:14px;
+    font-family:inherit;
+    color:#222;
+}
+
+.store-search-wrap input:focus{
+    outline:none;
+    border-color:#2e7d32;
+    box-shadow:0 0 0 3px rgba(46,125,50,.12);
+}
+
+#storeCategoryFilter{
+    padding:12px 16px;
+    border:1px solid #ddd;
+    border-radius:12px;
+    font-size:14px;
+    font-family:inherit;
+    color:#222;
+    background:#fff;
+    cursor:pointer;
+    min-width:200px;
+}
+
+#storeCategoryFilter:focus{
+    outline:none;
+    border-color:#2e7d32;
+}
+
+/* ---- Badge "Đã bán" trên sản phẩm bán chạy / đã có người mua ---- */
+.store-product-badge{
+    position:absolute;
+    top:10px;
+    left:10px;
+    background:#e65100;
+    color:#fff;
+    font-size:11px;
+    font-weight:700;
+    padding:5px 10px;
+    border-radius:20px;
+    display:flex;
+    align-items:center;
+    gap:5px;
+    box-shadow:0 3px 8px rgba(0,0,0,.18);
+}
+
 .store-grid{
 
     display:grid;
@@ -1292,6 +1367,7 @@ nav a:hover{
     background-position:center;
     background-color:#eef6ef;
     margin-bottom:16px;
+    position:relative;
 }
 
 .store-product-img-placeholder{
