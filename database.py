@@ -467,3 +467,13 @@ def get_all_orders():
     cur.close()
     conn.close()
     return [dict(r) for r in rows]
+
+
+def delete_order(order_id):
+    """Xoá 1 đơn đặt hàng (admin bấm khi đã xử lý xong)."""
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM orders WHERE id = %s", (order_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
