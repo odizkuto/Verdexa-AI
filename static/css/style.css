@@ -1573,10 +1573,10 @@ nav a:hover{
     text-align:right;
 }
 
-.store-order-delete-btn{
+.store-order-confirm-btn{
     background:none;
-    border:1px solid #f0d5d5;
-    color:#c62828;
+    border:1px solid #cfead6;
+    color:#1e7e34;
     font-size:12px;
     font-weight:600;
     padding:6px 12px;
@@ -1585,8 +1585,27 @@ nav a:hover{
     transition:background .15s;
 }
 
-.store-order-delete-btn:hover{
-    background:#fdecea;
+.store-order-confirm-btn:hover{
+    background:#e9f8ee;
+}
+
+.store-order-confirm-btn:disabled{
+    opacity:.6;
+    cursor:default;
+}
+
+.store-order-status-badge{
+    margin-top:10px;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:12px;
+    font-weight:600;
+    color:#1e7e34;
+    background:#e9f8ee;
+    border:1px solid #cfead6;
+    padding:6px 12px;
+    border-radius:8px;
 }
 
 /* ---- Modal thêm sản phẩm ---- */
