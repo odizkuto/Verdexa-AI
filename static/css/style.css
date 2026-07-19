@@ -1470,6 +1470,27 @@ nav a:hover{
     flex-wrap:wrap;
 }
 
+.store-phone-link{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    margin-left:12px;
+    font-size:15px;
+    font-weight:700;
+    color:#1e7e34;
+    background:#e9f8ee;
+    border:1px solid #cfead6;
+    padding:4px 14px;
+    border-radius:999px;
+    text-decoration:none;
+    vertical-align:middle;
+    transition:background .15s;
+}
+
+.store-phone-link:hover{
+    background:#d8f2e2;
+}
+
 .store-orders-btn{
     position:relative;
     display:flex;
