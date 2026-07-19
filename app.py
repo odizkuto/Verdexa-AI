@@ -208,17 +208,17 @@ def api_diagnose():
 def api_register():
     data = request.get_json(silent=True) or {}
     username = data.get("username", "").strip()
-    email = data.get("email", "").strip().lower()
+    phone = data.get("phone", "").strip()
     password = data.get("password", "")
 
-    if not username or not email or not password:
+    if not username or not phone or not password:
         return jsonify({"error": "Vui lòng điền đầy đủ tất cả các trường."}), 400
 
     if len(password) < 6:
         return jsonify({"error": "Mật khẩu phải có ít nhất 6 ký tự."}), 400
 
-    if db.get_user_by_email(email):
-        return jsonify({"error": "Email này đã được đăng ký."}), 409
+    if db.get_user_by_phone(phone):
+        return jsonify({"error": "Số điện thoại này đã được đăng ký."}), 409
 
     if db.get_user_by_username(username):
         return jsonify({"error": "Tên người dùng đã tồn tại."}), 409
@@ -226,7 +226,7 @@ def api_register():
     password_hash = generate_password_hash(password)
 
     try:
-        db.create_user(username, email, password_hash)
+        db.create_user(username, phone, password_hash)
     except Exception as e:
         return jsonify({"error": f"Lỗi khi tạo tài khoản: {str(e)}"}), 500
 
@@ -236,18 +236,27 @@ def api_register():
 @app.route("/api/login", methods=["POST"])
 def api_login():
     data = request.get_json(silent=True) or {}
-    email = data.get("email", "").strip().lower()
+    # "identifier" có thể là số điện thoại (tài khoản mới) hoặc email (tài khoản
+    # cũ đã đăng ký bằng Gmail trước đây) — giữ tương thích cho cả hai.
+    identifier = data.get("identifier", data.get("email", data.get("phone", ""))).strip()
     password = data.get("password", "")
 
-    if not email or not password:
-        return jsonify({"error": "Vui lòng nhập đầy đủ email và mật khẩu."}), 400
+    if not identifier or not password:
+        return jsonify({"error": "Vui lòng nhập đầy đủ thông tin đăng nhập và mật khẩu."}), 400
 
-    user = db.get_user_by_email(email)
+    is_email_login = "@" in identifier
+    if is_email_login:
+        user = db.get_user_by_email(identifier.lower())
+    else:
+        user = db.get_user_by_phone(identifier)
+
     if not user or not check_password_hash(user["password_hash"], password):
-        return jsonify({"error": "Email hoặc mật khẩu không đúng."}), 401
+        return jsonify({"error": "Thông tin đăng nhập hoặc mật khẩu không đúng."}), 401
 
-    # Tự động cấp/thu quyền admin dựa theo danh sách Config.ADMIN_EMAILS
-    should_be_admin = email in Config.ADMIN_EMAILS
+    # Tự động cấp/thu quyền admin dựa theo Config.ADMIN_EMAILS / Config.ADMIN_PHONES
+    user_email = (user.get("email") or "").lower()
+    user_phone = user.get("phone") or ""
+    should_be_admin = user_email in Config.ADMIN_EMAILS or user_phone in Config.ADMIN_PHONES
     if bool(user.get("is_admin")) != should_be_admin:
         db.set_user_admin(user["id"], should_be_admin)
 
@@ -516,6 +525,43 @@ def api_delete_product(product_id):
             os.remove(image_path)
 
     return jsonify({"message": "Đã xoá sản phẩm."})
+
+
+# ======================== API: ĐƠN MUA HÀNG (NÚT "MUA" TRONG CỬA HÀNG) ========================
+
+@app.route("/api/orders", methods=["POST"])
+def api_add_order():
+    data = request.get_json(silent=True) or {}
+
+    product_id = data.get("product_id")
+    product_name = (data.get("product_name") or "").strip()
+    customer_name = (data.get("customer_name") or "").strip()
+    customer_phone = (data.get("customer_phone") or "").strip()
+    quantity = data.get("quantity", 1)
+
+    if not customer_name or not customer_phone:
+        return jsonify({"error": "Vui lòng nhập đầy đủ tên và số điện thoại."}), 400
+
+    try:
+        quantity = max(1, int(quantity))
+    except (TypeError, ValueError):
+        quantity = 1
+
+    try:
+        product_id = int(product_id) if product_id not in (None, "") else None
+    except (TypeError, ValueError):
+        product_id = None
+
+    order = db.add_order(product_id, product_name, customer_name, customer_phone, quantity)
+    return jsonify(order), 201
+
+
+@app.route("/api/orders")
+def api_list_orders():
+    error_response = admin_required()
+    if error_response:
+        return error_response
+    return jsonify(db.get_all_orders())
 
 
 # ======================== KHỞI ĐỘNG APP (chỉ khi chạy local: python app.py) ========================
