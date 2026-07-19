@@ -511,17 +511,6 @@ def get_pending_orders():
     return [dict(r) for r in rows]
 
 
-def get_confirmed_orders():
-    """Đơn admin ĐÃ xác nhận (lịch sử xử lý của admin, không bị xoá)."""
-    conn = get_connection()
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM orders WHERE status = 'confirmed' ORDER BY created_at DESC")
-    rows = cur.fetchall()
-    cur.close()
-    conn.close()
-    return [dict(r) for r in rows]
-
-
 def confirm_order(order_id):
     """Admin xác nhận đã xử lý đơn: đổi status, KHÔNG xoá dòng dữ liệu
     (để user vẫn thấy đơn này trong 'Lịch sử mua hàng' của họ mãi mãi)."""
