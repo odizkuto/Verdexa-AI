@@ -599,6 +599,11 @@ def api_list_my_orders():
     if not user_id:
         return jsonify({"error": "Vui lòng đăng nhập."}), 401
     try:
+        # Admin không tự mua hàng nên đơn của riêng họ luôn trống -> cho admin
+        # xem TOÀN BỘ đơn của mọi người (mọi trạng thái) ngay tại tab này,
+        # thay vì chỉ đơn do chính tài khoản admin đặt.
+        if session.get("is_admin"):
+            return jsonify(db.get_all_orders())
         return jsonify(db.get_orders_by_user(user_id))
     except Exception as e:
         print(f"[api_list_my_orders] Lỗi khi lấy lịch sử mua hàng: {e}")
