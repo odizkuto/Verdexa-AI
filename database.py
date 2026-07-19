@@ -66,6 +66,23 @@ def init_db():
             username TEXT UNIQUE NOT NULL,
             email TEXT UNIQUE NOT NULL,
             password_hash TEXT NOT NULL,
+            is_admin BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    # Đảm bảo cột is_admin tồn tại kể cả với database tạo từ trước (migrate êm)
+    cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE")
+
+    # Bảng sản phẩm (thuốc BVTV) trong Cửa hàng — do tài khoản admin đăng lên
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS products (
+            id SERIAL PRIMARY KEY,
+            name TEXT NOT NULL,
+            category TEXT,
+            price NUMERIC,
+            unit TEXT,
+            description TEXT,
+            image TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
@@ -209,6 +226,16 @@ def get_user_by_username(username):
     return dict(user) if user else None
 
 
+def set_user_admin(user_id, is_admin):
+    """Bật/tắt quyền admin cho 1 user (dùng để tự động cấp quyền theo ADMIN_EMAILS)."""
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("UPDATE users SET is_admin = %s WHERE id = %s", (is_admin, user_id))
+    conn.commit()
+    cur.close()
+    conn.close()
+
+
 def update_user_password(user_id, password_hash):
     """Cập nhật mật khẩu mới (đã hash) cho user."""
     conn = get_connection()
@@ -324,3 +351,53 @@ def delete_chat_history(chat_id):
     conn.commit()
     cur.close()
     conn.close()
+
+
+# ======================== CỬA HÀNG (SẢN PHẨM THUỐC BVTV) ========================
+
+def get_all_products():
+    """Danh sách sản phẩm trong Cửa hàng, mới đăng lên hiển thị trước."""
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM products ORDER BY created_at DESC")
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_product_by_id(product_id):
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM products WHERE id = %s", (product_id,))
+    row = cur.fetchone()
+    cur.close()
+    conn.close()
+    return dict(row) if row else None
+
+
+def add_product(name, category, price, unit, description, image):
+    """Thêm 1 sản phẩm mới. Trả về sản phẩm vừa tạo (dict đầy đủ)."""
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        INSERT INTO products (name, category, price, unit, description, image)
+        VALUES (%s, %s, %s, %s, %s, %s) RETURNING id
+    """, (name, category, price, unit, description, image))
+    product_id = cur.fetchone()["id"]
+    conn.commit()
+    cur.close()
+    conn.close()
+    return get_product_by_id(product_id)
+
+
+def delete_product(product_id):
+    """Xoá 1 sản phẩm theo id. Trả về đường dẫn ảnh (nếu có) để xoá file kèm theo."""
+    product = get_product_by_id(product_id)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM products WHERE id = %s", (product_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return product["image"] if product else None
