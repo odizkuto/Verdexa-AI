@@ -593,19 +593,6 @@ def api_list_orders():
         return jsonify({"error": f"Không đọc được đơn hàng từ database: {e}"}), 500
 
 
-@app.route("/api/orders/confirmed")
-def api_list_confirmed_orders():
-    """Lịch sử các đơn admin ĐÃ xác nhận (không bao giờ bị xoá)."""
-    error_response = admin_required()
-    if error_response:
-        return error_response
-    try:
-        return jsonify(db.get_confirmed_orders())
-    except Exception as e:
-        print(f"[api_list_confirmed_orders] Lỗi khi lấy lịch sử đã xác nhận: {e}")
-        return jsonify({"error": f"Không đọc được lịch sử đã xác nhận từ database: {e}"}), 500
-
-
 @app.route("/api/orders/mine")
 def api_list_my_orders():
     user_id = session.get("user_id")
