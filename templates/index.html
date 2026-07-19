@@ -370,6 +370,25 @@
             {% endif %}
         </div>
 
+        <div class="store-filter-bar">
+            <div class="store-search-wrap">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="storeSearchInput" placeholder="Tìm sản phẩm theo tên...">
+            </div>
+            <select id="storeCategoryFilter">
+                <option value="">Tất cả loại thuốc</option>
+                <option value="Thuốc trừ sâu">Thuốc trừ sâu</option>
+                <option value="Thuốc trừ bệnh">Thuốc trừ bệnh</option>
+                <option value="Thuốc trừ cỏ">Thuốc trừ cỏ</option>
+                <option value="Thuốc trừ chuột">Thuốc trừ chuột</option>
+                <option value="Thuốc điều hòa sinh trưởng">Thuốc điều hòa sinh trưởng</option>
+                <option value="Chất dẫn dụ côn trùng">Chất dẫn dụ côn trùng</option>
+                <option value="Thuốc trừ ốc">Thuốc trừ ốc</option>
+                <option value="Chất hỗ trợ (chất trải)">Chất hỗ trợ (chất trải)</option>
+                <option value="Khác">Khác</option>
+            </select>
+        </div>
+
         <div class="store-grid" id="storeGrid">
             <!-- Các thẻ sản phẩm + thẻ "Thêm sản phẩm" (nếu là admin) sẽ được JS chèn vào đây -->
         </div>
