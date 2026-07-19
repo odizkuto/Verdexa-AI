@@ -45,9 +45,14 @@ function storeBuildProductCard(product) {
     const card = document.createElement("div");
     card.className = "store-card store-product-card";
 
+    const orderCount = Number(product.order_count || 0);
+    const badgeHtml = orderCount > 0
+        ? `<span class="store-product-badge"><i class="fa-solid fa-fire"></i> Đã bán ${orderCount}</span>`
+        : "";
+
     const imageHtml = product.image
-        ? `<div class="store-product-img" style="background-image:url('/uploads/${product.image}')"></div>`
-        : `<div class="store-product-img store-product-img-placeholder"><i class="fa-solid ${icon}"></i></div>`;
+        ? `<div class="store-product-img" style="background-image:url('/uploads/${product.image}')">${badgeHtml}</div>`
+        : `<div class="store-product-img store-product-img-placeholder"><i class="fa-solid ${icon}"></i>${badgeHtml}</div>`;
 
     card.innerHTML = `
         ${imageHtml}
@@ -84,33 +89,66 @@ function storeBuildProductCard(product) {
     return card;
 }
 
+let storeAllProducts = [];
+
 function storeLoadProducts() {
     const grid = document.getElementById("storeGrid");
-    const emptyState = document.getElementById("storeEmptyState");
     if (!grid) return;
 
     fetch("/api/products")
         .then((res) => res.json())
         .then((products) => {
-            grid.innerHTML = "";
-
-            if (typeof IS_ADMIN !== "undefined" && IS_ADMIN) {
-                grid.appendChild(storeBuildAddCard());
-            }
-
-            if (Array.isArray(products) && products.length > 0) {
-                if (emptyState) emptyState.style.display = "none";
-                products.forEach((p) => grid.appendChild(storeBuildProductCard(p)));
-            } else if (emptyState) {
-                emptyState.style.display = (typeof IS_ADMIN !== "undefined" && IS_ADMIN) ? "none" : "block";
-            }
+            storeAllProducts = Array.isArray(products) ? products : [];
+            storeRenderFilteredProducts();
         })
         .catch(() => {
+            const emptyState = document.getElementById("storeEmptyState");
             if (emptyState) {
                 emptyState.style.display = "block";
                 emptyState.textContent = "Không thể tải danh sách sản phẩm.";
             }
         });
+}
+
+function storeNormalizeText(str) {
+    return (str || "")
+        .toString()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+}
+
+function storeRenderFilteredProducts() {
+    const grid = document.getElementById("storeGrid");
+    const emptyState = document.getElementById("storeEmptyState");
+    if (!grid) return;
+
+    const searchInput = document.getElementById("storeSearchInput");
+    const categorySelect = document.getElementById("storeCategoryFilter");
+    const searchTerm = storeNormalizeText(searchInput ? searchInput.value.trim() : "");
+    const category = categorySelect ? categorySelect.value : "";
+
+    const filtered = storeAllProducts.filter((p) => {
+        const matchesSearch = !searchTerm || storeNormalizeText(p.name).includes(searchTerm);
+        const matchesCategory = !category || p.category === category;
+        return matchesSearch && matchesCategory;
+    });
+
+    grid.innerHTML = "";
+
+    if (typeof IS_ADMIN !== "undefined" && IS_ADMIN) {
+        grid.appendChild(storeBuildAddCard());
+    }
+
+    if (filtered.length > 0) {
+        if (emptyState) emptyState.style.display = "none";
+        filtered.forEach((p) => grid.appendChild(storeBuildProductCard(p)));
+    } else if (emptyState) {
+        emptyState.style.display = (typeof IS_ADMIN !== "undefined" && IS_ADMIN) ? "none" : "block";
+        emptyState.innerHTML = storeAllProducts.length === 0
+            ? '<i class="fa-solid fa-box-open"></i><br>Cửa hàng chưa có sản phẩm nào.'
+            : '<i class="fa-solid fa-magnifying-glass"></i><br>Không tìm thấy sản phẩm phù hợp.';
+    }
 }
 
 function storeDeleteProduct(id, cardEl) {
@@ -124,6 +162,7 @@ function storeDeleteProduct(id, cardEl) {
                 return;
             }
             if (cardEl) cardEl.remove();
+            storeAllProducts = storeAllProducts.filter((p) => p.id !== id);
         })
         .catch(() => alert("Có lỗi khi xoá sản phẩm."));
 }
@@ -499,5 +538,20 @@ document.addEventListener("DOMContentLoaded", function () {
     if (typeof IS_ADMIN !== "undefined" && IS_ADMIN) {
         storePollOrdersBadge();
         setInterval(storePollOrdersBadge, 30000);
+    }
+
+    // ---- Tìm kiếm + lọc theo loại thuốc ----
+    const searchInput = document.getElementById("storeSearchInput");
+    const categoryFilter = document.getElementById("storeCategoryFilter");
+    let storeSearchDebounce = null;
+
+    if (searchInput) {
+        searchInput.addEventListener("input", function () {
+            clearTimeout(storeSearchDebounce);
+            storeSearchDebounce = setTimeout(storeRenderFilteredProducts, 200);
+        });
+    }
+    if (categoryFilter) {
+        categoryFilter.addEventListener("change", storeRenderFilteredProducts);
     }
 });
