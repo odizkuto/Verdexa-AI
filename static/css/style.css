@@ -1385,6 +1385,134 @@ nav a:hover{
     color:#c6d9c8;
 }
 
+/* ---- Nút "Đơn đặt hàng" cho admin ---- */
+.store-panel-header{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:20px;
+    flex-wrap:wrap;
+}
+
+.store-orders-btn{
+    position:relative;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:#fff;
+    border:1px solid #d7e4d9;
+    color:#1b5e20;
+    font-weight:600;
+    font-size:14px;
+    padding:11px 18px;
+    border-radius:12px;
+    cursor:pointer;
+    white-space:nowrap;
+    transition:background .15s, border-color .15s;
+}
+
+.store-orders-btn:hover{
+    background:#f1f8f2;
+    border-color:#2e7d32;
+}
+
+.store-orders-badge{
+    position:absolute;
+    top:-8px;
+    right:-8px;
+    background:#e53935;
+    color:#fff;
+    font-size:11px;
+    font-weight:700;
+    min-width:20px;
+    height:20px;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:0 5px;
+}
+
+/* ---- Modal danh sách đơn đặt hàng ---- */
+.store-orders-modal{
+    max-width:560px;
+}
+
+.store-orders-list{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    max-height:60vh;
+    overflow-y:auto;
+}
+
+.store-order-card{
+    border:1px solid #e6ede7;
+    border-radius:14px;
+    padding:16px 18px;
+    background:#fbfdfb;
+}
+
+.store-order-card-top{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:8px;
+}
+
+.store-order-product{
+    font-weight:700;
+    color:#1b5e20;
+    font-size:15px;
+}
+
+.store-order-time{
+    font-size:12px;
+    color:#999;
+    white-space:nowrap;
+}
+
+.store-order-info{
+    font-size:14px;
+    color:#333;
+    line-height:1.8;
+}
+
+.store-order-info b{
+    color:#111;
+}
+
+.store-order-info a{
+    color:#2e7d32;
+    text-decoration:none;
+}
+
+.store-order-info a:hover{
+    text-decoration:underline;
+}
+
+.store-order-card-actions{
+    margin-top:10px;
+    text-align:right;
+}
+
+.store-order-delete-btn{
+    background:none;
+    border:1px solid #f0d5d5;
+    color:#c62828;
+    font-size:12px;
+    font-weight:600;
+    padding:6px 12px;
+    border-radius:8px;
+    cursor:pointer;
+    transition:background .15s;
+}
+
+.store-order-delete-btn:hover{
+    background:#fdecea;
+}
+
 /* ---- Modal thêm sản phẩm ---- */
 .store-modal-overlay{
     display:none;
