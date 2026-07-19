@@ -359,15 +359,29 @@ function storePollOrdersBadge() {
 function storeBuildMyOrderCard(order) {
     const card = document.createElement("div");
     card.className = "store-order-card";
+
+    const isConfirmed = order.status === "confirmed";
+    const statusBadge = isConfirmed
+        ? `<span class="store-order-status-badge store-order-status-confirmed"><i class="fa-solid fa-check-double"></i> Đã xác nhận</span>`
+        : `<span class="store-order-status-badge store-order-status-pending"><i class="fa-solid fa-hourglass-half"></i> Chờ xử lý</span>`;
+
+    // Khi admin xem tab này (thấy đơn của TẤT CẢ mọi người), hiện thêm tên
+    // khách mua để phân biệt; user thường xem đơn của chính mình thì không cần.
+    const customerLine = (typeof IS_ADMIN !== "undefined" && IS_ADMIN && order.customer_name)
+        ? `<div><b>Khách hàng:</b> ${storeEscapeHtml(order.customer_name)}</div>`
+        : "";
+
     card.innerHTML = `
         <div class="store-order-card-top">
             <span class="store-order-product">${storeEscapeHtml(order.product_name || "Sản phẩm không xác định")}</span>
             <span class="store-order-time">${storeFormatOrderTime(order.created_at)}</span>
         </div>
         <div class="store-order-info">
+            ${customerLine}
             <div><b>SĐT liên hệ:</b> ${storeEscapeHtml(order.customer_phone)}</div>
             <div><b>Số lượng:</b> ${storeEscapeHtml(String(order.quantity || 1))}</div>
         </div>
+        ${statusBadge}
     `;
     return card;
 }
