@@ -258,25 +258,58 @@ function storeBuildOrderCard(order) {
             <div><b>Số lượng:</b> ${storeEscapeHtml(String(order.quantity || 1))}</div>
         </div>
         <div class="store-order-card-actions">
-            <button type="button" class="store-order-delete-btn">
-                <i class="fa-solid fa-check"></i> Đã xử lý / Xoá
+            <button type="button" class="store-order-confirm-btn">
+                <i class="fa-solid fa-check"></i> Xác nhận đã xử lý
             </button>
         </div>
     `;
 
-    card.querySelector(".store-order-delete-btn").addEventListener("click", function () {
-        fetch(`/api/orders/${order.id}`, { method: "DELETE" })
-            .then((res) => res.json())
-            .then(() => {
+    // Bấm "Xác nhận" chỉ đổi trạng thái đơn (status: pending -> confirmed),
+    // KHÔNG xoá dữ liệu -> đơn vẫn còn nguyên trong "Lịch sử mua hàng" của
+    // user, và chuyển sang mục "Lịch sử đã xác nhận" bên admin.
+    card.querySelector(".store-order-confirm-btn").addEventListener("click", function (e) {
+        const btn = e.currentTarget;
+        btn.disabled = true;
+        fetch(`/api/orders/${order.id}/confirm`, { method: "POST" })
+            .then((res) => res.json().then((data) => ({ ok: res.ok, data })))
+            .then(({ ok, data }) => {
+                if (!ok) {
+                    alert(data.error || "Không xác nhận được đơn hàng.");
+                    btn.disabled = false;
+                    return;
+                }
                 card.remove();
                 const list = document.getElementById("storeOrdersList");
                 const empty = document.getElementById("storeOrdersEmpty");
                 if (list && empty && list.children.length === 0) {
                     empty.style.display = "block";
                 }
+            })
+            .catch(() => {
+                alert("Có lỗi xảy ra, vui lòng thử lại.");
+                btn.disabled = false;
             });
     });
 
+    return card;
+}
+
+function storeBuildConfirmedOrderCard(order) {
+    const card = document.createElement("div");
+    card.className = "store-order-card store-order-card-confirmed";
+    card.dataset.orderId = order.id;
+    card.innerHTML = `
+        <div class="store-order-card-top">
+            <span class="store-order-product">${storeEscapeHtml(order.product_name || "Sản phẩm không xác định")}</span>
+            <span class="store-order-time">${storeFormatOrderTime(order.created_at)}</span>
+        </div>
+        <div class="store-order-info">
+            <div><b>Khách hàng:</b> ${storeEscapeHtml(order.customer_name)}</div>
+            <div><b>SĐT:</b> <a href="tel:${storeEscapeHtml(order.customer_phone)}">${storeEscapeHtml(order.customer_phone)}</a></div>
+            <div><b>Số lượng:</b> ${storeEscapeHtml(String(order.quantity || 1))}</div>
+        </div>
+        <div class="store-order-status-badge"><i class="fa-solid fa-check-double"></i> Đã xác nhận</div>
+    `;
     return card;
 }
 
@@ -334,6 +367,36 @@ function storeOpenOrdersModal() {
 
 function storeCloseOrdersModal() {
     const overlay = document.getElementById("storeOrdersModalOverlay");
+    if (overlay) overlay.classList.remove("active");
+}
+
+function storeRenderConfirmedOrders(orders) {
+    const list = document.getElementById("storeConfirmedOrdersList");
+    const empty = document.getElementById("storeConfirmedOrdersEmpty");
+    if (!list) return;
+
+    list.innerHTML = "";
+    if (!orders || orders.length === 0) {
+        if (empty) empty.style.display = "block";
+        return;
+    }
+    if (empty) empty.style.display = "none";
+    orders.forEach((order) => list.appendChild(storeBuildConfirmedOrderCard(order)));
+}
+
+function storeOpenConfirmedOrdersModal() {
+    const overlay = document.getElementById("storeConfirmedOrdersModalOverlay");
+    if (!overlay) return;
+    overlay.classList.add("active");
+
+    fetch("/api/orders/confirmed")
+        .then((res) => (res.ok ? res.json() : []))
+        .then(storeRenderConfirmedOrders)
+        .catch(() => {});
+}
+
+function storeCloseConfirmedOrdersModal() {
+    const overlay = document.getElementById("storeConfirmedOrdersModalOverlay");
     if (overlay) overlay.classList.remove("active");
 }
 
@@ -588,6 +651,19 @@ document.addEventListener("DOMContentLoaded", function () {
     if (ordersOverlay) {
         ordersOverlay.addEventListener("click", function (e) {
             if (e.target === ordersOverlay) storeCloseOrdersModal();
+        });
+    }
+
+    // ---- Modal Lịch sử đã xác nhận (admin) ----
+    const confirmedBtn = document.getElementById("storeConfirmedOrdersBtn");
+    const confirmedOverlay = document.getElementById("storeConfirmedOrdersModalOverlay");
+    const confirmedCloseBtn = document.getElementById("storeConfirmedOrdersModalCloseBtn");
+
+    if (confirmedBtn) confirmedBtn.addEventListener("click", storeOpenConfirmedOrdersModal);
+    if (confirmedCloseBtn) confirmedCloseBtn.addEventListener("click", storeCloseConfirmedOrdersModal);
+    if (confirmedOverlay) {
+        confirmedOverlay.addEventListener("click", function (e) {
+            if (e.target === confirmedOverlay) storeCloseConfirmedOrdersModal();
         });
     }
 
