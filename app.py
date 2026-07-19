@@ -76,11 +76,13 @@ def ping():
 @app.route("/")
 def home():
     plants = db.get_all_plants()
+    current_user = db.get_user_by_id(session.get("user_id")) if session.get("user_id") else None
     return render_template(
         "index.html",
         plants=plants,
         username=session.get("username"),
         is_admin=session.get("is_admin", False),
+        user_phone=(current_user or {}).get("phone") or "",
     )
 
 
@@ -542,6 +544,19 @@ def api_add_order():
     if not customer_name or not customer_phone:
         return jsonify({"error": "Vui lòng nhập đầy đủ tên và số điện thoại."}), 400
 
+    # Bắt buộc đăng nhập và SĐT đặt hàng phải trùng khớp SĐT đã đăng ký tài khoản,
+    # tránh việc giả mạo SĐT để spam đơn rác.
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "Vui lòng đăng nhập để đặt hàng."}), 401
+
+    current_user = db.get_user_by_id(user_id)
+    registered_phone = (current_user or {}).get("phone") or ""
+    if not registered_phone:
+        return jsonify({"error": "Tài khoản của bạn chưa có số điện thoại đăng ký. Vui lòng cập nhật SĐT trước khi đặt hàng."}), 400
+    if customer_phone != registered_phone:
+        return jsonify({"error": "Số điện thoại đặt hàng phải trùng với số điện thoại đã đăng ký tài khoản."}), 400
+
     try:
         quantity = max(1, int(quantity))
     except (TypeError, ValueError):
@@ -552,7 +567,7 @@ def api_add_order():
     except (TypeError, ValueError):
         product_id = None
 
-    order = db.add_order(product_id, product_name, customer_name, customer_phone, quantity, session.get("user_id"))
+    order = db.add_order(product_id, product_name, customer_name, customer_phone, quantity, user_id)
     return jsonify(order), 201
 
 
