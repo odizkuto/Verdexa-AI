@@ -564,6 +564,16 @@ def api_list_orders():
     return jsonify(db.get_all_orders())
 
 
+@app.route("/api/orders/<int:order_id>", methods=["DELETE"])
+def api_delete_order(order_id):
+    error_response = admin_required()
+    if error_response:
+        return error_response
+
+    db.delete_order(order_id)
+    return jsonify({"message": "Đã xoá đơn đặt hàng."})
+
+
 # ======================== KHỞI ĐỘNG APP (chỉ khi chạy local: python app.py) ========================
 
 if __name__ == "__main__":
