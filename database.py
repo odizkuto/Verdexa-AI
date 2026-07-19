@@ -384,10 +384,21 @@ def delete_chat_history(chat_id):
 # ======================== CỬA HÀNG (SẢN PHẨM THUỐC BVTV) ========================
 
 def get_all_products():
-    """Danh sách sản phẩm trong Cửa hàng, mới đăng lên hiển thị trước."""
+    """Danh sách sản phẩm trong Cửa hàng. Sản phẩm được mua nhiều nhất / đã có người mua
+    sẽ hiển thị lên đầu (dễ tìm hơn cho khách), sản phẩm mới đăng xếp sau đó."""
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM products ORDER BY created_at DESC")
+    cur.execute("""
+        SELECT p.*, COALESCE(o.order_count, 0) AS order_count
+        FROM products p
+        LEFT JOIN (
+            SELECT product_id, COUNT(*) AS order_count
+            FROM orders
+            WHERE product_id IS NOT NULL
+            GROUP BY product_id
+        ) o ON o.product_id = p.id
+        ORDER BY COALESCE(o.order_count, 0) DESC, p.created_at DESC
+    """)
     rows = cur.fetchall()
     cur.close()
     conn.close()
