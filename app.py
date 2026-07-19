@@ -582,14 +582,28 @@ def api_add_order():
 
 @app.route("/api/orders")
 def api_list_orders():
+    """Đơn ĐANG CHỜ admin xử lý (dùng cho nút chuông 'Đơn đặt hàng')."""
     error_response = admin_required()
     if error_response:
         return error_response
     try:
-        return jsonify(db.get_all_orders())
+        return jsonify(db.get_pending_orders())
     except Exception as e:
         print(f"[api_list_orders] Lỗi khi lấy danh sách đơn hàng: {e}")
         return jsonify({"error": f"Không đọc được đơn hàng từ database: {e}"}), 500
+
+
+@app.route("/api/orders/confirmed")
+def api_list_confirmed_orders():
+    """Lịch sử các đơn admin ĐÃ xác nhận (không bao giờ bị xoá)."""
+    error_response = admin_required()
+    if error_response:
+        return error_response
+    try:
+        return jsonify(db.get_confirmed_orders())
+    except Exception as e:
+        print(f"[api_list_confirmed_orders] Lỗi khi lấy lịch sử đã xác nhận: {e}")
+        return jsonify({"error": f"Không đọc được lịch sử đã xác nhận từ database: {e}"}), 500
 
 
 @app.route("/api/orders/mine")
@@ -604,8 +618,31 @@ def api_list_my_orders():
         return jsonify({"error": f"Không đọc được lịch sử mua hàng từ database: {e}"}), 500
 
 
+@app.route("/api/orders/<int:order_id>/confirm", methods=["POST"])
+def api_confirm_order(order_id):
+    """Admin bấm 'Xác nhận': đổi trạng thái đơn sang confirmed, KHÔNG xoá
+    dòng dữ liệu -> đơn vẫn còn nguyên trong 'Lịch sử mua hàng' của user
+    và chuyển sang 'Lịch sử đã xác nhận' bên admin."""
+    error_response = admin_required()
+    if error_response:
+        return error_response
+
+    if not db.get_order_by_id(order_id):
+        return jsonify({"error": "Không tìm thấy đơn hàng."}), 404
+
+    try:
+        order = db.confirm_order(order_id)
+    except Exception as e:
+        print(f"[api_confirm_order] Lỗi khi xác nhận đơn hàng: {e}")
+        return jsonify({"error": f"Không xác nhận được đơn hàng: {e}"}), 500
+
+    return jsonify(order)
+
+
 @app.route("/api/orders/<int:order_id>", methods=["DELETE"])
 def api_delete_order(order_id):
+    """Xoá HẲN 1 đơn khỏi database (dùng để dọn đơn rác/spam, không dùng
+    cho thao tác xác nhận đã xử lý nữa)."""
     error_response = admin_required()
     if error_response:
         return error_response
