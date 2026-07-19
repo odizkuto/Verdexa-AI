@@ -1722,26 +1722,87 @@ nav a:hover{
     background:rgba(0,0,0,.75);
 }
 
-/* ---- Nút "Mua" trên thẻ sản phẩm ---- */
+/* ---- Nút "Mua" trên thẻ sản phẩm (hiệu ứng lật khi hover) ---- */
 .store-product-buy-wrap{
     padding:14px 20px 0;
+    display:flex;
+    justify-content:center;
 }
 
 .store-buy-btn{
+    height:46px;
     width:100%;
-    background:#2e7d32;
-    color:#fff;
+    max-width:220px;
     border:none;
-    padding:10px;
     border-radius:10px;
-    font-size:14px;
-    font-weight:600;
     cursor:pointer;
-    transition:.2s;
+    position:relative;
+    overflow:hidden;
+    background:#2e7d32;
+    transition:all .5s ease-in-out;
 }
 
 .store-buy-btn:hover{
-    background:#256427;
+    box-shadow:.5px .5px 60px rgba(37,37,37,.5);
+}
+
+.store-buy-btn::before{
+    content:"Mua ngay";
+    height:46px;
+    width:100%;
+    background-color:#2e7d32;
+    color:#fff;
+    position:absolute;
+    top:0;
+    left:0;
+    transform:translateY(0px) scale(1.2);
+    font-size:1rem;
+    font-weight:600;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:all .5s ease-in-out;
+}
+
+.store-buy-btn::after{
+    content:"Đã mua";
+    height:46px;
+    width:100%;
+    background-color:#1b5e20;
+    color:#fff;
+    position:absolute;
+    top:0;
+    left:0;
+    transform:translateY(46px);
+    font-size:1rem;
+    font-weight:600;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:all .5s ease-in-out;
+}
+
+.store-buy-btn:hover::after{
+    transform:translateY(0) scale(1.2);
+}
+
+.store-buy-btn:hover::before{
+    transform:translateY(-46px) scale(0) rotate(120deg);
+}
+
+/* Sau khi khách gửi yêu cầu mua thành công: khoá nút, giữ cố định chữ "Đã mua" */
+.store-buy-btn.bought{
+    cursor:default;
+    pointer-events:none;
+}
+
+.store-buy-btn.bought::before{
+    transform:translateY(-46px) scale(0) rotate(120deg);
+}
+
+.store-buy-btn.bought::after{
+    background-color:#555;
+    transform:translateY(0) scale(1.2);
 }
 
 /* ---- Modal Mua hàng ---- */
