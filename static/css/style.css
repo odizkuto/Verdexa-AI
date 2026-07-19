@@ -1782,15 +1782,9 @@ nav a:hover{
     transition:all .5s ease-in-out;
 }
 
-.store-buy-btn:hover::after{
-    transform:translateY(0) scale(1.2);
-}
+/* Chưa đặt hàng: hover chỉ đổ bóng, không lật chữ. Chỉ lật sang "Đã mua" khi có class .bought (JS gắn sau khi đặt hàng thành công) */
 
-.store-buy-btn:hover::before{
-    transform:translateY(-46px) scale(0) rotate(120deg);
-}
-
-/* Sau khi khách gửi yêu cầu mua thành công: khoá nút, giữ cố định chữ "Đã mua" */
+/* Sau khi khách gửi yêu cầu mua thành công: lật sang "Đã mua" trong ~5s rồi tự quay lại */
 .store-buy-btn.bought{
     cursor:default;
     pointer-events:none;
