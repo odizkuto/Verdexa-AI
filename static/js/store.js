@@ -59,9 +59,7 @@ function storeBuildProductCard(product) {
             ${typeof IS_ADMIN !== "undefined" && IS_ADMIN ? `<button type="button" class="store-product-delete" title="Xoá sản phẩm"><i class="fa-solid fa-trash"></i></button>` : ""}
         </div>
         <div class="store-product-buy-wrap">
-            <button type="button" class="store-buy-btn">
-                <i class="fa-solid fa-cart-shopping"></i> Mua
-            </button>
+            <button type="button" class="store-buy-btn" data-product-id="${product.id}" aria-label="Mua ${storeEscapeHtml(product.name)}"></button>
         </div>
     `;
 
@@ -461,6 +459,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                     orderForm.style.display = "none";
                     successEl.style.display = "block";
+
+                    if (storeSelectedProduct) {
+                        const boughtBtn = document.querySelector(
+                            `.store-buy-btn[data-product-id="${storeSelectedProduct.id}"]`
+                        );
+                        if (boughtBtn) boughtBtn.classList.add("bought");
+                    }
+
                     setTimeout(storeCloseOrderModal, 2200);
                 })
                 .catch(() => {
