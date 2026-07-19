@@ -526,6 +526,9 @@
                 <label>Số điện thoại
                     <input type="tel" id="orderCustomerPhone" placeholder="Ví dụ: 0123456789" required>
                 </label>
+                <p class="store-order-phone-hint" id="orderPhoneHint" style="display:none;">
+                    <i class="fa-solid fa-circle-info"></i> SĐT phải trùng với số điện thoại đã đăng ký tài khoản.
+                </p>
 
                 <label>Số lượng
                     <input type="number" id="orderQuantity" min="1" value="1">
@@ -555,6 +558,7 @@
 // ===== TRẠNG THÁI ĐĂNG NHẬP (từ server) =====
 const IS_LOGGED_IN = {{ 'true' if username else 'false' }};
 const IS_ADMIN = {{ 'true' if is_admin else 'false' }};
+const USER_PHONE = "{{ user_phone|default('', true) }}";
 
 // ===== CHUYỂN HƯỚNG NẾU CHƯA ĐĂNG NHẬP =====
 function requireLogin() {
