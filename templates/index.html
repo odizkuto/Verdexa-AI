@@ -50,7 +50,15 @@
     </div>
 
     <nav class="sidebar-nav">
-        <a href="#" class="sidebar-link active" data-tab="identify">
+        <a href="#" class="sidebar-link active" data-tab="chat">
+            <i class="fa-solid fa-comments"></i>
+            <span>Trò chuyện AI</span>
+        </a>
+        <a href="#" class="sidebar-link" data-tab="store">
+            <i class="fa-solid fa-store"></i>
+            <span>Cửa hàng</span>
+        </a>
+        <a href="#" class="sidebar-link" data-tab="identify">
             <i class="fa-solid fa-camera"></i>
             <span>Nhận diện cây</span>
         </a>
@@ -61,14 +69,6 @@
         <a href="#" class="sidebar-link" data-tab="library">
             <i class="fa-solid fa-book-open"></i>
             <span>Thư viện</span>
-        </a>
-        <a href="#" class="sidebar-link" data-tab="chat">
-            <i class="fa-solid fa-comments"></i>
-            <span>Trò chuyện AI</span>
-        </a>
-        <a href="#" class="sidebar-link" data-tab="store">
-            <i class="fa-solid fa-store"></i>
-            <span>Cửa hàng</span>
         </a>
         {% if username %}
         <a href="#" class="sidebar-link" data-tab="orderhistory">
@@ -102,7 +102,7 @@
 <main class="main-content" id="lbtStageContent">
 
     <!-- TAB: NHẬN DIỆN CÂY -->
-    <section class="tab-panel active" id="tab-identify">
+    <section class="tab-panel" id="tab-identify">
         <div class="panel-header">
             <h1><i class="fa-solid fa-camera"></i> Nhận diện cây trồng</h1>
             <p>Tải lên hoặc kéo thả ảnh để nhận diện cây trồng bằng AI.</p>
@@ -263,7 +263,7 @@
     </section>
 
     <!-- TAB: TRÒ CHUYỆN AI -->
-    <section class="tab-panel" id="tab-chat">
+    <section class="tab-panel active" id="tab-chat">
         <div class="panel-header">
             <h1><i class="fa-solid fa-comments"></i> Hỏi AI</h1>
             <p>Hỏi bất cứ điều gì về cây trồng và sâu bệnh.</p>
