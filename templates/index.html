@@ -413,9 +413,18 @@
                     <textarea id="productDescription" rows="3" placeholder="Đối tượng phòng trừ, hướng dẫn sử dụng..."></textarea>
                 </label>
 
-                <label>Ảnh sản phẩm
-                    <input type="file" id="productImage" accept="image/*">
-                </label>
+                <label>Ảnh sản phẩm</label>
+                <div class="store-image-upload" id="storeImageUpload">
+                    <input type="file" id="productImage" accept="image/*" hidden>
+                    <div class="store-image-upload-placeholder" id="storeImageUploadPlaceholder">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <span>Bấm để chọn ảnh sản phẩm</span>
+                    </div>
+                    <img class="store-image-preview" id="storeImagePreview" style="display:none;">
+                    <button type="button" class="store-image-remove" id="storeImageRemoveBtn" style="display:none;" title="Bỏ ảnh">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
 
                 <p class="store-form-error" id="storeFormError" style="display:none;"></p>
 
@@ -426,6 +435,40 @@
         </div>
     </div>
     {% endif %}
+
+    <!-- MODAL: MUA HÀNG (hiện cho tất cả mọi người) -->
+    <div class="store-modal-overlay" id="storeOrderModalOverlay">
+        <div class="store-modal">
+            <button type="button" class="store-modal-close" id="storeOrderModalCloseBtn">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h2><i class="fa-solid fa-cart-shopping"></i> Đặt mua sản phẩm</h2>
+            <p class="store-order-product-name" id="storeOrderProductName"></p>
+
+            <form id="storeOrderForm">
+                <label>Họ và tên
+                    <input type="text" id="orderCustomerName" placeholder="Nhập họ tên của bạn" required>
+                </label>
+
+                <label>Số điện thoại
+                    <input type="tel" id="orderCustomerPhone" placeholder="VD: 0912345678" required>
+                </label>
+
+                <label>Số lượng
+                    <input type="number" id="orderQuantity" min="1" value="1">
+                </label>
+
+                <p class="store-form-error" id="storeOrderFormError" style="display:none;"></p>
+                <p class="store-form-success" id="storeOrderFormSuccess" style="display:none;">
+                    <i class="fa-solid fa-circle-check"></i> Đã gửi yêu cầu mua hàng! Chúng tôi sẽ liên hệ với bạn sớm nhất.
+                </p>
+
+                <button type="submit" class="store-form-submit" id="storeOrderSubmitBtn">
+                    <i class="fa-solid fa-paper-plane"></i> Gửi yêu cầu mua
+                </button>
+            </form>
+        </div>
+    </div>
 
 </main>
 
