@@ -54,3 +54,15 @@ class Config:
 
     # Domain gốc của web, dùng để tạo link trong email (vd: link đặt lại mật khẩu)
     APP_BASE_URL = os.environ.get("APP_BASE_URL", "http://127.0.0.1:5000")
+
+    # ==================== TÀI KHOẢN ADMIN (quản lý Cửa hàng) ====================
+    # Liệt kê các email được coi là admin, cách nhau bởi dấu phẩy. Đặt trong
+    # apikey.env (local) hoặc Environment Variables trên Render, ví dụ:
+    #   ADMIN_EMAILS=admin@verdexa.com,owner@gmail.com
+    # Bất kỳ tài khoản nào đăng nhập bằng email nằm trong danh sách này sẽ tự
+    # động được cấp quyền admin (thấy nút "+" để đăng sản phẩm trong Cửa hàng).
+    ADMIN_EMAILS = {
+        e.strip().lower()
+        for e in os.environ.get("ADMIN_EMAILS", "").split(",")
+        if e.strip()
+    }
