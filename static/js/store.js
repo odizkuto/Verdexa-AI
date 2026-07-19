@@ -58,7 +58,20 @@ function storeBuildProductCard(product) {
             <span class="store-product-price">${storeFormatPrice(product.price)}${product.unit ? ` <small>/ ${storeEscapeHtml(product.unit)}</small>` : ""}</span>
             ${typeof IS_ADMIN !== "undefined" && IS_ADMIN ? `<button type="button" class="store-product-delete" title="Xoá sản phẩm"><i class="fa-solid fa-trash"></i></button>` : ""}
         </div>
+        <div class="store-product-buy-wrap">
+            <button type="button" class="store-buy-btn">
+                <i class="fa-solid fa-cart-shopping"></i> Mua
+            </button>
+        </div>
     `;
+
+    const buyBtn = card.querySelector(".store-buy-btn");
+    if (buyBtn) {
+        buyBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            storeOpenOrderModal(product);
+        });
+    }
 
     if (typeof IS_ADMIN !== "undefined" && IS_ADMIN) {
         const delBtn = card.querySelector(".store-product-delete");
@@ -131,6 +144,40 @@ function storeCloseModal() {
     if (overlay) overlay.classList.remove("active");
     if (form) form.reset();
     if (errorEl) errorEl.style.display = "none";
+    storeResetImagePreview();
+}
+
+function storeResetImagePreview() {
+    const preview = document.getElementById("storeImagePreview");
+    const placeholder = document.getElementById("storeImageUploadPlaceholder");
+    const removeBtn = document.getElementById("storeImageRemoveBtn");
+    if (preview) { preview.style.display = "none"; preview.src = ""; }
+    if (placeholder) placeholder.style.display = "flex";
+    if (removeBtn) removeBtn.style.display = "none";
+}
+
+// ===== MODAL MUA HÀNG (hiện cho tất cả mọi người) =====
+
+let storeSelectedProduct = null;
+
+function storeOpenOrderModal(product) {
+    storeSelectedProduct = product;
+    const overlay = document.getElementById("storeOrderModalOverlay");
+    const nameEl = document.getElementById("storeOrderProductName");
+    if (nameEl) nameEl.textContent = `Sản phẩm: ${product.name}`;
+    if (overlay) overlay.classList.add("active");
+}
+
+function storeCloseOrderModal() {
+    const overlay = document.getElementById("storeOrderModalOverlay");
+    const form = document.getElementById("storeOrderForm");
+    const errorEl = document.getElementById("storeOrderFormError");
+    const successEl = document.getElementById("storeOrderFormSuccess");
+    if (overlay) overlay.classList.remove("active");
+    if (form) { form.reset(); form.style.display = "block"; }
+    if (errorEl) errorEl.style.display = "none";
+    if (successEl) successEl.style.display = "none";
+    storeSelectedProduct = null;
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -145,6 +192,58 @@ document.addEventListener("DOMContentLoaded", function () {
     if (overlay) {
         overlay.addEventListener("click", function (e) {
             if (e.target === overlay) storeCloseModal();
+        });
+    }
+
+    // ---- Khung upload ảnh có xem trước (chỉ tồn tại nếu là admin) ----
+    const imageUploadBox = document.getElementById("storeImageUpload");
+    const imageInput = document.getElementById("productImage");
+    const imagePreview = document.getElementById("storeImagePreview");
+    const imagePlaceholder = document.getElementById("storeImageUploadPlaceholder");
+    const imageRemoveBtn = document.getElementById("storeImageRemoveBtn");
+
+    if (imageUploadBox && imageInput) {
+        imageUploadBox.addEventListener("click", (e) => {
+            if (e.target.closest("#storeImageRemoveBtn")) return;
+            imageInput.click();
+        });
+
+        imageInput.addEventListener("change", () => {
+            const file = imageInput.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = "block";
+                imagePlaceholder.style.display = "none";
+                imageRemoveBtn.style.display = "flex";
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Kéo & thả ảnh vào khung
+        imageUploadBox.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            imageUploadBox.classList.add("dragover");
+        });
+        imageUploadBox.addEventListener("dragleave", () => {
+            imageUploadBox.classList.remove("dragover");
+        });
+        imageUploadBox.addEventListener("drop", (e) => {
+            e.preventDefault();
+            imageUploadBox.classList.remove("dragover");
+            if (e.dataTransfer.files[0]) {
+                imageInput.files = e.dataTransfer.files;
+                imageInput.dispatchEvent(new Event("change"));
+            }
+        });
+    }
+
+    if (imageRemoveBtn) {
+        imageRemoveBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            imageInput.value = "";
+            storeResetImagePreview();
         });
     }
 
@@ -169,8 +268,7 @@ document.addEventListener("DOMContentLoaded", function () {
             formData.append("unit", document.getElementById("productUnit").value);
             formData.append("description", document.getElementById("productDescription").value);
 
-            const imageInput = document.getElementById("productImage");
-            if (imageInput.files[0]) {
+            if (imageInput && imageInput.files[0]) {
                 formData.append("image", imageInput.files[0]);
             }
 
@@ -195,6 +293,74 @@ document.addEventListener("DOMContentLoaded", function () {
                 .finally(() => {
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = '<i class="fa-solid fa-upload"></i> Đăng sản phẩm';
+                });
+        });
+    }
+
+    // ---- Modal Mua hàng ----
+    const orderOverlay = document.getElementById("storeOrderModalOverlay");
+    const orderCloseBtn = document.getElementById("storeOrderModalCloseBtn");
+    const orderForm = document.getElementById("storeOrderForm");
+
+    if (orderCloseBtn) orderCloseBtn.addEventListener("click", storeCloseOrderModal);
+
+    if (orderOverlay) {
+        orderOverlay.addEventListener("click", function (e) {
+            if (e.target === orderOverlay) storeCloseOrderModal();
+        });
+    }
+
+    if (orderForm) {
+        orderForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const customerName = document.getElementById("orderCustomerName").value.trim();
+            const customerPhone = document.getElementById("orderCustomerPhone").value.trim();
+            const quantity = document.getElementById("orderQuantity").value || 1;
+            const errorEl = document.getElementById("storeOrderFormError");
+            const successEl = document.getElementById("storeOrderFormSuccess");
+            const submitBtn = document.getElementById("storeOrderSubmitBtn");
+
+            errorEl.style.display = "none";
+
+            if (!customerName || !customerPhone) {
+                errorEl.textContent = "Vui lòng nhập đầy đủ họ tên và số điện thoại.";
+                errorEl.style.display = "block";
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang gửi...';
+
+            fetch("/api/orders", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    product_id: storeSelectedProduct ? storeSelectedProduct.id : null,
+                    product_name: storeSelectedProduct ? storeSelectedProduct.name : "",
+                    customer_name: customerName,
+                    customer_phone: customerPhone,
+                    quantity: quantity,
+                }),
+            })
+                .then((res) => res.json().then((data) => ({ ok: res.ok, data })))
+                .then(({ ok, data }) => {
+                    if (!ok) {
+                        errorEl.textContent = data.error || "Có lỗi xảy ra, vui lòng thử lại.";
+                        errorEl.style.display = "block";
+                        return;
+                    }
+                    orderForm.style.display = "none";
+                    successEl.style.display = "block";
+                    setTimeout(storeCloseOrderModal, 2200);
+                })
+                .catch(() => {
+                    errorEl.textContent = "Có lỗi xảy ra, vui lòng thử lại.";
+                    errorEl.style.display = "block";
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Gửi yêu cầu mua';
                 });
         });
     }
