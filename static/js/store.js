@@ -326,6 +326,46 @@ function storePollOrdersBadge() {
     storeFetchOrders(storeUpdateOrdersBadge);
 }
 
+function storeBuildMyOrderCard(order) {
+    const card = document.createElement("div");
+    card.className = "store-order-card";
+    card.innerHTML = `
+        <div class="store-order-card-top">
+            <span class="store-order-product">${storeEscapeHtml(order.product_name || "Sản phẩm không xác định")}</span>
+            <span class="store-order-time">${storeFormatOrderTime(order.created_at)}</span>
+        </div>
+        <div class="store-order-info">
+            <div><b>SĐT liên hệ:</b> ${storeEscapeHtml(order.customer_phone)}</div>
+            <div><b>Số lượng:</b> ${storeEscapeHtml(String(order.quantity || 1))}</div>
+        </div>
+    `;
+    return card;
+}
+
+function storeLoadMyOrders() {
+    const list = document.getElementById("myOrdersList");
+    const empty = document.getElementById("myOrdersEmpty");
+    if (!list) return;
+
+    fetch("/api/orders/mine")
+        .then((res) => (res.ok ? res.json() : []))
+        .then((orders) => {
+            list.innerHTML = "";
+            if (!orders || orders.length === 0) {
+                if (empty) empty.style.display = "block";
+                return;
+            }
+            if (empty) empty.style.display = "none";
+            orders.forEach((order) => list.appendChild(storeBuildMyOrderCard(order)));
+        })
+        .catch(() => {
+            if (empty) {
+                empty.style.display = "block";
+                empty.textContent = "Không thể tải lịch sử mua hàng.";
+            }
+        });
+}
+
 document.addEventListener("DOMContentLoaded", function () {
     storeLoadProducts();
 
