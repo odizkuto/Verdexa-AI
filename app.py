@@ -46,6 +46,15 @@ def save_uploaded_image(file_storage):
     return save_path, unique_name
 
 
+def admin_required():
+    """Trả về response lỗi nếu người dùng hiện tại không phải admin, ngược lại trả về None."""
+    if not session.get("user_id"):
+        return jsonify({"error": "Vui lòng đăng nhập."}), 401
+    if not session.get("is_admin"):
+        return jsonify({"error": "Chỉ tài khoản admin mới có thể thực hiện thao tác này."}), 403
+    return None
+
+
 # ======================== XÁC MINH GOOGLE SEARCH CONSOLE ========================
 
 @app.route("/google0156cc4bdf0bb97f.html")
@@ -67,7 +76,12 @@ def ping():
 @app.route("/")
 def home():
     plants = db.get_all_plants()
-    return render_template("index.html", plants=plants, username=session.get("username"))
+    return render_template(
+        "index.html",
+        plants=plants,
+        username=session.get("username"),
+        is_admin=session.get("is_admin", False),
+    )
 
 
 @app.route("/login")
@@ -232,11 +246,17 @@ def api_login():
     if not user or not check_password_hash(user["password_hash"], password):
         return jsonify({"error": "Email hoặc mật khẩu không đúng."}), 401
 
+    # Tự động cấp/thu quyền admin dựa theo danh sách Config.ADMIN_EMAILS
+    should_be_admin = email in Config.ADMIN_EMAILS
+    if bool(user.get("is_admin")) != should_be_admin:
+        db.set_user_admin(user["id"], should_be_admin)
+
     session.permanent = True
     session["user_id"] = user["id"]
     session["username"] = user["username"]
+    session["is_admin"] = should_be_admin
 
-    return jsonify({"message": "Đăng nhập thành công.", "username": user["username"]})
+    return jsonify({"message": "Đăng nhập thành công.", "username": user["username"], "is_admin": should_be_admin})
 
 
 @app.route("/api/logout", methods=["POST"])
@@ -438,6 +458,64 @@ def api_chat_delete(chat_id):
 @app.route("/api/history")
 def api_history():
     return jsonify(db.get_history())
+
+
+# ======================== API: CỬA HÀNG (SẢN PHẨM) ========================
+
+@app.route("/api/products")
+def api_products():
+    return jsonify(db.get_all_products())
+
+
+@app.route("/api/products", methods=["POST"])
+def api_add_product():
+    error_response = admin_required()
+    if error_response:
+        return error_response
+
+    name = request.form.get("name", "").strip()
+    category = request.form.get("category", "").strip()
+    price = request.form.get("price", "").strip()
+    unit = request.form.get("unit", "").strip()
+    description = request.form.get("description", "").strip()
+
+    if not name:
+        return jsonify({"error": "Vui lòng nhập tên sản phẩm."}), 400
+
+    price_value = None
+    if price:
+        try:
+            price_value = float(price)
+        except ValueError:
+            return jsonify({"error": "Giá bán không hợp lệ."}), 400
+
+    image_name = None
+    if "image" in request.files and request.files["image"].filename != "":
+        file = request.files["image"]
+        if not allowed_file(file.filename):
+            return jsonify({"error": "Định dạng ảnh không hợp lệ."}), 400
+        _, image_name = save_uploaded_image(file)
+
+    product = db.add_product(name, category, price_value, unit, description, image_name)
+    return jsonify(product), 201
+
+
+@app.route("/api/products/<int:product_id>", methods=["DELETE"])
+def api_delete_product(product_id):
+    error_response = admin_required()
+    if error_response:
+        return error_response
+
+    if not db.get_product_by_id(product_id):
+        return jsonify({"error": "Không tìm thấy sản phẩm."}), 404
+
+    image_name = db.delete_product(product_id)
+    if image_name:
+        image_path = os.path.join(Config.UPLOAD_FOLDER, image_name)
+        if os.path.exists(image_path):
+            os.remove(image_path)
+
+    return jsonify({"message": "Đã xoá sản phẩm."})
 
 
 # ======================== KHỞI ĐỘNG APP (chỉ khi chạy local: python app.py) ========================
