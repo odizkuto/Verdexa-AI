@@ -357,9 +357,17 @@
 
     <!-- TAB: CỬA HÀNG -->
     <section class="tab-panel" id="tab-store">
-        <div class="panel-header">
-            <h1><i class="fa-solid fa-store"></i> Cửa hàng</h1>
-            <p>Sản phẩm thuốc bảo vệ thực vật đang được bán.</p>
+        <div class="panel-header store-panel-header">
+            <div>
+                <h1><i class="fa-solid fa-store"></i> Cửa hàng</h1>
+                <p>Sản phẩm thuốc bảo vệ thực vật đang được bán.</p>
+            </div>
+            {% if is_admin %}
+            <button type="button" class="store-orders-btn" id="storeOrdersBtn">
+                <i class="fa-solid fa-bell"></i> Đơn đặt hàng
+                <span class="store-orders-badge" id="storeOrdersBadge" style="display:none;">0</span>
+            </button>
+            {% endif %}
         </div>
 
         <div class="store-grid" id="storeGrid">
@@ -432,6 +440,27 @@
                     <i class="fa-solid fa-upload"></i> Đăng sản phẩm
                 </button>
             </form>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if is_admin %}
+    <!-- MODAL: DANH SÁCH ĐƠN ĐẶT HÀNG (chỉ render cho admin) -->
+    <div class="store-modal-overlay" id="storeOrdersModalOverlay">
+        <div class="store-modal store-orders-modal">
+            <button type="button" class="store-modal-close" id="storeOrdersModalCloseBtn">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h2><i class="fa-solid fa-bell"></i> Đơn đặt hàng</h2>
+
+            <div class="store-orders-list" id="storeOrdersList">
+                <!-- JS chèn danh sách đơn đặt hàng vào đây -->
+            </div>
+
+            <p class="store-empty-state" id="storeOrdersEmpty" style="display:none;">
+                <i class="fa-solid fa-inbox"></i><br>
+                Chưa có đơn đặt hàng nào.
+            </p>
         </div>
     </div>
     {% endif %}
