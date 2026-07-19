@@ -359,52 +359,73 @@
     <section class="tab-panel" id="tab-store">
         <div class="panel-header">
             <h1><i class="fa-solid fa-store"></i> Cửa hàng</h1>
-            <p>Thuốc bảo vệ thực vật dùng trong nông nghiệp, theo Danh mục thuốc BVTV được phép sử dụng tại Việt Nam.</p>
+            <p>Sản phẩm thuốc bảo vệ thực vật đang được bán.</p>
         </div>
 
-        <div class="store-grid">
-            <div class="store-card">
-                <i class="fa-solid fa-bug"></i>
-                <h3>Thuốc trừ sâu</h3>
-                <p>897 hoạt chất · 2.196 tên thương phẩm</p>
-            </div>
-            <div class="store-card">
-                <i class="fa-solid fa-virus"></i>
-                <h3>Thuốc trừ bệnh</h3>
-                <p>838 hoạt chất · 1.957 tên thương phẩm</p>
-            </div>
-            <div class="store-card">
-                <i class="fa-solid fa-seedling"></i>
-                <h3>Thuốc trừ cỏ</h3>
-                <p>312 hoạt chất · 996 tên thương phẩm</p>
-            </div>
-            <div class="store-card">
-                <i class="fa-solid fa-paw"></i>
-                <h3>Thuốc trừ chuột</h3>
-                <p>9 hoạt chất · 73 tên thương phẩm</p>
-            </div>
-            <div class="store-card">
-                <i class="fa-solid fa-chart-line"></i>
-                <h3>Thuốc điều hòa sinh trưởng</h3>
-                <p>67 hoạt chất · 207 tên thương phẩm</p>
-            </div>
-            <div class="store-card">
-                <i class="fa-solid fa-magnet"></i>
-                <h3>Chất dẫn dụ côn trùng</h3>
-                <p>8 hoạt chất · 8 tên thương phẩm</p>
-            </div>
-            <div class="store-card">
-                <i class="fa-solid fa-worm"></i>
-                <h3>Thuốc trừ ốc</h3>
-                <p>31 hoạt chất · 162 tên thương phẩm</p>
-            </div>
-            <div class="store-card">
-                <i class="fa-solid fa-flask"></i>
-                <h3>Chất hỗ trợ (chất trải)</h3>
-                <p>5 hoạt chất · 6 tên thương phẩm</p>
-            </div>
+        <div class="store-grid" id="storeGrid">
+            <!-- Các thẻ sản phẩm + thẻ "Thêm sản phẩm" (nếu là admin) sẽ được JS chèn vào đây -->
         </div>
+
+        <p class="store-empty-state" id="storeEmptyState" style="display:none;">
+            <i class="fa-solid fa-box-open"></i><br>
+            Cửa hàng chưa có sản phẩm nào.
+        </p>
     </section>
+
+    {% if is_admin %}
+    <!-- MODAL: THÊM SẢN PHẨM (chỉ render cho admin) -->
+    <div class="store-modal-overlay" id="storeModalOverlay">
+        <div class="store-modal">
+            <button type="button" class="store-modal-close" id="storeModalCloseBtn">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h2><i class="fa-solid fa-plus"></i> Thêm sản phẩm mới</h2>
+
+            <form id="storeProductForm">
+                <label>Tên sản phẩm
+                    <input type="text" id="productName" placeholder="VD: Abamectin 3.6EC" required>
+                </label>
+
+                <label>Loại thuốc
+                    <select id="productCategory">
+                        <option value="Thuốc trừ sâu">Thuốc trừ sâu</option>
+                        <option value="Thuốc trừ bệnh">Thuốc trừ bệnh</option>
+                        <option value="Thuốc trừ cỏ">Thuốc trừ cỏ</option>
+                        <option value="Thuốc trừ chuột">Thuốc trừ chuột</option>
+                        <option value="Thuốc điều hòa sinh trưởng">Thuốc điều hòa sinh trưởng</option>
+                        <option value="Chất dẫn dụ côn trùng">Chất dẫn dụ côn trùng</option>
+                        <option value="Thuốc trừ ốc">Thuốc trừ ốc</option>
+                        <option value="Chất hỗ trợ (chất trải)">Chất hỗ trợ (chất trải)</option>
+                        <option value="Khác">Khác</option>
+                    </select>
+                </label>
+
+                <div class="store-form-row">
+                    <label>Giá bán (VNĐ)
+                        <input type="number" id="productPrice" min="0" step="1000" placeholder="VD: 45000">
+                    </label>
+                    <label>Đơn vị
+                        <input type="text" id="productUnit" placeholder="VD: chai 100ml">
+                    </label>
+                </div>
+
+                <label>Mô tả / công dụng
+                    <textarea id="productDescription" rows="3" placeholder="Đối tượng phòng trừ, hướng dẫn sử dụng..."></textarea>
+                </label>
+
+                <label>Ảnh sản phẩm
+                    <input type="file" id="productImage" accept="image/*">
+                </label>
+
+                <p class="store-form-error" id="storeFormError" style="display:none;"></p>
+
+                <button type="submit" class="store-form-submit" id="storeFormSubmitBtn">
+                    <i class="fa-solid fa-upload"></i> Đăng sản phẩm
+                </button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
 
 </main>
 
@@ -417,6 +438,7 @@
 <script>
 // ===== TRẠNG THÁI ĐĂNG NHẬP (từ server) =====
 const IS_LOGGED_IN = {{ 'true' if username else 'false' }};
+const IS_ADMIN = {{ 'true' if is_admin else 'false' }};
 
 // ===== CHUYỂN HƯỚNG NẾU CHƯA ĐĂNG NHẬP =====
 function requireLogin() {
@@ -510,6 +532,7 @@ if (logoutBtn) {
     });
 }
 </script>
+<script src="{{ url_for('static', filename='js/store.js') }}"></script>
 <script src="{{ url_for('static', filename='js/library-book-transition.js') }}"></script>
 </body>
 </html>
