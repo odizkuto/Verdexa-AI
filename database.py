@@ -101,9 +101,12 @@ def init_db():
             customer_name TEXT NOT NULL,
             customer_phone TEXT NOT NULL,
             quantity INTEGER DEFAULT 1,
+            user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
+    # Migrate êm cho database tạo từ trước (chưa có cột user_id):
+    cur.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id) ON DELETE SET NULL")
 
     # Bảng lưu lại các cuộc trò chuyện với AI, tự đặt tên theo nội dung
     cur.execute("""
@@ -444,14 +447,14 @@ def delete_product(product_id):
 
 # ======================== ĐƠN MUA HÀNG (NÚT "MUA" TRONG CỬA HÀNG) ========================
 
-def add_order(product_id, product_name, customer_name, customer_phone, quantity=1):
+def add_order(product_id, product_name, customer_name, customer_phone, quantity=1, user_id=None):
     """Lưu 1 yêu cầu mua hàng (tên + SĐT khách để lại). Trả về đơn vừa tạo."""
     conn = get_connection()
     cur = conn.cursor()
     cur.execute("""
-        INSERT INTO orders (product_id, product_name, customer_name, customer_phone, quantity)
-        VALUES (%s, %s, %s, %s, %s) RETURNING id
-    """, (product_id, product_name, customer_name, customer_phone, quantity))
+        INSERT INTO orders (product_id, product_name, customer_name, customer_phone, quantity, user_id)
+        VALUES (%s, %s, %s, %s, %s, %s) RETURNING id
+    """, (product_id, product_name, customer_name, customer_phone, quantity, user_id))
     order_id = cur.fetchone()["id"]
     conn.commit()
     cur.close()
@@ -474,6 +477,17 @@ def get_all_orders():
     conn = get_connection()
     cur = conn.cursor()
     cur.execute("SELECT * FROM orders ORDER BY created_at DESC")
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_orders_by_user(user_id):
+    """Lịch sử mua hàng của 1 tài khoản (dùng cho user xem đơn của chính mình)."""
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM orders WHERE user_id = %s ORDER BY created_at DESC", (user_id,))
     rows = cur.fetchall()
     cur.close()
     conn.close()
