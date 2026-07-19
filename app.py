@@ -552,7 +552,7 @@ def api_add_order():
     except (TypeError, ValueError):
         product_id = None
 
-    order = db.add_order(product_id, product_name, customer_name, customer_phone, quantity)
+    order = db.add_order(product_id, product_name, customer_name, customer_phone, quantity, session.get("user_id"))
     return jsonify(order), 201
 
 
@@ -562,6 +562,14 @@ def api_list_orders():
     if error_response:
         return error_response
     return jsonify(db.get_all_orders())
+
+
+@app.route("/api/orders/mine")
+def api_list_my_orders():
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "Vui lòng đăng nhập."}), 401
+    return jsonify(db.get_orders_by_user(user_id))
 
 
 @app.route("/api/orders/<int:order_id>", methods=["DELETE"])
