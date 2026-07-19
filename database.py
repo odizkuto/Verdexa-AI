@@ -59,19 +59,24 @@ def init_db():
         )
     """)
 
-    # Bảng người dùng (đăng nhập / đăng ký)
+    # Bảng người dùng (đăng nhập / đăng ký) — dùng SỐ ĐIỆN THOẠI làm định danh
+    # chính (email vẫn giữ lại, không bắt buộc, để tương thích các tài khoản cũ
+    # từng đăng ký bằng Gmail).
     cur.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
             username TEXT UNIQUE NOT NULL,
-            email TEXT UNIQUE NOT NULL,
+            email TEXT UNIQUE,
+            phone TEXT UNIQUE,
             password_hash TEXT NOT NULL,
             is_admin BOOLEAN DEFAULT FALSE,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
-    # Đảm bảo cột is_admin tồn tại kể cả với database tạo từ trước (migrate êm)
+    # Migrate êm cho database tạo từ trước:
     cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE")
+    cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS phone TEXT UNIQUE")
+    cur.execute("ALTER TABLE users ALTER COLUMN email DROP NOT NULL")
 
     # Bảng sản phẩm (thuốc BVTV) trong Cửa hàng — do tài khoản admin đăng lên
     cur.execute("""
@@ -83,6 +88,19 @@ def init_db():
             unit TEXT,
             description TEXT,
             image TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    # Bảng đơn mua hàng (khách bấm nút "Mua" trong Cửa hàng và để lại tên + SĐT)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS orders (
+            id SERIAL PRIMARY KEY,
+            product_id INTEGER REFERENCES products(id) ON DELETE SET NULL,
+            product_name TEXT,
+            customer_name TEXT NOT NULL,
+            customer_phone TEXT NOT NULL,
+            quantity INTEGER DEFAULT 1,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
@@ -191,13 +209,13 @@ def get_history(limit=50):
 
 # ======================== NGƯỜI DÙNG (ĐĂNG KÝ / ĐĂNG NHẬP) ========================
 
-def create_user(username, email, password_hash):
-    """Tạo user mới. Trả về id của user vừa tạo."""
+def create_user(username, phone, password_hash, email=None):
+    """Tạo user mới bằng SỐ ĐIỆN THOẠI (email không bắt buộc). Trả về id vừa tạo."""
     conn = get_connection()
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO users (username, email, password_hash) VALUES (%s, %s, %s) RETURNING id",
-        (username, email, password_hash),
+        "INSERT INTO users (username, phone, email, password_hash) VALUES (%s, %s, %s, %s) RETURNING id",
+        (username, phone, email, password_hash),
     )
     user_id = cur.fetchone()["id"]
     conn.commit()
@@ -216,6 +234,16 @@ def get_user_by_email(email):
     return dict(user) if user else None
 
 
+def get_user_by_phone(phone):
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM users WHERE phone = %s", (phone,))
+    user = cur.fetchone()
+    cur.close()
+    conn.close()
+    return dict(user) if user else None
+
+
 def get_user_by_username(username):
     conn = get_connection()
     cur = conn.cursor()
@@ -227,7 +255,7 @@ def get_user_by_username(username):
 
 
 def set_user_admin(user_id, is_admin):
-    """Bật/tắt quyền admin cho 1 user (dùng để tự động cấp quyền theo ADMIN_EMAILS)."""
+    """Bật/tắt quyền admin cho 1 user (dùng để tự động cấp quyền theo ADMIN_EMAILS / ADMIN_PHONES)."""
     conn = get_connection()
     cur = conn.cursor()
     cur.execute("UPDATE users SET is_admin = %s WHERE id = %s", (is_admin, user_id))
@@ -401,3 +429,41 @@ def delete_product(product_id):
     cur.close()
     conn.close()
     return product["image"] if product else None
+
+
+# ======================== ĐƠN MUA HÀNG (NÚT "MUA" TRONG CỬA HÀNG) ========================
+
+def add_order(product_id, product_name, customer_name, customer_phone, quantity=1):
+    """Lưu 1 yêu cầu mua hàng (tên + SĐT khách để lại). Trả về đơn vừa tạo."""
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        INSERT INTO orders (product_id, product_name, customer_name, customer_phone, quantity)
+        VALUES (%s, %s, %s, %s, %s) RETURNING id
+    """, (product_id, product_name, customer_name, customer_phone, quantity))
+    order_id = cur.fetchone()["id"]
+    conn.commit()
+    cur.close()
+    conn.close()
+    return get_order_by_id(order_id)
+
+
+def get_order_by_id(order_id):
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM orders WHERE id = %s", (order_id,))
+    row = cur.fetchone()
+    cur.close()
+    conn.close()
+    return dict(row) if row else None
+
+
+def get_all_orders():
+    """Danh sách đơn mua hàng, mới nhất trước (dùng cho admin xem/quản lý)."""
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM orders ORDER BY created_at DESC")
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return [dict(r) for r in rows]
