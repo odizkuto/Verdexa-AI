@@ -70,6 +70,12 @@
             <i class="fa-solid fa-store"></i>
             <span>Cửa hàng</span>
         </a>
+        {% if username %}
+        <a href="#" class="sidebar-link" data-tab="orderhistory">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span>Lịch sử mua hàng</span>
+        </a>
+        {% endif %}
 
     </nav>
 
@@ -399,6 +405,25 @@
         </p>
     </section>
 
+    {% if username %}
+    <!-- TAB: LỊCH SỬ MUA HÀNG (của chính user đang đăng nhập) -->
+    <section class="tab-panel" id="tab-orderhistory">
+        <div class="panel-header">
+            <h1><i class="fa-solid fa-clock-rotate-left"></i> Lịch sử mua hàng</h1>
+            <p>Các yêu cầu mua hàng bạn đã gửi trong Cửa hàng.</p>
+        </div>
+
+        <div class="store-orders-list" id="myOrdersList">
+            <!-- JS chèn danh sách đơn đã đặt vào đây -->
+        </div>
+
+        <p class="store-empty-state" id="myOrdersEmpty" style="display:none;">
+            <i class="fa-solid fa-inbox"></i><br>
+            Bạn chưa đặt mua sản phẩm nào.
+        </p>
+    </section>
+    {% endif %}
+
     {% if is_admin %}
     <!-- MODAL: THÊM SẢN PHẨM (chỉ render cho admin) -->
     <div class="store-modal-overlay" id="storeModalOverlay">
@@ -583,6 +608,10 @@ function switchTab(tabId) {
 
     const link = document.querySelector('.sidebar-link[data-tab="' + tabId + '"]');
     if (link) link.classList.add('active');
+
+    if (tabId === 'orderhistory' && typeof storeLoadMyOrders === 'function') {
+        storeLoadMyOrders();
+    }
 }
 
 document.querySelectorAll('.sidebar-link[data-tab]').forEach(link => {
