@@ -464,7 +464,10 @@ document.addEventListener("DOMContentLoaded", function () {
                         const boughtBtn = document.querySelector(
                             `.store-buy-btn[data-product-id="${storeSelectedProduct.id}"]`
                         );
-                        if (boughtBtn) boughtBtn.classList.add("bought");
+                        if (boughtBtn) {
+                            boughtBtn.classList.add("bought");
+                            setTimeout(() => boughtBtn.classList.remove("bought"), 5000);
+                        }
                     }
 
                     setTimeout(storeCloseOrderModal, 2200);
