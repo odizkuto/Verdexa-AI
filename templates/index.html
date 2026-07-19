@@ -369,15 +369,10 @@
                 <p>Sản phẩm thuốc bảo vệ thực vật đang được bán.</p>
             </div>
             {% if is_admin %}
-            <div class="store-panel-header-actions" style="display:flex; gap:10px;">
-                <button type="button" class="store-orders-btn" id="storeOrdersBtn">
-                    <i class="fa-solid fa-bell"></i> Đơn đặt hàng
-                    <span class="store-orders-badge" id="storeOrdersBadge" style="display:none;">0</span>
-                </button>
-                <button type="button" class="store-orders-btn" id="storeConfirmedOrdersBtn">
-                    <i class="fa-solid fa-clock-rotate-left"></i> Lịch sử đã xác nhận
-                </button>
-            </div>
+            <button type="button" class="store-orders-btn" id="storeOrdersBtn">
+                <i class="fa-solid fa-bell"></i> Đơn đặt hàng
+                <span class="store-orders-badge" id="storeOrdersBadge" style="display:none;">0</span>
+            </button>
             {% endif %}
         </div>
 
@@ -509,25 +504,6 @@
             <p class="store-empty-state" id="storeOrdersEmpty" style="display:none;">
                 <i class="fa-solid fa-inbox"></i><br>
                 Chưa có đơn đặt hàng nào.
-            </p>
-        </div>
-    </div>
-
-    <!-- MODAL: LỊCH SỬ ĐÃ XÁC NHẬN (chỉ render cho admin) -->
-    <div class="store-modal-overlay" id="storeConfirmedOrdersModalOverlay">
-        <div class="store-modal store-orders-modal">
-            <button type="button" class="store-modal-close" id="storeConfirmedOrdersModalCloseBtn">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-            <h2><i class="fa-solid fa-clock-rotate-left"></i> Lịch sử đã xác nhận</h2>
-
-            <div class="store-orders-list" id="storeConfirmedOrdersList">
-                <!-- JS chèn danh sách đơn đã xác nhận vào đây -->
-            </div>
-
-            <p class="store-empty-state" id="storeConfirmedOrdersEmpty" style="display:none;">
-                <i class="fa-solid fa-inbox"></i><br>
-                Chưa có đơn nào được xác nhận.
             </p>
         </div>
     </div>
