@@ -52,10 +52,10 @@
             </div>
 
             <div class="form-group">
-                <label for="email">Email</label>
+                <label for="phone">Số điện thoại</label>
                 <div class="input-wrap">
-                    <i class="fa-solid fa-envelope"></i>
-                    <input type="email" id="email" name="email" placeholder="ban@email.com" required>
+                    <i class="fa-solid fa-phone"></i>
+                    <input type="tel" id="phone" name="phone" placeholder="VD: 0912345678" required>
                 </div>
             </div>
 
@@ -120,11 +120,11 @@
         registerError.textContent = '';
 
         const username = document.getElementById('username').value.trim();
-        const email = document.getElementById('email').value.trim();
+        const phone = document.getElementById('phone').value.trim();
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
 
-        if (!username || !email || !password || !confirmPassword) {
+        if (!username || !phone || !password || !confirmPassword) {
             registerError.textContent = 'Vui lòng điền đầy đủ tất cả các trường.';
             registerError.classList.add('show');
             return;
@@ -150,7 +150,7 @@
             const res = await fetch('/api/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, email, password })
+                body: JSON.stringify({ username, phone, password })
             });
 
             let data = {};
