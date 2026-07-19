@@ -203,6 +203,18 @@ function storeOpenOrderModal(product) {
     const nameEl = document.getElementById("storeOrderProductName");
     if (nameEl) nameEl.textContent = `Sản phẩm: ${product.name}`;
     if (overlay) overlay.classList.add("active");
+
+    // Khoá SĐT theo số đã đăng ký tài khoản để tránh spam đơn rác bằng SĐT giả
+    const phoneInput = document.getElementById("orderCustomerPhone");
+    const phoneHint = document.getElementById("orderPhoneHint");
+    if (phoneInput && typeof USER_PHONE !== "undefined" && USER_PHONE) {
+        phoneInput.value = USER_PHONE;
+        phoneInput.readOnly = true;
+        if (phoneHint) phoneHint.style.display = "flex";
+    } else if (phoneInput) {
+        phoneInput.readOnly = false;
+        if (phoneHint) phoneHint.style.display = "none";
+    }
 }
 
 function storeCloseOrderModal() {
@@ -210,10 +222,14 @@ function storeCloseOrderModal() {
     const form = document.getElementById("storeOrderForm");
     const errorEl = document.getElementById("storeOrderFormError");
     const successEl = document.getElementById("storeOrderFormSuccess");
+    const phoneInput = document.getElementById("orderCustomerPhone");
+    const phoneHint = document.getElementById("orderPhoneHint");
     if (overlay) overlay.classList.remove("active");
     if (form) { form.reset(); form.style.display = "block"; }
     if (errorEl) errorEl.style.display = "none";
     if (successEl) successEl.style.display = "none";
+    if (phoneInput) phoneInput.readOnly = false;
+    if (phoneHint) phoneHint.style.display = "none";
     storeSelectedProduct = null;
 }
 
