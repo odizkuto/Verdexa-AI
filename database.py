@@ -257,6 +257,16 @@ def get_user_by_username(username):
     return dict(user) if user else None
 
 
+def get_user_by_id(user_id):
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM users WHERE id = %s", (user_id,))
+    user = cur.fetchone()
+    cur.close()
+    conn.close()
+    return dict(user) if user else None
+
+
 def set_user_admin(user_id, is_admin):
     """Bật/tắt quyền admin cho 1 user (dùng để tự động cấp quyền theo ADMIN_EMAILS / ADMIN_PHONES)."""
     conn = get_connection()
