@@ -1594,6 +1594,29 @@ nav a:hover{
     cursor:default;
 }
 
+.store-order-status-badge{
+    margin-top:10px;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:12px;
+    font-weight:600;
+    padding:6px 12px;
+    border-radius:8px;
+}
+
+.store-order-status-confirmed{
+    color:#1e7e34;
+    background:#e9f8ee;
+    border:1px solid #cfead6;
+}
+
+.store-order-status-pending{
+    color:#b5820a;
+    background:#fff8e6;
+    border:1px solid #f2e2ad;
+}
+
 /* ---- Modal thêm sản phẩm ---- */
 .store-modal-overlay{
     display:none;
