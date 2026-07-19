@@ -180,6 +180,115 @@ function storeCloseOrderModal() {
     storeSelectedProduct = null;
 }
 
+function storeFormatOrderTime(dateStr) {
+    if (!dateStr) return "";
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return "";
+    return d.toLocaleString("vi-VN", {
+        day: "2-digit", month: "2-digit", year: "numeric",
+        hour: "2-digit", minute: "2-digit",
+    });
+}
+
+function storeBuildOrderCard(order) {
+    const card = document.createElement("div");
+    card.className = "store-order-card";
+    card.dataset.orderId = order.id;
+    card.innerHTML = `
+        <div class="store-order-card-top">
+            <span class="store-order-product">${storeEscapeHtml(order.product_name || "Sản phẩm không xác định")}</span>
+            <span class="store-order-time">${storeFormatOrderTime(order.created_at)}</span>
+        </div>
+        <div class="store-order-info">
+            <div><b>Khách hàng:</b> ${storeEscapeHtml(order.customer_name)}</div>
+            <div><b>SĐT:</b> <a href="tel:${storeEscapeHtml(order.customer_phone)}">${storeEscapeHtml(order.customer_phone)}</a></div>
+            <div><b>Số lượng:</b> ${storeEscapeHtml(String(order.quantity || 1))}</div>
+        </div>
+        <div class="store-order-card-actions">
+            <button type="button" class="store-order-delete-btn">
+                <i class="fa-solid fa-check"></i> Đã xử lý / Xoá
+            </button>
+        </div>
+    `;
+
+    card.querySelector(".store-order-delete-btn").addEventListener("click", function () {
+        fetch(`/api/orders/${order.id}`, { method: "DELETE" })
+            .then((res) => res.json())
+            .then(() => {
+                card.remove();
+                const list = document.getElementById("storeOrdersList");
+                const empty = document.getElementById("storeOrdersEmpty");
+                if (list && empty && list.children.length === 0) {
+                    empty.style.display = "block";
+                }
+            });
+    });
+
+    return card;
+}
+
+function storeRenderOrders(orders) {
+    const list = document.getElementById("storeOrdersList");
+    const empty = document.getElementById("storeOrdersEmpty");
+    if (!list) return;
+
+    list.innerHTML = "";
+    if (!orders || orders.length === 0) {
+        if (empty) empty.style.display = "block";
+        return;
+    }
+    if (empty) empty.style.display = "none";
+    orders.forEach((order) => list.appendChild(storeBuildOrderCard(order)));
+}
+
+function storeUpdateOrdersBadge(orders) {
+    const badge = document.getElementById("storeOrdersBadge");
+    if (!badge) return;
+
+    const lastSeenId = Number(localStorage.getItem("verdexaOrdersLastSeenId") || 0);
+    const newCount = orders.filter((o) => o.id > lastSeenId).length;
+
+    if (newCount > 0) {
+        badge.textContent = newCount > 99 ? "99+" : String(newCount);
+        badge.style.display = "flex";
+    } else {
+        badge.style.display = "none";
+    }
+}
+
+function storeFetchOrders(callback) {
+    fetch("/api/orders")
+        .then((res) => (res.ok ? res.json() : []))
+        .then((orders) => {
+            if (typeof callback === "function") callback(orders);
+        })
+        .catch(() => {});
+}
+
+function storeOpenOrdersModal() {
+    const overlay = document.getElementById("storeOrdersModalOverlay");
+    if (!overlay) return;
+    overlay.classList.add("active");
+
+    storeFetchOrders(function (orders) {
+        storeRenderOrders(orders);
+        const maxId = orders.reduce((max, o) => Math.max(max, o.id || 0), 0);
+        if (maxId > 0) localStorage.setItem("verdexaOrdersLastSeenId", String(maxId));
+        const badge = document.getElementById("storeOrdersBadge");
+        if (badge) badge.style.display = "none";
+    });
+}
+
+function storeCloseOrdersModal() {
+    const overlay = document.getElementById("storeOrdersModalOverlay");
+    if (overlay) overlay.classList.remove("active");
+}
+
+function storePollOrdersBadge() {
+    if (typeof IS_ADMIN === "undefined" || !IS_ADMIN) return;
+    storeFetchOrders(storeUpdateOrdersBadge);
+}
+
 document.addEventListener("DOMContentLoaded", function () {
     storeLoadProducts();
 
@@ -363,5 +472,23 @@ document.addEventListener("DOMContentLoaded", function () {
                     submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Gửi yêu cầu mua';
                 });
         });
+    }
+
+    // ---- Modal Đơn đặt hàng (admin) ----
+    const ordersBtn = document.getElementById("storeOrdersBtn");
+    const ordersOverlay = document.getElementById("storeOrdersModalOverlay");
+    const ordersCloseBtn = document.getElementById("storeOrdersModalCloseBtn");
+
+    if (ordersBtn) ordersBtn.addEventListener("click", storeOpenOrdersModal);
+    if (ordersCloseBtn) ordersCloseBtn.addEventListener("click", storeCloseOrdersModal);
+    if (ordersOverlay) {
+        ordersOverlay.addEventListener("click", function (e) {
+            if (e.target === ordersOverlay) storeCloseOrdersModal();
+        });
+    }
+
+    if (typeof IS_ADMIN !== "undefined" && IS_ADMIN) {
+        storePollOrdersBadge();
+        setInterval(storePollOrdersBadge, 30000);
     }
 });
