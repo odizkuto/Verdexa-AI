@@ -1685,6 +1685,21 @@ nav a:hover{
     box-shadow:0 0 0 3px rgba(46,125,50,.12);
 }
 
+#storeOrderForm input[readonly]{
+    background:#f1f4f1;
+    color:#555;
+    cursor:not-allowed;
+}
+
+.store-order-phone-hint{
+    margin:-10px 0 14px;
+    font-size:12px;
+    color:#2e7d32;
+    display:flex;
+    align-items:center;
+    gap:6px;
+}
+
 #storeProductForm input:focus,
 #storeProductForm select:focus,
 #storeProductForm textarea:focus{
