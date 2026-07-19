@@ -567,7 +567,16 @@ def api_add_order():
     except (TypeError, ValueError):
         product_id = None
 
-    order = db.add_order(product_id, product_name, customer_name, customer_phone, quantity, user_id)
+    try:
+        order = db.add_order(product_id, product_name, customer_name, customer_phone, quantity, user_id)
+    except Exception as e:
+        # Trước đây lỗi ở bước này (vd: mất kết nối DATABASE_URL) sẽ làm Flask
+        # trả về trang lỗi HTML thay vì JSON -> frontend không đọc được, chỉ
+        # hiện "Có lỗi xảy ra" chung chung và KHÔNG rõ nguyên nhân thật.
+        # In lỗi ra log server để dễ debug, và trả JSON để frontend hiện đúng lý do.
+        print(f"[api_add_order] Lỗi khi lưu đơn hàng: {e}")
+        return jsonify({"error": f"Không lưu được đơn hàng vào database: {e}"}), 500
+
     return jsonify(order), 201
 
 
@@ -576,7 +585,11 @@ def api_list_orders():
     error_response = admin_required()
     if error_response:
         return error_response
-    return jsonify(db.get_all_orders())
+    try:
+        return jsonify(db.get_all_orders())
+    except Exception as e:
+        print(f"[api_list_orders] Lỗi khi lấy danh sách đơn hàng: {e}")
+        return jsonify({"error": f"Không đọc được đơn hàng từ database: {e}"}), 500
 
 
 @app.route("/api/orders/mine")
@@ -584,7 +597,11 @@ def api_list_my_orders():
     user_id = session.get("user_id")
     if not user_id:
         return jsonify({"error": "Vui lòng đăng nhập."}), 401
-    return jsonify(db.get_orders_by_user(user_id))
+    try:
+        return jsonify(db.get_orders_by_user(user_id))
+    except Exception as e:
+        print(f"[api_list_my_orders] Lỗi khi lấy lịch sử mua hàng: {e}")
+        return jsonify({"error": f"Không đọc được lịch sử mua hàng từ database: {e}"}), 500
 
 
 @app.route("/api/orders/<int:order_id>", methods=["DELETE"])
