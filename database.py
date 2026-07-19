@@ -102,11 +102,18 @@ def init_db():
             customer_phone TEXT NOT NULL,
             quantity INTEGER DEFAULT 1,
             user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            status TEXT NOT NULL DEFAULT 'pending',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
-    # Migrate êm cho database tạo từ trước (chưa có cột user_id):
+    # Migrate êm cho database tạo từ trước (chưa có cột user_id / status):
     cur.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id) ON DELETE SET NULL")
+    # status: 'pending' (chờ admin xử lý) hoặc 'confirmed' (admin đã xác nhận).
+    # Trước đây admin "xử lý" = XOÁ đơn khỏi bảng -> làm mất luôn lịch sử của user.
+    # Giờ đổi sang cập nhật status để đơn KHÔNG BAO GIỜ bị xoá, user vẫn thấy
+    # trong "Lịch sử mua hàng" mãi mãi, còn admin thì chuyển từ danh sách "Chờ xử lý"
+    # sang "Lịch sử đã xác nhận" của admin.
+    cur.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'pending'")
 
     # Bảng lưu lại các cuộc trò chuyện với AI, tự đặt tên theo nội dung
     cur.execute("""
@@ -483,7 +490,7 @@ def get_order_by_id(order_id):
 
 
 def get_all_orders():
-    """Danh sách đơn mua hàng, mới nhất trước (dùng cho admin xem/quản lý)."""
+    """Toàn bộ đơn mua hàng (mọi trạng thái), mới nhất trước."""
     conn = get_connection()
     cur = conn.cursor()
     cur.execute("SELECT * FROM orders ORDER BY created_at DESC")
@@ -493,8 +500,42 @@ def get_all_orders():
     return [dict(r) for r in rows]
 
 
+def get_pending_orders():
+    """Đơn đang CHỜ admin xử lý (dùng cho nút chuông 'Đơn đặt hàng')."""
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM orders WHERE status = 'pending' ORDER BY created_at DESC")
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_confirmed_orders():
+    """Đơn admin ĐÃ xác nhận (lịch sử xử lý của admin, không bị xoá)."""
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM orders WHERE status = 'confirmed' ORDER BY created_at DESC")
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def confirm_order(order_id):
+    """Admin xác nhận đã xử lý đơn: đổi status, KHÔNG xoá dòng dữ liệu
+    (để user vẫn thấy đơn này trong 'Lịch sử mua hàng' của họ mãi mãi)."""
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("UPDATE orders SET status = 'confirmed' WHERE id = %s", (order_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return get_order_by_id(order_id)
+
+
 def get_orders_by_user(user_id):
-    """Lịch sử mua hàng của 1 tài khoản (dùng cho user xem đơn của chính mình)."""
+    """Lịch sử mua hàng của 1 tài khoản (mọi trạng thái, không bao giờ mất)."""
     conn = get_connection()
     cur = conn.cursor()
     cur.execute("SELECT * FROM orders WHERE user_id = %s ORDER BY created_at DESC", (user_id,))
@@ -505,7 +546,8 @@ def get_orders_by_user(user_id):
 
 
 def delete_order(order_id):
-    """Xoá 1 đơn đặt hàng (admin bấm khi đã xử lý xong)."""
+    """Xoá hẳn 1 đơn khỏi database (dùng khi admin muốn xoá đơn rác/spam,
+    KHÔNG dùng cho thao tác 'xác nhận đã xử lý' nữa)."""
     conn = get_connection()
     cur = conn.cursor()
     cur.execute("DELETE FROM orders WHERE id = %s", (order_id,))
