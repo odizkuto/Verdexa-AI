@@ -59,10 +59,19 @@ class Config:
     # Liệt kê các email được coi là admin, cách nhau bởi dấu phẩy. Đặt trong
     # apikey.env (local) hoặc Environment Variables trên Render, ví dụ:
     #   ADMIN_EMAILS=admin@verdexa.com,owner@gmail.com
-    # Bất kỳ tài khoản nào đăng nhập bằng email nằm trong danh sách này sẽ tự
-    # động được cấp quyền admin (thấy nút "+" để đăng sản phẩm trong Cửa hàng).
+    # Giữ lại để các tài khoản admin cũ (từng đăng ký bằng Gmail) vẫn hoạt động
+    # bình thường — không cần đổi gì cả.
     ADMIN_EMAILS = {
         e.strip().lower()
         for e in os.environ.get("ADMIN_EMAILS", "").split(",")
         if e.strip()
+    }
+
+    # Từ khi hệ thống chuyển sang đăng ký/đăng nhập bằng SỐ ĐIỆN THOẠI, admin
+    # mới có thể được cấp quyền theo số điện thoại, ví dụ:
+    #   ADMIN_PHONES=0912345678,0987654321
+    ADMIN_PHONES = {
+        p.strip()
+        for p in os.environ.get("ADMIN_PHONES", "").split(",")
+        if p.strip()
     }
