@@ -1455,6 +1455,32 @@ nav a:hover{
     color:#222;
 }
 
+#storeOrderForm label{
+    display:block;
+    font-size:13px;
+    font-weight:600;
+    color:#444;
+    margin-bottom:14px;
+}
+
+#storeOrderForm input{
+    width:100%;
+    box-sizing:border-box;
+    margin-top:6px;
+    padding:11px 14px;
+    border:1px solid #ddd;
+    border-radius:12px;
+    font-size:14px;
+    font-family:inherit;
+    color:#222;
+}
+
+#storeOrderForm input:focus{
+    outline:none;
+    border-color:#2e7d32;
+    box-shadow:0 0 0 3px rgba(46,125,50,.12);
+}
+
 #storeProductForm input:focus,
 #storeProductForm select:focus,
 #storeProductForm textarea:focus{
