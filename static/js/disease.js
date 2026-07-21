@@ -59,6 +59,7 @@ diseaseCameraInput.addEventListener("change", () => {
 
 const diseaseName = document.getElementById("diseaseName");
 const diseaseConfidence = document.getElementById("diseaseConfidence");
+const diseaseSymptomsList = document.getElementById("diseaseSymptomsList");
 const diseaseCause = document.getElementById("diseaseCause");
 const diseaseSolution = document.getElementById("diseaseSolution");
 const diagnosisResult = document.getElementById("diagnosisResult");
@@ -70,6 +71,21 @@ function renderDiseaseResult(data) {
     diseaseName.innerHTML = data.disease || "Không xác định";
     diseaseConfidence.innerHTML = (data.confidence ?? "--") + "%";
     diseaseCause.innerHTML = data.cause || "Không có thông tin nguyên nhân.";
+
+    diseaseSymptomsList.innerHTML = "";
+    const symptoms = Array.isArray(data.symptoms) ? data.symptoms : [];
+
+    if (symptoms.length === 0) {
+        const li = document.createElement("li");
+        li.innerHTML = "Chưa có thông tin triệu chứng cụ thể.";
+        diseaseSymptomsList.appendChild(li);
+    } else {
+        symptoms.forEach((item) => {
+            const li = document.createElement("li");
+            li.innerHTML = item;
+            diseaseSymptomsList.appendChild(li);
+        });
+    }
 
     diseaseSolution.innerHTML = "";
     const solutions = Array.isArray(data.solution) ? data.solution : [];
@@ -90,6 +106,7 @@ function renderDiseaseResult(data) {
 function showDiseaseLoading() {
     diseaseName.innerHTML = "Đang phân tích...";
     diseaseConfidence.innerHTML = "...";
+    diseaseSymptomsList.innerHTML = "";
     diseaseCause.innerHTML = "AI đang xử lý, vui lòng chờ trong giây lát.";
     diseaseSolution.innerHTML = "";
 }
@@ -97,6 +114,7 @@ function showDiseaseLoading() {
 function showDiseaseError(message) {
     diseaseName.innerHTML = "Lỗi";
     diseaseConfidence.innerHTML = "--";
+    diseaseSymptomsList.innerHTML = "";
     diseaseCause.innerHTML = message || "Không thể kết nối tới máy chủ AI.";
     diseaseSolution.innerHTML = "";
 }
