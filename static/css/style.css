@@ -4618,179 +4618,180 @@ textarea:focus{
     }
 }
 /* =========================================
-   SIDEBAR LAYOUT
+   BRAND BADGE (góc trên bên trái)
 ========================================= */
 
 body.sidebar-layout {
-    display: flex;
+    display: block;
     min-height: 100vh;
-    overflow-x: hidden;
 }
 
-/* ===== SIDEBAR ===== */
-.sidebar {
+.brand-badge {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 260px;
-    height: 100vh;
-    height: 100dvh;
-    background: rgba(255,255,255,0.85);
-    backdrop-filter: blur(20px);
-    border-right: 1px solid rgba(46,125,50,0.12);
-    box-shadow: 4px 0 30px rgba(0,0,0,0.07);
-    display: flex;
-    flex-direction: column;
-    padding: 32px 20px;
-    overflow-y: auto;
-    z-index: 1000;
-}
-
-.sidebar-logo {
+    top: 18px;
+    left: 18px;
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: 22px;
-    font-weight: 700;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(46,125,50,0.12);
+    border-radius: 999px;
+    padding: 8px 18px 8px 10px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    z-index: 1000;
     color: #2e7d32;
-    margin-bottom: 40px;
-    padding: 0 8px;
 }
 
-.sidebar-logo i {
-    font-size: 28px;
+.brand-badge i {
+    font-size: 22px;
 }
 
-.sidebar-logo-text {
+.brand-badge-text {
     display: flex;
     flex-direction: column;
-    line-height: 1.25;
+    line-height: 1.2;
 }
 
-.sidebar-logo-text small {
-    font-size: 11px;
+.brand-badge-text span {
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.brand-badge-text small {
+    font-size: 10px;
     font-weight: 600;
     color: #8fa78f;
     letter-spacing: .04em;
 }
 
-/* ===== NAV LINKS ===== */
-.sidebar-nav {
+/* =========================================
+   BOTTOM FLOATING NAVBAR (thay cho sidebar trái)
+========================================= */
+
+.bottom-nav-wrap {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 22px;
     display: flex;
-    flex-direction: column;
-    gap: 6px;
-    flex: 1;
+    justify-content: center;
+    z-index: 1000;
+    padding: 0 14px;
+    pointer-events: none;
 }
 
-.sidebar-link {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 14px 16px;
-    border-radius: 14px;
-    font-size: 15px;
-    font-weight: 500;
-    color: #555;
-    transition: all 0.25s;
-    text-decoration: none;
-}
-
-.sidebar-link i {
-    font-size: 18px;
-    width: 22px;
-    text-align: center;
-}
-
-.sidebar-link:hover {
-    background: #f0f9f0;
-    color: #2e7d32;
-    transform: translateX(4px);
-}
-
-.sidebar-link.active {
-    background: #2e7d32;
-    color: #fff;
-    box-shadow: 0 8px 20px rgba(46,125,50,0.3);
-}
-
-.sidebar-link.active:hover {
-    transform: translateX(0);
-    background: #2e7d32;
-    color: #fff;
-}
-
-/* ===== SIDEBAR BOTTOM: USER / LOGIN ===== */
-.sidebar-bottom {
-    border-top: 1px solid rgba(0,0,0,0.07);
-    padding-top: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.sidebar-user {
+.bottom-nav {
+    pointer-events: auto;
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-weight: 600;
-    color: #2e7d32;
-    font-size: 14px;
-    padding: 0 4px;
+    gap: 4px;
+    background: linear-gradient(135deg, rgba(20,38,22,0.96), rgba(10,22,12,0.96));
+    border: 1px solid rgba(105,240,174,0.22);
+    border-radius: 999px;
+    padding: 8px 10px;
+    box-shadow: 0 14px 40px rgba(0,0,0,0.28), inset 0 0 0 1px rgba(255,255,255,0.03);
+    backdrop-filter: blur(18px);
+    max-width: 96vw;
+    overflow-x: auto;
+    scrollbar-width: none;
+    transition: transform .3s ease;
 }
 
-.sidebar-user i {
-    font-size: 22px;
+.bottom-nav::-webkit-scrollbar {
+    display: none;
 }
 
-.sidebar-logout {
+.bottom-nav-item {
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 10px;
-    background: #f0f9f0;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    color: rgba(240,255,244,0.72);
+    background: transparent;
     border: none;
-    color: #2e7d32;
-    padding: 13px 16px;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 600;
     cursor: pointer;
-    transition: .25s;
-}
-
-.sidebar-logout:hover {
-    background: #2e7d32;
-    color: #fff;
-    transform: none;
-    box-shadow:
-        0 0 0 2px rgba(46,125,50,.5),
-        0 0 16px 4px rgba(105,240,174,.55);
-}
-
-.sidebar-login-btn {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: #2e7d32;
-    color: #fff;
-    padding: 13px 16px;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 600;
+    transition: all .25s;
+    flex-shrink: 0;
     text-decoration: none;
-    transition: .25s;
+    font-size: 17px;
 }
 
-.sidebar-login-btn:hover {
-    background: #388e3c;
-    transform: none;
+.bottom-nav-item:hover {
+    background: rgba(255,255,255,0.08);
+    color: #69f0ae;
+    transform: translateY(-4px);
+    box-shadow: 0 6px 18px rgba(105,240,174,0.25);
+}
+
+.bottom-nav-item.active {
+    background: #2e7d32;
+    color: #fff;
+    box-shadow: 0 6px 18px rgba(46,125,50,0.55);
+}
+
+.bottom-nav-item.active:hover {
+    transform: translateY(-4px);
+    background: #2e7d32;
+    color: #fff;
+}
+
+.bottom-nav-divider {
+    width: 1px;
+    height: 26px;
+    background: rgba(255,255,255,0.15);
+    margin: 0 6px;
+    flex-shrink: 0;
+}
+
+/* ----- Tooltip hiện phía trên icon khi hover, giống thanh mẫu ----- */
+.bottom-nav-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    margin-bottom: 12px;
+    background: rgba(0,0,0,0.88);
+    color: #69f0ae;
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: .02em;
+    padding: 7px 13px;
+    border-radius: 8px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all .25s;
+    pointer-events: none;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+    z-index: 1200;
+}
+
+.bottom-nav-tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: rgba(0,0,0,0.88);
+}
+
+.bottom-nav-item:hover .bottom-nav-tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
 }
 
 /* ===== MAIN CONTENT ===== */
 .main-content {
-    margin-left: 260px;
+    margin-left: 0;
     flex: 1;
     min-width: 0;
-    padding: 48px 52px;
+    padding: 100px 52px 140px;
     min-height: 100vh;
     min-height: 100dvh;
 }
@@ -4845,176 +4846,36 @@ body.sidebar-layout .chat-box {
     max-width: 900px;
 }
 
-/* ===== MOBILE TOP BAR ===== */
-.mobile-topbar {
-    display: none;
-}
-
-.mobile-topbar-toggle {
-    width: 38px;
-    height: 38px;
-    border: none;
-    background: transparent;
-    color: #2e7d32;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    border-radius: 10px;
-    justify-self: start;
-}
-
-.mobile-topbar-toggle:hover,
-.mobile-topbar-toggle:active {
-    background: rgba(46,125,50,0.1);
-}
-
-/* ===== RESPONSIVE SIDEBAR ===== */
+/* ===== RESPONSIVE ===== */
 @media (max-width: 900px) {
 
-    .mobile-topbar {
-        display: grid;
-        grid-template-columns: 38px 1fr 38px;
-        align-items: center;
-        column-gap: 10px;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 60px;
-        padding: 0 14px;
-        background: rgba(255,255,255,0.92);
-        backdrop-filter: blur(20px);
-        border-bottom: 1px solid rgba(46,125,50,0.12);
-        box-shadow: 0 2px 20px rgba(0,0,0,0.06);
-        z-index: 1001;
-    }
-
-    .mobile-topbar-brand {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-    }
-
-    .mobile-topbar-toggle i {
-        font-size: 19px;
-    }
-
-    .mobile-topbar-brand i {
-        font-size: 22px;
-        color: #2e7d32;
-    }
-
-    .mobile-topbar-text {
-        display: flex;
-        flex-direction: column;
-        line-height: 1.2;
-    }
-
-    .mobile-topbar-text span {
-        font-size: 16px;
-        font-weight: 700;
-        color: #2e7d32;
-    }
-
-    .mobile-topbar-text small {
-        font-size: 10px;
-        font-weight: 600;
-        color: #8fa78f;
-        letter-spacing: .04em;
-    }
-
-    .sidebar {
-        top: 60px;
-        height: calc(100vh - 60px);
-        height: calc(100dvh - 60px);
-        width: 70px;
-        padding: 20px 8px calc(18px + env(safe-area-inset-bottom, 0px));
-    }
-
     .main-content {
-        margin-top: 60px;
+        margin-top: 0;
+        padding: 90px 20px 130px;
     }
 
-    .sidebar-logo span,
-    .sidebar-link span,
-    .sidebar-logo-text {
+    .brand-badge-text {
         display: none;
     }
 
-    .sidebar-logo {
-        justify-content: center;
-        font-size: 0;
+    .brand-badge {
+        padding: 9px;
+        top: 14px;
+        left: 14px;
     }
 
-    .sidebar-logo i {
-        font-size: 26px;
+    .brand-badge i {
+        font-size: 20px;
     }
 
-    .sidebar-link {
-        justify-content: center;
-        padding: 14px;
+    .bottom-nav-wrap {
+        bottom: 14px;
     }
 
-    /* Khối user/đăng xuất trên mobile: giữ lại tên + chữ, xếp icon
-       trên - chữ nhỏ dưới thay vì ẩn hẳn, và không bị co lại khi
-       sidebar hết chỗ (tránh bị mất/khuất). */
-    .sidebar-bottom {
-        flex-shrink: 0;
-        margin-top: auto;
-        padding-top: 14px;
-        gap: 8px;
-    }
-
-    .sidebar-user,
-    .sidebar-logout,
-    .sidebar-login-btn {
-        flex-direction: column;
-        justify-content: center;
-        gap: 3px;
-        padding: 9px 4px;
-        text-align: center;
-    }
-
-    .sidebar-user span,
-    .sidebar-logout span,
-    .sidebar-login-btn span {
-        display: block;
-        font-size: 9.5px;
-        line-height: 1.15;
-        white-space: normal;
-        word-break: break-word;
-    }
-
-    .sidebar-user i,
-    .sidebar-logout i,
-    .sidebar-login-btn i {
-        font-size: 18px;
-    }
-
-    .main-content {
-        margin-left: 70px;
-        padding: 28px 20px;
-    }
-
-    /* Hiệu ứng trượt mượt khi đóng/mở sidebar bằng nút 3 gạch */
-    .sidebar {
-        transition: transform .28s ease;
-    }
-
-    .main-content {
-        transition: margin-left .28s ease;
-    }
-
-    /* Đóng sidebar: trượt hẳn ra ngoài màn hình, nội dung chính giãn hết chiều rộng
-       thay vì để lại khoảng trắng như cột sidebar cũ */
-    body.sidebar-collapsed .sidebar {
-        transform: translateX(-100%);
-    }
-
-    body.sidebar-collapsed .main-content {
-        margin-left: 0;
+    .bottom-nav-item {
+        width: 42px;
+        height: 42px;
+        font-size: 16px;
     }
 
     body.sidebar-layout .library-grid {
@@ -5031,7 +4892,7 @@ body.sidebar-layout .chat-box {
 @media (max-width: 600px) {
 
     .main-content {
-        padding: 20px 14px;
+        padding: 84px 14px 120px;
     }
 
     .panel-header {
