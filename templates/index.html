@@ -25,78 +25,65 @@
 <div class="background-blur blur1"></div>
 <div class="background-blur blur2"></div>
 
-<!-- ===== MOBILE TOP BAR (chỉ hiện trên điện thoại) ===== -->
-<div class="mobile-topbar">
-    <button type="button" id="sidebarToggleBtn" class="mobile-topbar-toggle" aria-label="Đóng/mở danh mục">
-        <i class="fa-solid fa-bars"></i>
-    </button>
-    <div class="mobile-topbar-brand">
-        <i class="fa-solid fa-seedling"></i>
-        <div class="mobile-topbar-text">
-            <span>Verdexa AI</span>
-            <small>PHT 2010</small>
-        </div>
+<!-- ===== BRAND BADGE (góc trên bên trái) ===== -->
+<div class="brand-badge">
+    <i class="fa-solid fa-seedling"></i>
+    <div class="brand-badge-text">
+        <span>Verdexa AI</span>
+        <small>PHT 2010</small>
     </div>
 </div>
 
-<!-- ===== SIDEBAR ===== -->
-<aside class="sidebar">
-    <div class="sidebar-logo">
-        <i class="fa-solid fa-seedling"></i>
-        <div class="sidebar-logo-text">
-            <span>Verdexa AI</span>
-            <small>PHT 2010</small>
-        </div>
-    </div>
-
-    <nav class="sidebar-nav">
-        <a href="#" class="sidebar-link active" data-tab="chat">
+<!-- ===== THANH ĐIỀU HƯỚNG NỔI PHÍA DƯỚI (thay cho sidebar trái) ===== -->
+<div class="bottom-nav-wrap">
+    <nav class="bottom-nav">
+        <a href="#" class="bottom-nav-item sidebar-link active" data-tab="chat">
             <i class="fa-solid fa-comments"></i>
-            <span>Trò chuyện AI</span>
+            <span class="bottom-nav-tooltip">Trò chuyện AI</span>
         </a>
-        <a href="#" class="sidebar-link" data-tab="store">
+        <a href="#" class="bottom-nav-item sidebar-link" data-tab="store">
             <i class="fa-solid fa-store"></i>
-            <span>Cửa hàng</span>
+            <span class="bottom-nav-tooltip">Cửa hàng</span>
         </a>
-        <a href="#" class="sidebar-link" data-tab="identify">
+        <a href="#" class="bottom-nav-item sidebar-link" data-tab="identify">
             <i class="fa-solid fa-camera"></i>
-            <span>Nhận diện cây</span>
+            <span class="bottom-nav-tooltip">Nhận diện cây</span>
         </a>
-        <a href="#" class="sidebar-link" data-tab="disease">
+        <a href="#" class="bottom-nav-item sidebar-link" data-tab="disease">
             <i class="fa-solid fa-virus"></i>
-            <span>Bệnh cây</span>
+            <span class="bottom-nav-tooltip">Bệnh cây</span>
         </a>
-        <a href="#" class="sidebar-link" data-tab="library">
+        <a href="#" class="bottom-nav-item sidebar-link" data-tab="library">
             <i class="fa-solid fa-book-open"></i>
-            <span>Thư viện</span>
+            <span class="bottom-nav-tooltip">Thư viện</span>
         </a>
         {% if username %}
-        <a href="#" class="sidebar-link" data-tab="orderhistory">
+        <a href="#" class="bottom-nav-item sidebar-link" data-tab="orderhistory">
             <i class="fa-solid fa-clock-rotate-left"></i>
-            <span>Lịch sử mua hàng</span>
+            <span class="bottom-nav-tooltip">Lịch sử mua hàng</span>
         </a>
-        {% endif %}
 
-    </nav>
+        <div class="bottom-nav-divider"></div>
 
-    <div class="sidebar-bottom">
-        {% if username %}
-        <div class="sidebar-user">
+        <div class="bottom-nav-item" tabindex="0">
             <i class="fa-solid fa-circle-user"></i>
-            <span>{{ username }}</span>
+            <span class="bottom-nav-tooltip">{{ username }}</span>
         </div>
-        <button class="sidebar-logout" id="logoutBtn">
+        <button class="bottom-nav-item" id="logoutBtn" type="button">
             <i class="fa-solid fa-right-from-bracket"></i>
-            <span>Đăng xuất</span>
+            <span class="bottom-nav-tooltip">Đăng xuất</span>
         </button>
         {% else %}
-        <a href="/login" class="sidebar-login-btn">
+        <div class="bottom-nav-divider"></div>
+
+        <a href="/login" class="bottom-nav-item">
             <i class="fa-solid fa-right-to-bracket"></i>
-            <span>Đăng nhập</span>
+            <span class="bottom-nav-tooltip">Đăng nhập</span>
         </a>
         {% endif %}
-    </div>
-</aside>
+    </nav>
+</div>
+
 
 <!-- ===== NỘI DUNG CHÍNH ===== -->
 <main class="main-content" id="lbtStageContent">
@@ -575,37 +562,6 @@ function requireLogin() {
     }
     return false;
 }
-
-// ===== ĐÓNG/MỞ DANH MỤC (SIDEBAR) BẰNG NÚT 3 GẠCH TRÊN ĐIỆN THOẠI =====
-var sidebarToggleBtn = document.getElementById("sidebarToggleBtn");
-if (sidebarToggleBtn) {
-    sidebarToggleBtn.addEventListener("click", function () {
-        document.body.classList.toggle("sidebar-collapsed");
-    });
-}
-
-// Thao tác ở bất kỳ đâu ngoài cột danh mục (nội dung chính, tab...) -> tự đóng
-// cột lại, giao diện giãn rộng ra theo đúng cơ chế của nút 3 gạch ở trên.
-document.addEventListener("click", function (e) {
-    if (document.body.classList.contains("sidebar-collapsed")) return;
-
-    var sidebarEl = document.querySelector(".sidebar");
-    if (!sidebarEl) return;
-
-    var clickedInsideSidebar = sidebarEl.contains(e.target);
-    var clickedToggleBtn = sidebarToggleBtn && sidebarToggleBtn.contains(e.target);
-
-    if (!clickedInsideSidebar && !clickedToggleBtn) {
-        document.body.classList.add("sidebar-collapsed");
-    }
-});
-
-// Kéo (cuộn) trang lên/xuống -> cũng tự đóng cột danh mục lại
-window.addEventListener("scroll", function () {
-    if (!document.body.classList.contains("sidebar-collapsed")) {
-        document.body.classList.add("sidebar-collapsed");
-    }
-}, { passive: true });
 
 // ===== CHUYỂN TAB =====
 function switchTab(tabId) {
