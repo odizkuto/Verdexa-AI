@@ -22,6 +22,11 @@ DEMO_DISEASES = [
     {
         "disease": "Đốm lá sớm (Early Blight)",
         "confidence": 94,
+        "symptoms": [
+            "Xuất hiện đốm nâu hình tròn, có vòng đồng tâm như mắt bò trên lá già.",
+            "Vùng quanh đốm bệnh chuyển vàng.",
+            "Lá bị bệnh khô héo và rụng sớm từ dưới gốc lên.",
+        ],
         "cause": "Thường do nấm phát triển trong điều kiện ẩm ướt.",
         "solution": [
             "Loại bỏ lá bị nhiễm bệnh.",
@@ -32,6 +37,11 @@ DEMO_DISEASES = [
     {
         "disease": "Vàng lá do thiếu đạm",
         "confidence": 88,
+        "symptoms": [
+            "Lá già chuyển vàng đều từ mép vào gân lá, gân lá vẫn còn xanh nhạt.",
+            "Cây sinh trưởng chậm, thân nhỏ, còi cọc.",
+            "Lá non nhỏ hơn bình thường, ít nhánh mới.",
+        ],
         "cause": "Đất thiếu dinh dưỡng, đặc biệt là nitơ.",
         "solution": [
             "Bón bổ sung phân đạm.",
@@ -166,17 +176,21 @@ def diagnose_disease_from_image(image_path):
         f"{NO_THINKING_INSTRUCTION}\n\n"
         "Bạn là chuyên gia bệnh học thực vật. Hãy phân tích ảnh lá cây này và chẩn đoán bệnh. "
         "Trả lời CHỈ bằng JSON theo format, không thêm bất kỳ chữ nào khác: "
-        '{"disease": "tên bệnh", "confidence": số nguyên 0-100, "cause": "nguyên nhân", '
-        '"solution": ["biện pháp 1", "biện pháp 2", "biện pháp 3"]}'
+        '{"disease": "tên bệnh", "confidence": số nguyên 0-100, '
+        '"symptoms": ["triệu chứng dễ nhận biết 1", "triệu chứng dễ nhận biết 2", "triệu chứng dễ nhận biết 3"], '
+        '"cause": "nguyên nhân", '
+        '"solution": ["biện pháp 1", "biện pháp 2", "biện pháp 3"]}. '
+        "Phần \"symptoms\" phải mô tả các dấu hiệu bệnh (màu sắc, hình dạng đốm, vị trí trên lá/thân...) "
+        "bằng ngôn ngữ đơn giản, dễ hiểu để nông dân tự nhận biết bệnh ngoài thực tế."
     )
 
-    response = _generate(model, [prompt, image_part], max_tokens=400)
+    response = _generate(model, [prompt, image_part], max_tokens=500)
     text = _extract_json(response.text)
 
     try:
         return json.loads(text)
     except json.JSONDecodeError:
-        return {"disease": "Không xác định", "confidence": 0, "cause": text, "solution": []}
+        return {"disease": "Không xác định", "confidence": 0, "symptoms": [], "cause": text, "solution": []}
 
 
 def diagnose_disease_from_text(plant_name, symptoms):
@@ -194,17 +208,21 @@ def diagnose_disease_from_text(plant_name, symptoms):
         f"Cây trồng: {plant_name}\nTriệu chứng: {symptoms}\n\n"
         "Bạn là chuyên gia bệnh học thực vật. Hãy chẩn đoán bệnh có khả năng nhất. "
         "Trả lời CHỈ bằng JSON theo format, không thêm bất kỳ chữ nào khác: "
-        '{"disease": "tên bệnh", "confidence": số nguyên 0-100, "cause": "nguyên nhân", '
-        '"solution": ["biện pháp 1", "biện pháp 2", "biện pháp 3"]}'
+        '{"disease": "tên bệnh", "confidence": số nguyên 0-100, '
+        '"symptoms": ["triệu chứng dễ nhận biết 1", "triệu chứng dễ nhận biết 2", "triệu chứng dễ nhận biết 3"], '
+        '"cause": "nguyên nhân", '
+        '"solution": ["biện pháp 1", "biện pháp 2", "biện pháp 3"]}. '
+        "Phần \"symptoms\" phải liệt kê đầy đủ các dấu hiệu điển hình của bệnh này (không chỉ lặp lại "
+        "triệu chứng người dùng vừa mô tả) bằng ngôn ngữ đơn giản, dễ hiểu để nông dân tự nhận biết bệnh."
     )
 
-    response = _generate(model, prompt, max_tokens=400)
+    response = _generate(model, prompt, max_tokens=500)
     text = _extract_json(response.text)
 
     try:
         return json.loads(text)
     except json.JSONDecodeError:
-        return {"disease": "Không xác định", "confidence": 0, "cause": text, "solution": []}
+        return {"disease": "Không xác định", "confidence": 0, "symptoms": [], "cause": text, "solution": []}
 
 
 # Câu hỏi về người sáng lập -> trả lời cố định, không để AI tự "bịa" theo ý riêng
