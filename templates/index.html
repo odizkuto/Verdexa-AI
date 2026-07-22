@@ -158,7 +158,7 @@
         <div class="diagnosis-container">
             <div class="diagnosis-form">
                 <label>Tên cây trồng</label>
-                <input type="text" id="diseasePlantName" placeholder="Ví dụ: Cà chua">
+                <input type="text" id="diseasePlantName" placeholder="Ví dụ: Cà chua" autocomplete="off">
 
                 <label>Triệu chứng</label>
                 <textarea id="diseaseSymptoms" placeholder="Ví dụ: Lá vàng, đốm nâu, mép lá khô..."></textarea>
@@ -215,7 +215,7 @@
             <div class="poda-border"></div>
 
             <div class="library-search" id="poda-main">
-                <input type="text" id="librarySearchInput" placeholder="Nhập tên cây cần tra cứu... (VD: Sầu riêng, Hoa hồng, Cây bơ)">
+                <input type="text" id="librarySearchInput" placeholder="Nhập tên cây cần tra cứu... (VD: Sầu riêng, Hoa hồng, Cây bơ)" autocomplete="off">
                 <button type="button" id="librarySearchBtn">
                     <span class="btn-icon-default"><i class="fa-solid fa-magnifying-glass"></i></span>
                     <span class="btn-label">Tìm kiếm</span>
@@ -296,7 +296,7 @@
                 </div>
                 <div class="chat-input">
                     <div class="chat-input-field-wrap neon-input-wrapper">
-                        <input type="text" id="chatInput" class="neon-input" placeholder="Hỏi AI...">
+                        <input type="text" id="chatInput" class="neon-input" placeholder="Hỏi AI..." autocomplete="off" name="chat-message-not-email" spellcheck="false">
                         <div class="chat-attach-radial">
                             <button type="button" id="chatPlusBtn" title="Đính kèm">
                                 <i class="fa-solid fa-plus"></i>
@@ -365,7 +365,7 @@
         <div class="store-filter-bar">
             <div class="store-search-wrap">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="storeSearchInput" placeholder="Tìm sản phẩm theo tên...">
+                <input type="text" id="storeSearchInput" placeholder="Tìm sản phẩm theo tên..." autocomplete="off">
             </div>
             <select id="storeCategoryFilter">
                 <option value="">Tất cả loại thuốc</option>
