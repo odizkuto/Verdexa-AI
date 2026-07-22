@@ -343,14 +343,35 @@
             true
         );
 
-        // Vuốt gần sát mép dưới màn hình -> luôn gọi thanh nav hiện lại ngay
+        // Vuốt lên có chủ đích từ mép dưới màn hình (touchstart bắt đầu gần mép
+        // dưới) -> gọi thanh nav hiện lại ngay. Trước đây kiểm tra vị trí ngón
+        // tay ở MỌI thời điểm touchmove, nên khi cuộn trang bằng ngón tay đặt
+        // gần đáy màn hình (rất phổ biến trên mobile), thanh nav bị hiện lại
+        // liên tục và không bao giờ ẩn được như trên desktop.
+        let edgeTouchStartY = null;
+
+        window.addEventListener(
+            "touchstart",
+            (e) => {
+                const touch = e.touches && e.touches[0];
+                edgeTouchStartY = touch ? touch.clientY : null;
+            },
+            { passive: true }
+        );
+
         window.addEventListener(
             "touchmove",
             (e) => {
+                if (edgeTouchStartY === null) return;
+                const startedNearBottom = window.innerHeight - edgeTouchStartY < 70;
+                if (!startedNearBottom) return;
+
                 const touch = e.touches && e.touches[0];
-                if (touch && window.innerHeight - touch.clientY < 70) {
+                const isSwipingUp = touch && touch.clientY < edgeTouchStartY - 15;
+                if (isSwipingUp) {
                     showNav();
                     scheduleAutoReveal(2500);
+                    edgeTouchStartY = null; // chỉ kích hoạt 1 lần mỗi lần chạm
                 }
             },
             { passive: true }
