@@ -36,6 +36,7 @@
         <a href="#library">Thư viện</a>
         <a href="#chat">Trò chuyện AI</a>
         <a href="/history">Lịch sử</a>
+        {% if username %}<a href="/history#favorites">Yêu thích</a>{% endif %}
     </nav>
 
     {% if username %}
@@ -213,6 +214,29 @@
         {% endfor %}
     </div>
 </section>
+
+{% if username %}
+<section class="library" id="favorites">
+    <div class="section-title">
+        <h2>Cây yêu thích</h2>
+        <p>Danh sách các cây bạn đã đánh dấu yêu thích.</p>
+    </div>
+
+    <div class="library-grid">
+        {% for plant in favorites %}
+        <div class="plant-card">
+            <img src="{{ url_for('static', filename='images/plants/' + plant.image) if plant.image else 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=600&q=80' }}"
+                 onerror="this.src='https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=600&q=80'">
+            <h3>{{ plant.name }}</h3>
+            <p>{{ plant.category }}</p>
+            <button onclick="window.location.href='/plant/{{ plant.id }}'">Chi tiết</button>
+        </div>
+        {% else %}
+        <p>Bạn chưa yêu thích cây nào. Vào trang chi tiết 1 cây và bấm biểu tượng trái tim để thêm.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
 
 <section class="chat-section" id="chat">
     <div class="section-title">
