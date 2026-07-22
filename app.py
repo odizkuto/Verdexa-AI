@@ -83,6 +83,11 @@ def home():
         username=session.get("username"),
         is_admin=session.get("is_admin", False),
         user_phone=(current_user or {}).get("phone") or "",
+        saved_display_name=(current_user or {}).get("display_name") or "",
+        saved_avatar=(current_user or {}).get("avatar_data") or "",
+        saved_dark_mode=bool((current_user or {}).get("dark_mode")),
+        saved_theme=(current_user or {}).get("theme") or "green",
+        saved_lang=(current_user or {}).get("lang") or "vi",
     )
 
 
@@ -150,6 +155,7 @@ def api_predict():
         disease_name=None,
         confidence=result.get("confidence"),
         result_summary=result.get("description", ""),
+        user_id=session.get("user_id"),
     )
 
     return jsonify(result)
@@ -177,6 +183,7 @@ def api_diagnose():
             disease_name=result.get("disease"),
             confidence=result.get("confidence"),
             result_summary=result.get("cause", ""),
+            user_id=session.get("user_id"),
         )
         return jsonify(result)
 
@@ -198,6 +205,7 @@ def api_diagnose():
         plant_name=plant_name,
         disease_name=result.get("disease"),
         confidence=result.get("confidence"),
+        user_id=session.get("user_id"),
         result_summary=result.get("cause", ""),
     )
 
@@ -281,6 +289,15 @@ def api_delete_account():
     user_id = session.get("user_id")
     if not user_id:
         return jsonify({"error": "Vui lòng đăng nhập."}), 401
+
+    data = request.get_json(silent=True) or {}
+    password = data.get("password", "")
+    if not password:
+        return jsonify({"error": "Vui lòng nhập mật khẩu để xác nhận."}), 400
+
+    current_user = db.get_user_by_id(user_id)
+    if not current_user or not check_password_hash(current_user["password_hash"], password):
+        return jsonify({"error": "Mật khẩu không đúng."}), 401
 
     try:
         db.delete_user(user_id)
@@ -417,10 +434,75 @@ def api_chat():
     return jsonify({"reply": reply, "image_url": image_url})
 
 
+@app.route("/api/profile", methods=["GET"])
+def api_get_profile():
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "Vui lòng đăng nhập."}), 401
+
+    user = db.get_user_by_id(user_id)
+    if not user:
+        return jsonify({"error": "Không tìm thấy tài khoản."}), 404
+
+    return jsonify({
+        "display_name": user.get("display_name") or "",
+        "avatar_data": user.get("avatar_data") or "",
+        "dark_mode": bool(user.get("dark_mode")),
+        "theme": user.get("theme") or "green",
+        "lang": user.get("lang") or "vi",
+    })
+
+
+@app.route("/api/profile", methods=["POST"])
+def api_update_profile():
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "Vui lòng đăng nhập."}), 401
+
+    data = request.get_json(silent=True) or {}
+    fields = {}
+
+    if "display_name" in data:
+        fields["display_name"] = str(data.get("display_name") or "").strip()[:40]
+    if "avatar_data" in data:
+        avatar = data.get("avatar_data") or ""
+        # Giới hạn dung lượng ảnh (base64) để tránh phình database, khoảng ~350KB.
+        if len(avatar) > 480000:
+            return jsonify({"error": "Ảnh đại diện quá lớn, vui lòng chọn ảnh nhỏ hơn."}), 400
+        fields["avatar_data"] = avatar
+    if "dark_mode" in data:
+        fields["dark_mode"] = bool(data.get("dark_mode"))
+    if "theme" in data:
+        theme = data.get("theme")
+        if theme not in ("green", "red", "pink", "blue", "yellow"):
+            return jsonify({"error": "Màu chủ đề không hợp lệ."}), 400
+        fields["theme"] = theme
+    if "lang" in data:
+        lang = data.get("lang")
+        if lang not in ("vi", "en"):
+            return jsonify({"error": "Ngôn ngữ không hợp lệ."}), 400
+        fields["lang"] = lang
+
+    if not fields:
+        return jsonify({"error": "Không có dữ liệu để cập nhật."}), 400
+
+    try:
+        db.update_user_profile(user_id, fields)
+    except Exception as e:
+        print(f"[api_update_profile] Lỗi khi cập nhật hồ sơ: {e}")
+        return jsonify({"error": f"Không cập nhật được hồ sơ: {e}"}), 500
+
+    return jsonify({"message": "Đã lưu."})
+
+
 # ======================== API: LỊCH SỬ TRÒ CHUYỆN AI ========================
 
 @app.route("/api/chat/save", methods=["POST"])
 def api_chat_save():
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "Vui lòng đăng nhập."}), 401
+
     data = request.get_json(silent=True) or {}
     messages = data.get("messages", [])
 
@@ -433,20 +515,27 @@ def api_chat_save():
         title = "Cuộc trò chuyện với AI"
 
     import json as _json
-    chat_id = db.add_chat_history(title, _json.dumps(messages, ensure_ascii=False))
+    chat_id = db.add_chat_history(title, _json.dumps(messages, ensure_ascii=False), user_id)
 
     return jsonify({"id": chat_id, "title": title})
 
 
 @app.route("/api/chat/history")
 def api_chat_history_list():
-    return jsonify(db.get_chat_sessions())
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "Vui lòng đăng nhập."}), 401
+    return jsonify(db.get_chat_sessions(user_id))
 
 
 @app.route("/api/chat/history/<int:chat_id>")
 def api_chat_history_detail(chat_id):
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "Vui lòng đăng nhập."}), 401
+
     import json as _json
-    session_row = db.get_chat_session(chat_id)
+    session_row = db.get_chat_session(chat_id, user_id)
     if not session_row:
         return jsonify({"error": "Không tìm thấy cuộc trò chuyện."}), 404
 
@@ -456,27 +545,33 @@ def api_chat_history_detail(chat_id):
 
 @app.route("/api/chat/save/<int:chat_id>", methods=["PUT"])
 def api_chat_update(chat_id):
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "Vui lòng đăng nhập."}), 401
+
     data = request.get_json(silent=True) or {}
     messages = data.get("messages", [])
 
     if not messages or not isinstance(messages, list):
         return jsonify({"error": "Không có nội dung để cập nhật."}), 400
 
-    if not db.get_chat_session(chat_id):
-        return jsonify({"error": "Không tìm thấy cuộc trò chuyện."}), 404
-
     import json as _json
-    db.update_chat_history(chat_id, _json.dumps(messages, ensure_ascii=False))
+    updated = db.update_chat_history(chat_id, _json.dumps(messages, ensure_ascii=False), user_id)
+    if not updated:
+        return jsonify({"error": "Không tìm thấy cuộc trò chuyện."}), 404
 
     return jsonify({"id": chat_id, "message": "Đã cập nhật."})
 
 
 @app.route("/api/chat/history/<int:chat_id>", methods=["DELETE"])
 def api_chat_delete(chat_id):
-    if not db.get_chat_session(chat_id):
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "Vui lòng đăng nhập."}), 401
+
+    if not db.delete_chat_history(chat_id, user_id):
         return jsonify({"error": "Không tìm thấy cuộc trò chuyện."}), 404
 
-    db.delete_chat_history(chat_id)
     return jsonify({"message": "Đã xoá cuộc trò chuyện."})
 
 
@@ -484,7 +579,10 @@ def api_chat_delete(chat_id):
 
 @app.route("/api/history")
 def api_history():
-    return jsonify(db.get_history())
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "Vui lòng đăng nhập."}), 401
+    return jsonify(db.get_history(user_id=user_id))
 
 
 # ======================== API: CỬA HÀNG (SẢN PHẨM) ========================
