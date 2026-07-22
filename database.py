@@ -150,6 +150,17 @@ def init_db():
         )
     """)
 
+    # Bảng cây yêu thích (mỗi user có thể yêu thích nhiều cây)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS favorites (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            plant_id INTEGER NOT NULL REFERENCES plants(id) ON DELETE CASCADE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(user_id, plant_id)
+        )
+    """)
+
     conn.commit()
     cur.close()
     conn.close()
@@ -206,6 +217,56 @@ def get_plant_by_id(plant_id):
     cur.close()
     conn.close()
     return dict(plant) if plant else None
+
+
+def add_favorite(user_id, plant_id):
+    """Thêm 1 cây vào danh sách yêu thích của user. Bỏ qua nếu đã có sẵn."""
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO favorites (user_id, plant_id) VALUES (%s, %s) ON CONFLICT (user_id, plant_id) DO NOTHING",
+        (user_id, plant_id),
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+
+
+def remove_favorite(user_id, plant_id):
+    """Bỏ 1 cây khỏi danh sách yêu thích của user."""
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM favorites WHERE user_id = %s AND plant_id = %s", (user_id, plant_id))
+    conn.commit()
+    cur.close()
+    conn.close()
+
+
+def get_favorites(user_id):
+    """Trả về danh sách đầy đủ thông tin các cây mà user đã yêu thích, mới nhất trước."""
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT p.* FROM plants p
+        JOIN favorites f ON f.plant_id = p.id
+        WHERE f.user_id = %s
+        ORDER BY f.created_at DESC
+    """, (user_id,))
+    plants = cur.fetchall()
+    cur.close()
+    conn.close()
+    return [dict(p) for p in plants]
+
+
+def get_favorite_plant_ids(user_id):
+    """Trả về tập hợp id các cây user đã yêu thích (dùng để hiển thị trạng thái tim đã bấm)."""
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT plant_id FROM favorites WHERE user_id = %s", (user_id,))
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return {row["plant_id"] for row in rows}
 
 
 def add_history(image_path, plant_name, disease_name, confidence, result_summary, user_id=None):
