@@ -370,7 +370,7 @@
                 const isSwipingUp = touch && touch.clientY < edgeTouchStartY - 15;
                 if (isSwipingUp) {
                     showNav();
-                    scheduleAutoReveal(2500);
+                    scheduleAutoReveal(150);
                     edgeTouchStartY = null; // chỉ kích hoạt 1 lần mỗi lần chạm
                 }
             },
