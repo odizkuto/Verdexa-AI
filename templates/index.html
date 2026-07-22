@@ -18,7 +18,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 </head>
-<body class="sidebar-layout">
+<body class="sidebar-layout{{ ' dark-mode' if saved_dark_mode else '' }}" data-theme="{{ saved_theme|default('green', true) }}">
 
 {% include "_page_transition.html" %}
 
@@ -477,7 +477,9 @@
                     <i class="fa-solid fa-trash"></i> Xoá tài khoản
                 </button>
                 <div class="settings-confirm-box" id="settingsDeleteConfirmBox">
-                    <p>Hành động này sẽ xoá vĩnh viễn tài khoản của bạn và không thể hoàn tác. Bạn có chắc chắn không?</p>
+                    <p>Hành động này sẽ xoá vĩnh viễn tài khoản của bạn và không thể hoàn tác. Nhập lại mật khẩu để xác nhận.</p>
+                    <input type="password" id="settingsDeletePasswordInput" class="settings-name-input" style="border:1px solid var(--border-soft);border-radius:10px;padding:9px 12px;margin-bottom:10px;" placeholder="Mật khẩu hiện tại">
+                    <p class="store-form-error" id="settingsDeleteError" style="display:none;"></p>
                     <div class="settings-confirm-actions">
                         <button type="button" class="settings-confirm-cancel" id="settingsDeleteCancelBtn">Huỷ</button>
                         <button type="button" class="settings-confirm-delete" id="settingsDeleteConfirmBtn">Xoá vĩnh viễn</button>
@@ -626,6 +628,13 @@ const IS_LOGGED_IN = {{ 'true' if username else 'false' }};
 const IS_ADMIN = {{ 'true' if is_admin else 'false' }};
 const USER_PHONE = "{{ user_phone|default('', true) }}";
 window.CURRENT_USERNAME = "{{ username|default('', true) }}";
+window.SAVED_PROFILE = {
+    display_name: {{ saved_display_name|default('', true)|tojson }},
+    avatar_data: {{ saved_avatar|default('', true)|tojson }},
+    dark_mode: {{ 'true' if saved_dark_mode else 'false' }},
+    theme: "{{ saved_theme|default('green', true) }}",
+    lang: "{{ saved_lang|default('vi', true) }}"
+};
 
 // ===== CHUYỂN HƯỚNG NẾU CHƯA ĐĂNG NHẬP =====
 function requireLogin() {
