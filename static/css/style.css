@@ -6004,3 +6004,26 @@ body.dark-mode .chat-saved-empty{
     .settings-profile-info{ align-items: center; }
     .settings-profile-phone{ justify-content: center; }
 }
+
+/* ===== Favorite button (plant details page) ===== */
+.favorite-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.7em;
+    vertical-align: middle;
+    margin-left: 12px;
+    color: #9aa5a0;
+    transition: color 0.2s ease, transform 0.15s ease;
+}
+.favorite-btn:hover {
+    color: #e0645f;
+    transform: scale(1.1);
+}
+.favorite-btn.is-active {
+    color: #e0342a;
+}
+.favorite-btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
