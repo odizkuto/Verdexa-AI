@@ -9,7 +9,7 @@ import json
 import uuid
 import secrets
 from datetime import datetime, timedelta
-from flask import Flask, render_template, request, jsonify, send_from_directory, session
+from flask import Flask, render_template, request, jsonify, send_from_directory, session, redirect, url_for
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -117,13 +117,50 @@ def plant_details_page(plant_id):
     plant = db.get_plant_by_id(plant_id)
     if not plant:
         return "Không tìm thấy cây trồng.", 404
-    return render_template("plant-details.html", plant=plant, username=session.get("username"))
+    user_id = session.get("user_id")
+    is_favorite = plant_id in db.get_favorite_plant_ids(user_id) if user_id else False
+    return render_template(
+        "plant-details.html",
+        plant=plant,
+        username=session.get("username"),
+        is_favorite=is_favorite,
+    )
+
+
+@app.route("/api/favorites", methods=["GET"])
+def api_get_favorites():
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "Vui lòng đăng nhập."}), 401
+    return jsonify(db.get_favorites(user_id))
+
+
+@app.route("/api/favorites/<int:plant_id>", methods=["POST"])
+def api_add_favorite(plant_id):
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "Vui lòng đăng nhập."}), 401
+    if not db.get_plant_by_id(plant_id):
+        return jsonify({"error": "Không tìm thấy cây trồng."}), 404
+    db.add_favorite(user_id, plant_id)
+    return jsonify({"message": "Đã thêm vào yêu thích.", "is_favorite": True})
+
+
+@app.route("/api/favorites/<int:plant_id>", methods=["DELETE"])
+def api_remove_favorite(plant_id):
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "Vui lòng đăng nhập."}), 401
+    db.remove_favorite(user_id, plant_id)
+    return jsonify({"message": "Đã bỏ khỏi yêu thích.", "is_favorite": False})
 
 
 @app.route("/history")
 def history_page():
     records = db.get_history()
-    return render_template("history.html", history=records, username=session.get("username"))
+    user_id = session.get("user_id")
+    favorites = db.get_favorites(user_id) if user_id else []
+    return render_template("history.html", history=records, favorites=favorites, username=session.get("username"))
 
 
 @app.route("/uploads/<filename>")
