@@ -16,6 +16,18 @@
         lang: "verdexa_lang",
     };
 
+    const SAVED = window.SAVED_PROFILE || {};
+
+    function saveProfileToServer(fields) {
+        fetch("/api/profile", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(fields),
+        }).catch(() => {
+            /* mất mạng tạm thời -> vẫn giữ nguyên trên giao diện, thử lại lần sau */
+        });
+    }
+
     const DEFAULT_AVATAR =
         "data:image/svg+xml;utf8," +
         encodeURIComponent(
@@ -26,7 +38,7 @@
             "</text></svg>"
         );
 
-    /* ---------- 1. HỒ SƠ: AVATAR + TÊN HIỂN THỊ ---------- */
+    /* ---------- 1. HỒ SƠ: AVATAR + TÊN HIỂN THỊ (đồng bộ theo tài khoản) ---------- */
 
     function initProfile() {
         const avatarImg = document.getElementById("settingsAvatarImg");
@@ -36,10 +48,10 @@
         const saveHint = document.getElementById("settingsSaveHint");
         if (!avatarImg) return;
 
-        const savedAvatar = localStorage.getItem(STORAGE_KEYS.avatar);
+        const savedAvatar = SAVED.avatar_data || localStorage.getItem(STORAGE_KEYS.avatar);
         avatarImg.src = savedAvatar || DEFAULT_AVATAR;
 
-        const savedName = localStorage.getItem(STORAGE_KEYS.displayName);
+        const savedName = SAVED.display_name || localStorage.getItem(STORAGE_KEYS.displayName);
         nameInput.value = savedName || window.CURRENT_USERNAME || "";
 
         avatarWrap.addEventListener("click", () => avatarInput.click());
@@ -51,6 +63,7 @@
             reader.onload = (e) => {
                 avatarImg.src = e.target.result;
                 localStorage.setItem(STORAGE_KEYS.avatar, e.target.result);
+                saveProfileToServer({ avatar_data: e.target.result });
                 flashSaveHint(saveHint);
             };
             reader.readAsDataURL(file);
@@ -60,7 +73,9 @@
         nameInput.addEventListener("input", () => {
             clearTimeout(nameSaveTimer);
             nameSaveTimer = setTimeout(() => {
-                localStorage.setItem(STORAGE_KEYS.displayName, nameInput.value.trim());
+                const value = nameInput.value.trim();
+                localStorage.setItem(STORAGE_KEYS.displayName, value);
+                saveProfileToServer({ display_name: value });
                 flashSaveHint(saveHint);
             }, 500);
         });
@@ -72,42 +87,46 @@
         setTimeout(() => el.classList.remove("show"), 1600);
     }
 
-    /* ---------- 2. SÁNG / TỐI ---------- */
+    /* ---------- 2. SÁNG / TỐI (đồng bộ theo tài khoản) ---------- */
 
     function initDarkMode() {
         const toggle = document.getElementById("darkModeToggle");
-        const isDark = localStorage.getItem(STORAGE_KEYS.darkMode) === "1";
-        document.body.classList.toggle("dark-mode", isDark);
+        // body đã được server render sẵn class dark-mode đúng theo tài khoản,
+        // ở đây chỉ cần đồng bộ lại trạng thái công tắc cho khớp.
+        const isDark = document.body.classList.contains("dark-mode");
         if (toggle) toggle.checked = isDark;
 
         if (toggle) {
             toggle.addEventListener("change", () => {
                 document.body.classList.toggle("dark-mode", toggle.checked);
                 localStorage.setItem(STORAGE_KEYS.darkMode, toggle.checked ? "1" : "0");
+                saveProfileToServer({ dark_mode: toggle.checked });
             });
         }
     }
 
-    /* ---------- 3. MÀU CHỦ ĐỀ (PASTEL) ---------- */
+    /* ---------- 3. MÀU CHỦ ĐỀ (PASTEL, đồng bộ theo tài khoản) ---------- */
 
     function initThemeSwatches() {
         const swatches = document.querySelectorAll(".settings-swatch");
         if (!swatches.length) return;
 
-        const savedTheme = localStorage.getItem(STORAGE_KEYS.theme) || "green";
-        applyTheme(savedTheme, swatches);
+        // body đã được server render sẵn data-theme đúng theo tài khoản
+        const currentTheme = document.body.getAttribute("data-theme") || "green";
+        markActiveSwatch(currentTheme, swatches);
 
         swatches.forEach((btn) => {
             btn.addEventListener("click", () => {
                 const theme = btn.dataset.theme;
                 localStorage.setItem(STORAGE_KEYS.theme, theme);
-                applyTheme(theme, swatches);
+                document.body.setAttribute("data-theme", theme);
+                markActiveSwatch(theme, swatches);
+                saveProfileToServer({ theme });
             });
         });
     }
 
-    function applyTheme(theme, swatches) {
-        document.body.setAttribute("data-theme", theme);
+    function markActiveSwatch(theme, swatches) {
         swatches.forEach((s) => s.classList.toggle("active", s.dataset.theme === theme));
     }
 
@@ -145,7 +164,8 @@
         "#settingsHistoryToggle span": ['<i class="fa-solid fa-clock-rotate-left" style="color:var(--accent);margin-right:8px;"></i> Lịch sử mua hàng', '<i class="fa-solid fa-clock-rotate-left" style="color:var(--accent);margin-right:8px;"></i> Order history'],
         '.settings-section-title:has(i.fa-triangle-exclamation)': ['<i class="fa-solid fa-triangle-exclamation"></i> Vùng nguy hiểm', '<i class="fa-solid fa-triangle-exclamation"></i> Danger zone'],
         "#settingsDeleteAccountBtn": ['<i class="fa-solid fa-trash"></i> Xoá tài khoản', '<i class="fa-solid fa-trash"></i> Delete account'],
-        "#settingsDeleteConfirmBox p": ["Hành động này sẽ xoá vĩnh viễn tài khoản của bạn và không thể hoàn tác. Bạn có chắc chắn không?", "This will permanently delete your account and cannot be undone. Are you sure?"],
+        "#settingsDeleteConfirmBox p": ["Hành động này sẽ xoá vĩnh viễn tài khoản của bạn và không thể hoàn tác. Nhập lại mật khẩu để xác nhận.", "This will permanently delete your account and cannot be undone. Re-enter your password to confirm."],
+        "#settingsDeletePasswordInput": null,
         "#settingsDeleteCancelBtn": ["Huỷ", "Cancel"],
         "#settingsDeleteConfirmBtn": ["Xoá vĩnh viễn", "Delete permanently"],
     };
@@ -169,7 +189,7 @@
         const buttons = document.querySelectorAll(".settings-lang-btn");
         if (!buttons.length) return;
 
-        const savedLang = localStorage.getItem(STORAGE_KEYS.lang) || "vi";
+        const savedLang = SAVED.lang || localStorage.getItem(STORAGE_KEYS.lang) || "vi";
         applyLang(savedLang);
 
         buttons.forEach((btn) => {
@@ -177,6 +197,7 @@
                 const lang = btn.dataset.lang;
                 localStorage.setItem(STORAGE_KEYS.lang, lang);
                 applyLang(lang);
+                saveProfileToServer({ lang });
             });
         });
     }
@@ -204,22 +225,46 @@
         const confirmBox = document.getElementById("settingsDeleteConfirmBox");
         const cancelBtn = document.getElementById("settingsDeleteCancelBtn");
         const confirmBtn = document.getElementById("settingsDeleteConfirmBtn");
+        const passwordInput = document.getElementById("settingsDeletePasswordInput");
+        const errorEl = document.getElementById("settingsDeleteError");
         if (!deleteBtn) return;
 
-        deleteBtn.addEventListener("click", () => confirmBox.classList.add("show"));
+        function resetConfirmUI() {
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = "Xoá vĩnh viễn";
+            errorEl.style.display = "none";
+        }
+
+        deleteBtn.addEventListener("click", () => {
+            confirmBox.classList.add("show");
+            passwordInput.value = "";
+            resetConfirmUI();
+        });
         cancelBtn.addEventListener("click", () => confirmBox.classList.remove("show"));
 
         confirmBtn.addEventListener("click", () => {
+            const password = passwordInput.value;
+            if (!password) {
+                errorEl.textContent = "Vui lòng nhập mật khẩu để xác nhận.";
+                errorEl.style.display = "block";
+                return;
+            }
+
             confirmBtn.disabled = true;
             confirmBtn.textContent = "Đang xử lý...";
+            errorEl.style.display = "none";
 
-            fetch("/api/account/delete", { method: "POST" })
+            fetch("/api/account/delete", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ password }),
+            })
                 .then((res) => res.json().catch(() => ({})))
                 .then((data) => {
                     if (data && data.error) {
-                        alert(data.error);
-                        confirmBtn.disabled = false;
-                        confirmBtn.textContent = "Xoá vĩnh viễn";
+                        errorEl.textContent = data.error;
+                        errorEl.style.display = "block";
+                        resetConfirmUI();
                         return;
                     }
                     localStorage.removeItem(STORAGE_KEYS.avatar);
@@ -231,9 +276,9 @@
                     }
                 })
                 .catch(() => {
-                    alert("Không thể xoá tài khoản lúc này. Vui lòng thử lại sau.");
-                    confirmBtn.disabled = false;
-                    confirmBtn.textContent = "Xoá vĩnh viễn";
+                    errorEl.textContent = "Không thể xoá tài khoản lúc này. Vui lòng thử lại sau.";
+                    errorEl.style.display = "block";
+                    resetConfirmUI();
                 });
         });
     }
