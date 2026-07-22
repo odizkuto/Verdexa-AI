@@ -276,6 +276,22 @@ def api_logout():
     return jsonify({"message": "Đã đăng xuất."})
 
 
+@app.route("/api/account/delete", methods=["POST"])
+def api_delete_account():
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "Vui lòng đăng nhập."}), 401
+
+    try:
+        db.delete_user(user_id)
+    except Exception as e:
+        print(f"[api_delete_account] Lỗi khi xoá tài khoản: {e}")
+        return jsonify({"error": f"Không xoá được tài khoản: {e}"}), 500
+
+    session.clear()
+    return jsonify({"message": "Đã xoá tài khoản."})
+
+
 @app.route("/api/forgot-password", methods=["POST"])
 def api_forgot_password():
     data = request.get_json(silent=True) or {}
