@@ -69,7 +69,18 @@
 
         <div class="plant-detail-info">
             <span class="badge">{{ plant.category or 'Cây trồng' }}</span>
-            <h1>{{ plant.name }}</h1>
+            <h1>
+                {{ plant.name }}
+                <button
+                    id="favorite-btn"
+                    class="favorite-btn{{ ' is-active' if is_favorite else '' }}"
+                    data-plant-id="{{ plant.id }}"
+                    title="{{ 'Bỏ yêu thích' if is_favorite else 'Thêm vào yêu thích' }}"
+                    onclick="toggleFavorite(this)"
+                >
+                    <i class="fa-{{ 'solid' if is_favorite else 'regular' }} fa-heart"></i>
+                </button>
+            </h1>
             <p class="desc">{{ plant.description or 'Chưa có mô tả cho loại cây này.' }}</p>
 
             <div class="info-grid">
@@ -180,6 +191,39 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+
+function toggleFavorite(btn) {
+    var plantId = btn.getAttribute("data-plant-id");
+    var isActive = btn.classList.contains("is-active");
+    var method = isActive ? "DELETE" : "POST";
+
+    btn.disabled = true;
+    fetch("/api/favorites/" + plantId, { method: method })
+        .then(function (res) {
+            if (res.status === 401) {
+                window.location.href = "/login";
+                return null;
+            }
+            return res.json();
+        })
+        .then(function (data) {
+            if (!data) return;
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
+            btn.classList.toggle("is-active", data.is_favorite);
+            var icon = btn.querySelector("i");
+            icon.className = data.is_favorite ? "fa-solid fa-heart" : "fa-regular fa-heart";
+            btn.title = data.is_favorite ? "Bỏ yêu thích" : "Thêm vào yêu thích";
+        })
+        .catch(function () {
+            alert("Có lỗi xảy ra, vui lòng thử lại.");
+        })
+        .finally(function () {
+            btn.disabled = false;
+        });
+}
 </script>
 </body>
 </html>
