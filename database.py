@@ -297,6 +297,16 @@ def update_user_password(user_id, password_hash):
     conn.close()
 
 
+def delete_user(user_id):
+    """Xoá vĩnh viễn tài khoản người dùng (dùng cho tính năng 'Xoá tài khoản' trong Cài đặt)."""
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM users WHERE id = %s", (user_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+
+
 # ======================== QUÊN MẬT KHẨU / ĐẶT LẠI MẬT KHẨU ========================
 
 def create_password_reset(user_id, token, expires_at):
