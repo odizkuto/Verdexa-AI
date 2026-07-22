@@ -35,8 +35,8 @@
 </div>
 
 <!-- ===== THANH ĐIỀU HƯỚNG NỔI PHÍA DƯỚI (thay cho sidebar trái) ===== -->
-<div class="bottom-nav-wrap">
-    <nav class="bottom-nav">
+<div class="bottom-nav-wrap" id="bottomNavWrap">
+    <nav class="bottom-nav" id="bottomNav">
         <a href="#" class="bottom-nav-item sidebar-link active" data-tab="chat">
             <i class="fa-solid fa-comments"></i>
             <span class="bottom-nav-tooltip">Trò chuyện AI</span>
@@ -57,22 +57,14 @@
             <i class="fa-solid fa-book-open"></i>
             <span class="bottom-nav-tooltip">Thư viện</span>
         </a>
-        {% if username %}
-        <a href="#" class="bottom-nav-item sidebar-link" data-tab="orderhistory">
-            <i class="fa-solid fa-clock-rotate-left"></i>
-            <span class="bottom-nav-tooltip">Lịch sử mua hàng</span>
-        </a>
 
+        {% if username %}
         <div class="bottom-nav-divider"></div>
 
-        <div class="bottom-nav-item" tabindex="0">
-            <i class="fa-solid fa-circle-user"></i>
-            <span class="bottom-nav-tooltip">{{ username }}</span>
-        </div>
-        <button class="bottom-nav-item" id="logoutBtn" type="button">
-            <i class="fa-solid fa-right-from-bracket"></i>
-            <span class="bottom-nav-tooltip">Đăng xuất</span>
-        </button>
+        <a href="#" class="bottom-nav-item sidebar-link" data-tab="settings">
+            <i class="fa-solid fa-gear"></i>
+            <span class="bottom-nav-tooltip">Cài đặt</span>
+        </a>
         {% else %}
         <div class="bottom-nav-divider"></div>
 
@@ -400,23 +392,103 @@
     </section>
 
     {% if username %}
-    <!-- TAB: LỊCH SỬ MUA HÀNG (của chính user đang đăng nhập) -->
-    <section class="tab-panel" id="tab-orderhistory">
+    <!-- TAB: CÀI ĐẶT -->
+    <section class="tab-panel" id="tab-settings">
         <div class="panel-header">
-            <h1><i class="fa-solid fa-clock-rotate-left"></i> Lịch sử mua hàng</h1>
-            <p>Các yêu cầu mua hàng bạn đã gửi trong Cửa hàng.</p>
+            <h1><i class="fa-solid fa-gear"></i> Cài đặt</h1>
+            <p>Quản lý tài khoản, giao diện và ngôn ngữ của bạn.</p>
         </div>
 
-        <div class="store-orders-list" id="myOrdersList">
-            <!-- JS chèn danh sách đơn đã đặt vào đây -->
-        </div>
+        <div class="settings-wrap">
 
-        <p class="store-empty-state" id="myOrdersEmpty" style="display:none;">
-            <i class="fa-solid fa-inbox"></i><br>
-            Bạn chưa đặt mua sản phẩm nào.
-        </p>
+            <!-- CARD THÔNG TIN NGƯỜI DÙNG -->
+            <div class="settings-profile-card">
+                <div class="settings-avatar-wrap" id="settingsAvatarWrap" title="Bấm để đổi ảnh đại diện">
+                    <img id="settingsAvatarImg" src="" alt="Ảnh đại diện">
+                    <div class="settings-avatar-edit"><i class="fa-solid fa-camera"></i></div>
+                </div>
+                <input type="file" id="settingsAvatarInput" accept="image/*" hidden>
+
+                <div class="settings-profile-info">
+                    <input type="text" id="settingsNameInput" class="settings-name-input" placeholder="Tên hiển thị" maxlength="40">
+                    <span class="settings-profile-phone">
+                        <i class="fa-solid fa-phone"></i> {{ user_phone|default('Chưa có số điện thoại', true) }}
+                    </span>
+                    <span class="settings-save-hint" id="settingsSaveHint"><i class="fa-solid fa-circle-check"></i> Đã lưu</span>
+                </div>
+
+                <button type="button" class="bottom-nav-item" id="logoutBtn" title="Đăng xuất" style="position:static;background:rgba(0,0,0,0.05);color:#d32f2f;">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+
+            <!-- GIAO DIỆN: SÁNG / TỐI -->
+            <div class="settings-section">
+                <div class="settings-section-title"><i class="fa-solid fa-circle-half-stroke"></i> Giao diện</div>
+                <div class="settings-row">
+                    <span class="settings-row-label"><i class="fa-solid fa-moon"></i> Chế độ tối (Dark mode)</span>
+                    <label class="settings-switch">
+                        <input type="checkbox" id="darkModeToggle">
+                        <span class="settings-switch-track"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- MÀU CHỦ ĐỀ -->
+            <div class="settings-section">
+                <div class="settings-section-title"><i class="fa-solid fa-palette"></i> Màu chủ đề giao diện</div>
+                <div class="settings-theme-swatches">
+                    <button type="button" class="settings-swatch settings-swatch-green active" data-theme="green" title="Xanh (mặc định)"></button>
+                    <button type="button" class="settings-swatch settings-swatch-red" data-theme="red" title="Đỏ"></button>
+                    <button type="button" class="settings-swatch settings-swatch-pink" data-theme="pink" title="Hồng"></button>
+                    <button type="button" class="settings-swatch settings-swatch-blue" data-theme="blue" title="Xanh dương"></button>
+                    <button type="button" class="settings-swatch settings-swatch-yellow" data-theme="yellow" title="Vàng"></button>
+                </div>
+            </div>
+
+            <!-- NGÔN NGỮ -->
+            <div class="settings-section">
+                <div class="settings-section-title"><i class="fa-solid fa-language"></i> Ngôn ngữ</div>
+                <div class="settings-lang-toggle">
+                    <button type="button" class="settings-lang-btn active" data-lang="vi">Tiếng Việt</button>
+                    <button type="button" class="settings-lang-btn" data-lang="en">English</button>
+                </div>
+            </div>
+
+            <!-- LỊCH SỬ MUA HÀNG (chuyển từ thanh dưới vào đây) -->
+            <div class="settings-section">
+                <button type="button" class="settings-history-toggle" id="settingsHistoryToggle">
+                    <span><i class="fa-solid fa-clock-rotate-left" style="color:var(--accent);margin-right:8px;"></i> Lịch sử mua hàng</span>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+                <div class="settings-history-body" id="settingsHistoryBody">
+                    <div class="store-orders-list" id="myOrdersList"></div>
+                    <p class="store-empty-state" id="myOrdersEmpty" style="display:none;">
+                        <i class="fa-solid fa-inbox"></i><br>
+                        Bạn chưa đặt mua sản phẩm nào.
+                    </p>
+                </div>
+            </div>
+
+            <!-- XOÁ TÀI KHOẢN -->
+            <div class="settings-section settings-danger-section">
+                <div class="settings-section-title"><i class="fa-solid fa-triangle-exclamation"></i> Vùng nguy hiểm</div>
+                <button type="button" class="settings-danger-btn" id="settingsDeleteAccountBtn">
+                    <i class="fa-solid fa-trash"></i> Xoá tài khoản
+                </button>
+                <div class="settings-confirm-box" id="settingsDeleteConfirmBox">
+                    <p>Hành động này sẽ xoá vĩnh viễn tài khoản của bạn và không thể hoàn tác. Bạn có chắc chắn không?</p>
+                    <div class="settings-confirm-actions">
+                        <button type="button" class="settings-confirm-cancel" id="settingsDeleteCancelBtn">Huỷ</button>
+                        <button type="button" class="settings-confirm-delete" id="settingsDeleteConfirmBtn">Xoá vĩnh viễn</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </section>
     {% endif %}
+
 
     {% if is_admin %}
     <!-- MODAL: THÊM SẢN PHẨM (chỉ render cho admin) -->
@@ -553,6 +625,7 @@
 const IS_LOGGED_IN = {{ 'true' if username else 'false' }};
 const IS_ADMIN = {{ 'true' if is_admin else 'false' }};
 const USER_PHONE = "{{ user_phone|default('', true) }}";
+window.CURRENT_USERNAME = "{{ username|default('', true) }}";
 
 // ===== CHUYỂN HƯỚNG NẾU CHƯA ĐĂNG NHẬP =====
 function requireLogin() {
@@ -575,10 +648,6 @@ function switchTab(tabId) {
 
     const link = document.querySelector('.sidebar-link[data-tab="' + tabId + '"]');
     if (link) link.classList.add('active');
-
-    if (tabId === 'orderhistory' && typeof storeLoadMyOrders === 'function') {
-        storeLoadMyOrders();
-    }
 }
 
 document.querySelectorAll('.sidebar-link[data-tab]').forEach(link => {
@@ -620,6 +689,7 @@ if (logoutBtn) {
 }
 </script>
 <script src="{{ url_for('static', filename='js/store.js') }}"></script>
+<script src="{{ url_for('static', filename='js/settings.js') }}"></script>
 <script src="{{ url_for('static', filename='js/library-book-transition.js') }}"></script>
 </body>
 </html>
