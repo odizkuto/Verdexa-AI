@@ -246,45 +246,66 @@
         if (!wrap || !nav) return;
 
         let hideTimer = null;
+        let isHidden = false;
 
         function hideNav() {
+            isHidden = true;
             wrap.classList.add("nav-hidden");
         }
 
         function showNav() {
+            isHidden = false;
             wrap.classList.remove("nav-hidden");
         }
 
-        function scheduleReveal(delay) {
+        function scheduleAutoReveal(delay) {
             clearTimeout(hideTimer);
             hideTimer = setTimeout(showNav, delay);
         }
 
-        function onInteract(e) {
-            // Không ẩn nếu người dùng đang thao tác ngay trong chính thanh nav
-            if (e && e.target && e.target.closest && e.target.closest("#bottomNavWrap")) {
-                showNav();
-                scheduleReveal(2500);
-                return;
-            }
+        // Kéo / cuộn / vuốt: ẩn trong lúc đang cuộn, mở lại NGAY khi vừa dừng
+        function onScrollLike() {
             hideNav();
-            scheduleReveal(1400);
+            scheduleAutoReveal(150);
         }
 
-        window.addEventListener("scroll", onInteract, { passive: true });
-        window.addEventListener("wheel", onInteract, { passive: true });
-        window.addEventListener("touchmove", onInteract, { passive: true });
-        window.addEventListener("touchstart", onInteract, { passive: true });
-        document.addEventListener("pointerdown", onInteract, true);
+        window.addEventListener("scroll", onScrollLike, { passive: true });
+        window.addEventListener("wheel", onScrollLike, { passive: true });
+        window.addEventListener("touchmove", onScrollLike, { passive: true });
 
-        // Hiện lại nếu chạm gần mép dưới màn hình (vuốt lên để gọi thanh nav)
+        // Chạm/nhấn (tap) ở bất kỳ đâu ngoài thanh nav: bật/tắt ngay lập tức,
+        // để luôn có cách gọi thanh nav ra lại chứ không bị "kẹt" khi ẩn.
+        document.addEventListener(
+            "pointerdown",
+            (e) => {
+                const insideNav = e.target && e.target.closest && e.target.closest("#bottomNavWrap");
+
+                if (insideNav) {
+                    // Đang thao tác trong chính thanh nav -> luôn giữ hiện, không tự ẩn khi đang bấm
+                    showNav();
+                    scheduleAutoReveal(3000);
+                    return;
+                }
+
+                if (isHidden) {
+                    showNav();
+                    scheduleAutoReveal(2500);
+                } else {
+                    hideNav();
+                    scheduleAutoReveal(1400);
+                }
+            },
+            true
+        );
+
+        // Vuốt gần sát mép dưới màn hình -> luôn gọi thanh nav hiện lại ngay
         window.addEventListener(
             "touchmove",
             (e) => {
                 const touch = e.touches && e.touches[0];
                 if (touch && window.innerHeight - touch.clientY < 70) {
                     showNav();
-                    scheduleReveal(2500);
+                    scheduleAutoReveal(2500);
                 }
             },
             { passive: true }
