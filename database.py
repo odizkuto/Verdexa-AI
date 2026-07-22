@@ -78,6 +78,16 @@ def init_db():
     cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS phone TEXT UNIQUE")
     cur.execute("ALTER TABLE users ALTER COLUMN email DROP NOT NULL")
 
+    # Hồ sơ cá nhân hoá (đồng bộ theo tài khoản thay vì chỉ lưu trên 1 trình duyệt)
+    cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS display_name TEXT")
+    cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_data TEXT")
+    cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS dark_mode BOOLEAN DEFAULT FALSE")
+    cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS theme TEXT DEFAULT 'green'")
+    cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS lang TEXT DEFAULT 'vi'")
+
+    # Gắn lịch sử nhận diện/chẩn đoán với từng tài khoản (trước đây dùng chung cho mọi user)
+    cur.execute("ALTER TABLE history ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id) ON DELETE SET NULL")
+
     # Bảng sản phẩm (thuốc BVTV) trong Cửa hàng — do tài khoản admin đăng lên
     cur.execute("""
         CREATE TABLE IF NOT EXISTS products (
@@ -124,6 +134,9 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
+    # Gắn từng cuộc trò chuyện với đúng tài khoản đã tạo ra nó (trước đây dùng
+    # chung 1 danh sách cho MỌI người dùng -> ai cũng xem/sửa/xoá được của nhau).
+    cur.execute("ALTER TABLE chat_history ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id) ON DELETE CASCADE")
 
     # Bảng lưu token đặt lại mật khẩu (dùng cho tính năng "Quên mật khẩu")
     cur.execute("""
@@ -195,22 +208,30 @@ def get_plant_by_id(plant_id):
     return dict(plant) if plant else None
 
 
-def add_history(image_path, plant_name, disease_name, confidence, result_summary):
+def add_history(image_path, plant_name, disease_name, confidence, result_summary, user_id=None):
     conn = get_connection()
     cur = conn.cursor()
     cur.execute("""
-        INSERT INTO history (image_path, plant_name, disease_name, confidence, result_summary)
-        VALUES (%s, %s, %s, %s, %s)
-    """, (image_path, plant_name, disease_name, confidence, result_summary))
+        INSERT INTO history (image_path, plant_name, disease_name, confidence, result_summary, user_id)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """, (image_path, plant_name, disease_name, confidence, result_summary, user_id))
     conn.commit()
     cur.close()
     conn.close()
 
 
-def get_history(limit=50):
+def get_history(user_id=None, limit=50):
+    """Lấy lịch sử nhận diện/chẩn đoán. Truyền user_id để chỉ lấy của riêng tài
+    khoản đó (dùng cho API cá nhân); để trống chỉ dùng cho mục đích nội bộ/legacy."""
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM history ORDER BY created_at DESC LIMIT %s", (limit,))
+    if user_id is not None:
+        cur.execute(
+            "SELECT * FROM history WHERE user_id = %s ORDER BY created_at DESC LIMIT %s",
+            (user_id, limit),
+        )
+    else:
+        cur.execute("SELECT * FROM history ORDER BY created_at DESC LIMIT %s", (limit,))
     rows = cur.fetchall()
     cur.close()
     conn.close()
@@ -307,6 +328,27 @@ def delete_user(user_id):
     conn.close()
 
 
+ALLOWED_PROFILE_FIELDS = {"display_name", "avatar_data", "dark_mode", "theme", "lang"}
+
+
+def update_user_profile(user_id, fields):
+    """Cập nhật 1 hoặc nhiều trường hồ sơ cá nhân hoá (avatar, tên hiển thị,
+    dark mode, màu chủ đề, ngôn ngữ) để đồng bộ theo tài khoản trên mọi thiết bị.
+    `fields` là dict, CHỈ những khoá nằm trong ALLOWED_PROFILE_FIELDS mới được áp dụng."""
+    updates = {k: v for k, v in fields.items() if k in ALLOWED_PROFILE_FIELDS}
+    if not updates:
+        return
+
+    conn = get_connection()
+    cur = conn.cursor()
+    set_clause = ", ".join(f"{col} = %s" for col in updates)
+    values = list(updates.values()) + [user_id]
+    cur.execute(f"UPDATE users SET {set_clause} WHERE id = %s", values)
+    conn.commit()
+    cur.close()
+    conn.close()
+
+
 # ======================== QUÊN MẬT KHẨU / ĐẶT LẠI MẬT KHẨU ========================
 
 def create_password_reset(user_id, token, expires_at):
@@ -348,13 +390,13 @@ def mark_password_reset_used(token):
 
 # ======================== LỊCH SỬ TRÒ CHUYỆN AI ========================
 
-def add_chat_history(title, messages_json):
+def add_chat_history(title, messages_json, user_id):
     """Lưu 1 cuộc trò chuyện. messages_json là chuỗi JSON của list [{role, content}]."""
     conn = get_connection()
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO chat_history (title, messages) VALUES (%s, %s) RETURNING id",
-        (title, messages_json),
+        "INSERT INTO chat_history (title, messages, user_id) VALUES (%s, %s, %s) RETURNING id",
+        (title, messages_json, user_id),
     )
     chat_id = cur.fetchone()["id"]
     conn.commit()
@@ -363,13 +405,13 @@ def add_chat_history(title, messages_json):
     return chat_id
 
 
-def get_chat_sessions(limit=50):
-    """Danh sách các cuộc trò chuyện đã lưu (không kèm nội dung đầy đủ), mới nhất trước."""
+def get_chat_sessions(user_id, limit=50):
+    """Danh sách các cuộc trò chuyện đã lưu CỦA RIÊNG user_id (không kèm nội dung đầy đủ), mới nhất trước."""
     conn = get_connection()
     cur = conn.cursor()
     cur.execute(
-        "SELECT id, title, created_at FROM chat_history ORDER BY created_at DESC LIMIT %s",
-        (limit,),
+        "SELECT id, title, created_at FROM chat_history WHERE user_id = %s ORDER BY created_at DESC LIMIT %s",
+        (user_id, limit),
     )
     rows = cur.fetchall()
     cur.close()
@@ -377,38 +419,42 @@ def get_chat_sessions(limit=50):
     return [dict(r) for r in rows]
 
 
-def get_chat_session(chat_id):
-    """Lấy đầy đủ 1 cuộc trò chuyện đã lưu theo id."""
+def get_chat_session(chat_id, user_id):
+    """Lấy đầy đủ 1 cuộc trò chuyện đã lưu theo id, CHỈ khi thuộc về user_id (chặn xem trộm của người khác)."""
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM chat_history WHERE id = %s", (chat_id,))
+    cur.execute("SELECT * FROM chat_history WHERE id = %s AND user_id = %s", (chat_id, user_id))
     row = cur.fetchone()
     cur.close()
     conn.close()
     return dict(row) if row else None
 
 
-def update_chat_history(chat_id, messages_json):
-    """Cập nhật nội dung tin nhắn của 1 cuộc trò chuyện đã lưu (giữ nguyên tiêu đề)."""
+def update_chat_history(chat_id, messages_json, user_id):
+    """Cập nhật nội dung tin nhắn của 1 cuộc trò chuyện đã lưu (giữ nguyên tiêu đề). Trả về True nếu có bản ghi thuộc user_id được cập nhật."""
     conn = get_connection()
     cur = conn.cursor()
     cur.execute(
-        "UPDATE chat_history SET messages = %s WHERE id = %s",
-        (messages_json, chat_id),
+        "UPDATE chat_history SET messages = %s WHERE id = %s AND user_id = %s",
+        (messages_json, chat_id, user_id),
     )
+    updated = cur.rowcount > 0
     conn.commit()
     cur.close()
     conn.close()
+    return updated
 
 
-def delete_chat_history(chat_id):
-    """Xoá 1 cuộc trò chuyện đã lưu theo id."""
+def delete_chat_history(chat_id, user_id):
+    """Xoá 1 cuộc trò chuyện đã lưu theo id, CHỈ khi thuộc về user_id. Trả về True nếu đã xoá."""
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute("DELETE FROM chat_history WHERE id = %s", (chat_id,))
+    cur.execute("DELETE FROM chat_history WHERE id = %s AND user_id = %s", (chat_id, user_id))
+    deleted = cur.rowcount > 0
     conn.commit()
     cur.close()
     conn.close()
+    return deleted
 
 
 # ======================== CỬA HÀNG (SẢN PHẨM THUỐC BVTV) ========================
