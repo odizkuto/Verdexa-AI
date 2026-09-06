@@ -389,6 +389,16 @@
             <i class="fa-solid fa-box-open"></i><br>
             Cửa hàng chưa có sản phẩm nào.
         </p>
+
+        <!-- Thanh nổi "Xem giỏ hàng", chỉ hiện khi giỏ có sản phẩm -->
+        <button type="button" class="cart-float-bar" id="cartFloatBar">
+            <span class="cart-float-icon-wrap">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span class="cart-float-count" id="cartFloatCount">0</span>
+            </span>
+            <span class="cart-float-label">Xem giỏ hàng</span>
+            <span class="cart-float-total" id="cartFloatTotal">0đ</span>
+        </button>
     </section>
 
     {% if username %}
@@ -609,6 +619,68 @@
 
                 <button type="submit" class="store-form-submit" id="storeOrderSubmitBtn">
                     <i class="fa-solid fa-paper-plane"></i> Gửi yêu cầu mua
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- PANEL GIỎ HÀNG (trượt ra từ bên phải) -->
+    <div class="cart-panel-overlay" id="cartPanelOverlay">
+        <div class="cart-panel">
+            <div class="cart-panel-header">
+                <h2><i class="fa-solid fa-cart-shopping"></i> Giỏ hàng của bạn</h2>
+                <button type="button" class="store-modal-close" id="cartPanelCloseBtn">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="cart-items-list" id="cartItemsList"></div>
+
+            <p class="store-empty-state" id="cartPanelEmpty" style="display:none;">
+                <i class="fa-solid fa-cart-shopping"></i><br>
+                Giỏ hàng đang trống.
+            </p>
+
+            <div class="cart-panel-footer">
+                <div class="cart-subtotal-row">
+                    <span>Tạm tính</span>
+                    <span class="cart-subtotal-value" id="cartSubtotal">0đ</span>
+                </div>
+                <button type="button" class="store-form-submit" id="cartCheckoutBtn" disabled>
+                    Đặt hàng <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: XÁC NHẬN THÔNG TIN ĐẶT HÀNG (nhiều sản phẩm từ giỏ) -->
+    <div class="store-modal-overlay" id="cartCheckoutModalOverlay">
+        <div class="store-modal">
+            <button type="button" class="store-modal-close" id="cartCheckoutModalCloseBtn">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h2><i class="fa-solid fa-cart-shopping"></i> Đặt hàng</h2>
+            <p class="store-order-product-name" id="cartCheckoutSummary"></p>
+
+            <form id="cartCheckoutForm">
+                <label>Họ và tên
+                    <input type="text" id="cartCustomerName" placeholder="Nhập họ tên của bạn" required>
+                </label>
+
+                <label>Số điện thoại
+                    <input type="tel" id="cartCustomerPhone" placeholder="Ví dụ: 0123456789" required>
+                </label>
+                <p class="store-order-phone-hint" id="cartOrderPhoneHint" style="display:none;">
+                    <i class="fa-solid fa-circle-info"></i> SĐT phải trùng với số điện thoại đã đăng ký tài khoản.
+                </p>
+
+                <p class="store-form-error" id="cartCheckoutError" style="display:none;"></p>
+                <p class="store-form-success" id="cartCheckoutSuccess" style="display:none;">
+                    <i class="fa-solid fa-circle-check"></i> Đã gửi yêu cầu đặt hàng! Chúng tôi sẽ liên hệ với bạn sớm nhất.
+                </p>
+
+                <button type="submit" class="store-form-submit" id="cartCheckoutSubmitBtn">
+                    <i class="fa-solid fa-paper-plane"></i> Đặt hàng
                 </button>
             </form>
         </div>
