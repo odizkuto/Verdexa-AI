@@ -5155,6 +5155,24 @@ body.sidebar-layout .chat-box {
     pointer-events: none;
 }
 
+/* Lớp ảnh nền riêng, được làm mờ + tối để chữ/logo phía trên vẫn nét và dễ đọc */
+.page-transition-overlay::before{
+    content: "";
+    position: absolute;
+    inset: -20px; /* tràn ra ngoài để che viền mờ do blur gây ra */
+    z-index: 0;
+    background: url('/static/images/loading-bg-desktop.jpg') center center / cover no-repeat;
+    filter: blur(6px) brightness(.55) saturate(1.05);
+    transform: scale(1.05);
+}
+
+/* Ảnh nền riêng cho mobile */
+@media (max-width: 768px){
+    .page-transition-overlay::before{
+        background-image: url('/static/images/loading-bg-mobile.jpg');
+    }
+}
+
 /* Hướng mặc định: chuyển trang thường - phủ từ trên, thoát lên trên */
 .page-transition-overlay[data-direction="down"],
 .page-transition-overlay:not([data-direction]){
@@ -5185,6 +5203,7 @@ body.sidebar-layout .chat-box {
 .pt-smoke{
     position: absolute;
     inset: 0;
+    z-index: 1;
     pointer-events: none;
 }
 
