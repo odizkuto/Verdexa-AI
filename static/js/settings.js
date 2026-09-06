@@ -45,6 +45,8 @@
         const avatarWrap = document.getElementById("settingsAvatarWrap");
         const avatarInput = document.getElementById("settingsAvatarInput");
         const nameInput = document.getElementById("settingsNameInput");
+        const phoneInput = document.getElementById("settingsPhoneInput");
+        const phoneError = document.getElementById("settingsPhoneError");
         const saveHint = document.getElementById("settingsSaveHint");
         if (!avatarImg) return;
 
@@ -53,6 +55,10 @@
 
         const savedName = SAVED.display_name || localStorage.getItem(STORAGE_KEYS.displayName);
         nameInput.value = savedName || window.CURRENT_USERNAME || "";
+
+        if (phoneInput) {
+            phoneInput.value = SAVED.phone || window.USER_PHONE || "";
+        }
 
         avatarWrap.addEventListener("click", () => avatarInput.click());
 
@@ -79,6 +85,36 @@
                 flashSaveHint(saveHint);
             }, 500);
         });
+
+        if (phoneInput) {
+            let phoneSaveTimer = null;
+            phoneInput.addEventListener("input", () => {
+                if (phoneError) phoneError.textContent = "";
+                phoneInput.classList.remove("has-error");
+                clearTimeout(phoneSaveTimer);
+                phoneSaveTimer = setTimeout(() => {
+                    const value = phoneInput.value.trim();
+                    fetch("/api/profile", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ phone: value }),
+                    })
+                        .then((res) => res.json().then((data) => ({ ok: res.ok, data })))
+                        .then(({ ok, data }) => {
+                            if (!ok) {
+                                phoneInput.classList.add("has-error");
+                                if (phoneError) phoneError.textContent = data.error || "Không lưu được số điện thoại.";
+                                return;
+                            }
+                            window.USER_PHONE = value;
+                            flashSaveHint(saveHint);
+                        })
+                        .catch(() => {
+                            /* mất mạng tạm thời -> thử lại lần sau */
+                        });
+                }, 600);
+            });
+        }
     }
 
     function flashSaveHint(el) {
