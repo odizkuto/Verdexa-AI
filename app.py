@@ -731,6 +731,72 @@ def api_add_order():
     return jsonify(order), 201
 
 
+@app.route("/api/cart/checkout", methods=["POST"])
+def api_cart_checkout():
+    """Đặt hàng nhiều sản phẩm cùng lúc từ giỏ hàng (Cart). Mỗi sản phẩm vẫn
+    được lưu thành 1 dòng trong bảng orders (giữ tương thích với toàn bộ code
+    xử lý đơn hiện có), nhưng tất cả các dòng sinh ra trong lần checkout này
+    sẽ có chung 1 order_group để hiển thị gộp lại thành 1 đơn duy nhất."""
+    data = request.get_json(silent=True) or {}
+
+    items = data.get("items")
+    customer_name = (data.get("customer_name") or "").strip()
+    customer_phone = (data.get("customer_phone") or "").strip()
+
+    if not isinstance(items, list) or len(items) == 0:
+        return jsonify({"error": "Giỏ hàng đang trống."}), 400
+
+    if not customer_name or not customer_phone:
+        return jsonify({"error": "Vui lòng nhập đầy đủ tên và số điện thoại."}), 400
+
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "Vui lòng đăng nhập để đặt hàng."}), 401
+
+    current_user = db.get_user_by_id(user_id)
+    registered_phone = (current_user or {}).get("phone") or ""
+    if not registered_phone:
+        return jsonify({"error": "Tài khoản của bạn chưa có số điện thoại đăng ký. Vui lòng cập nhật SĐT trước khi đặt hàng."}), 400
+    if customer_phone != registered_phone:
+        return jsonify({"error": "Số điện thoại đặt hàng phải trùng với số điện thoại đã đăng ký tài khoản."}), 400
+
+    order_group = uuid.uuid4().hex
+    created_orders = []
+    try:
+        for item in items:
+            product_id = item.get("product_id")
+            product_name = (item.get("product_name") or "").strip()
+            quantity = item.get("quantity", 1)
+
+            try:
+                product_id = int(product_id) if product_id not in (None, "") else None
+            except (TypeError, ValueError):
+                product_id = None
+
+            try:
+                quantity = max(1, int(quantity))
+            except (TypeError, ValueError):
+                quantity = 1
+
+            if not product_name and product_id:
+                product = db.get_product_by_id(product_id)
+                product_name = (product or {}).get("name", "")
+
+            if not product_name:
+                continue
+
+            order = db.add_order(product_id, product_name, customer_name, customer_phone, quantity, user_id, order_group)
+            created_orders.append(order)
+    except Exception as e:
+        print(f"[api_cart_checkout] Lỗi khi lưu đơn hàng: {e}")
+        return jsonify({"error": f"Không lưu được đơn hàng vào database: {e}"}), 500
+
+    if not created_orders:
+        return jsonify({"error": "Giỏ hàng không có sản phẩm hợp lệ."}), 400
+
+    return jsonify({"order_group": order_group, "orders": created_orders}), 201
+
+
 @app.route("/api/orders")
 def api_list_orders():
     """Đơn ĐANG CHỜ admin xử lý (dùng cho nút chuông 'Đơn đặt hàng')."""
