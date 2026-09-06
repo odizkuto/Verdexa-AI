@@ -124,6 +124,10 @@ def init_db():
     # trong "Lịch sử mua hàng" mãi mãi, còn admin thì chuyển từ danh sách "Chờ xử lý"
     # sang "Lịch sử đã xác nhận" của admin.
     cur.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'pending'")
+    # order_group: các dòng đơn cùng 1 lần "Đặt hàng" từ giỏ hàng (nhiều sản phẩm)
+    # sẽ có chung 1 mã group (uuid) để gộp hiển thị lại thành 1 đơn duy nhất.
+    # Đơn đặt lẻ kiểu cũ (nút "Mua ngay") thì order_group = NULL.
+    cur.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS order_group TEXT")
 
     # Bảng lưu lại các cuộc trò chuyện với AI, tự đặt tên theo nội dung
     cur.execute("""
@@ -581,14 +585,16 @@ def delete_product(product_id):
 
 # ======================== ĐƠN MUA HÀNG (NÚT "MUA" TRONG CỬA HÀNG) ========================
 
-def add_order(product_id, product_name, customer_name, customer_phone, quantity=1, user_id=None):
-    """Lưu 1 yêu cầu mua hàng (tên + SĐT khách để lại). Trả về đơn vừa tạo."""
+def add_order(product_id, product_name, customer_name, customer_phone, quantity=1, user_id=None, order_group=None):
+    """Lưu 1 yêu cầu mua hàng (tên + SĐT khách để lại). Trả về đơn vừa tạo.
+    order_group: nếu khách đặt nhiều sản phẩm cùng lúc từ giỏ hàng, tất cả các
+    dòng order sinh ra trong 1 lần checkout sẽ dùng chung 1 order_group (uuid)."""
     conn = get_connection()
     cur = conn.cursor()
     cur.execute("""
-        INSERT INTO orders (product_id, product_name, customer_name, customer_phone, quantity, user_id)
-        VALUES (%s, %s, %s, %s, %s, %s) RETURNING id
-    """, (product_id, product_name, customer_name, customer_phone, quantity, user_id))
+        INSERT INTO orders (product_id, product_name, customer_name, customer_phone, quantity, user_id, order_group)
+        VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id
+    """, (product_id, product_name, customer_name, customer_phone, quantity, user_id, order_group))
     order_id = cur.fetchone()["id"]
     conn.commit()
     cur.close()
