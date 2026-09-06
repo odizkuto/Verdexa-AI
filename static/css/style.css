@@ -1461,18 +1461,24 @@ nav a:hover{
 }
 
 .store-product-delete{
-    background:none;
+    width:34px;
+    height:34px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(160deg, #ef5350, #c62828);
     border:none;
-    color:#c62828;
-    font-size:15px;
+    color:#fff;
+    font-size:14px;
     cursor:pointer;
-    padding:6px 8px;
-    border-radius:8px;
+    border-radius:11px;
+    box-shadow:0 4px 10px rgba(198,40,40,.35), inset 0 1px 0 rgba(255,255,255,.25);
     transition:.2s;
 }
 
 .store-product-delete:hover{
-    background:rgba(198,40,40,.1);
+    transform:translateY(-2px) scale(1.05);
+    box-shadow:0 8px 16px rgba(198,40,40,.45), inset 0 1px 0 rgba(255,255,255,.25);
 }
 
 /* ---- Trạng thái rỗng ---- */
@@ -6074,25 +6080,23 @@ body.dark-mode .chat-saved-empty{
     height:46px;
     width:46px;
     flex:none;
-    border:2px solid var(--accent);
-    border-radius:12px;
-    background:rgba(var(--accent-rgb),.06);
-    color:var(--accent);
+    border:none;
+    border-radius:14px;
+    background:linear-gradient(160deg, var(--accent-mid), var(--accent) 55%, var(--accent-dark));
+    color:#fff;
     font-size:1.1rem;
     cursor:pointer;
     display:flex;
     align-items:center;
     justify-content:center;
-    box-shadow:0 4px 10px rgba(var(--accent-rgb),.12);
+    box-shadow:0 6px 14px rgba(var(--accent-rgb),.35), inset 0 1px 0 rgba(255,255,255,.3);
     transition:all .25s ease;
 }
 
 .store-cart-add-btn:hover{
-    background:linear-gradient(135deg, var(--accent-mid), var(--accent-dark));
-    border-color:var(--accent-dark);
-    color:#fff;
-    transform:translateY(-2px);
-    box-shadow:0 8px 16px rgba(var(--accent-rgb),.3);
+    background:linear-gradient(160deg, var(--accent), var(--accent-dark) 55%, var(--accent-dark));
+    transform:translateY(-2px) scale(1.05);
+    box-shadow:0 10px 20px rgba(var(--accent-rgb),.45), inset 0 1px 0 rgba(255,255,255,.3);
 }
 
 .store-cart-add-btn.added{
@@ -6316,12 +6320,24 @@ body.dark-mode .chat-saved-empty{
 
 .cart-item-remove{
     flex:none;
-    background:none;
+    width:30px;
+    height:30px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(160deg, #ef5350, #c62828);
     border:none;
-    color:#d32f2f;
+    border-radius:10px;
+    color:#fff;
     cursor:pointer;
-    font-size:.95rem;
-    padding:6px;
+    font-size:.85rem;
+    box-shadow:0 3px 8px rgba(198,40,40,.35), inset 0 1px 0 rgba(255,255,255,.25);
+    transition:.2s;
+}
+
+.cart-item-remove:hover{
+    transform:scale(1.08);
+    box-shadow:0 6px 12px rgba(198,40,40,.45), inset 0 1px 0 rgba(255,255,255,.25);
 }
 
 .cart-panel-footer{
