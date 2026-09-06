@@ -6,6 +6,7 @@ Chạy: python app.py
 
 import os
 import json
+import re
 import uuid
 import secrets
 from datetime import datetime, timedelta
@@ -499,6 +500,7 @@ def api_get_profile():
         "dark_mode": bool(user.get("dark_mode")),
         "theme": user.get("theme") or "green",
         "lang": user.get("lang") or "vi",
+        "phone": user.get("phone") or "",
     })
 
 
@@ -531,6 +533,17 @@ def api_update_profile():
         if lang not in ("vi", "en"):
             return jsonify({"error": "Ngôn ngữ không hợp lệ."}), 400
         fields["lang"] = lang
+    if "phone" in data:
+        phone = str(data.get("phone") or "").strip()
+        if phone:
+            if not re.match(r'^[0-9][0-9 ]{7,14}$', phone):
+                return jsonify({"error": "Số điện thoại không hợp lệ."}), 400
+            existing = db.get_user_by_phone(phone)
+            if existing and str(existing.get("id")) != str(user_id):
+                return jsonify({"error": "Số điện thoại này đã được dùng cho tài khoản khác."}), 400
+            fields["phone"] = phone
+        else:
+            fields["phone"] = None
 
     if not fields:
         return jsonify({"error": "Không có dữ liệu để cập nhật."}), 400
