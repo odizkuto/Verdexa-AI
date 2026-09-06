@@ -1325,7 +1325,7 @@ nav a:hover{
 
 }
 
-.store-card i{
+.store-card > i{
 
     display:inline-flex;
     align-items:center;
