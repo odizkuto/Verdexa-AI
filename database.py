@@ -393,7 +393,7 @@ def delete_user(user_id):
     conn.close()
 
 
-ALLOWED_PROFILE_FIELDS = {"display_name", "avatar_data", "dark_mode", "theme", "lang"}
+ALLOWED_PROFILE_FIELDS = {"display_name", "avatar_data", "dark_mode", "theme", "lang", "phone"}
 
 
 def update_user_profile(user_id, fields):
