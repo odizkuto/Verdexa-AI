@@ -421,9 +421,11 @@
 
                 <div class="settings-profile-info">
                     <input type="text" id="settingsNameInput" class="settings-name-input" placeholder="Tên hiển thị" maxlength="40">
-                    <span class="settings-profile-phone">
-                        <i class="fa-solid fa-phone"></i> {{ user_phone|default('Chưa có số điện thoại', true) }}
-                    </span>
+                    <div class="settings-phone-row">
+                        <i class="fa-solid fa-phone"></i>
+                        <input type="tel" id="settingsPhoneInput" class="settings-phone-input" placeholder="Chưa có số điện thoại" maxlength="15">
+                    </div>
+                    <span class="settings-phone-error" id="settingsPhoneError"></span>
                     <span class="settings-save-hint" id="settingsSaveHint"><i class="fa-solid fa-circle-check"></i> Đã lưu</span>
                 </div>
 
@@ -705,7 +707,8 @@ window.SAVED_PROFILE = {
     avatar_data: {{ saved_avatar|default('', true)|tojson }},
     dark_mode: {{ 'true' if saved_dark_mode else 'false' }},
     theme: "{{ saved_theme|default('green', true) }}",
-    lang: "{{ saved_lang|default('vi', true) }}"
+    lang: "{{ saved_lang|default('vi', true) }}",
+    phone: "{{ user_phone|default('', true) }}"
 };
 
 // ===== CHUYỂN HƯỚNG NẾU CHƯA ĐĂNG NHẬP =====
@@ -774,4 +777,3 @@ if (logoutBtn) {
 <script src="{{ url_for('static', filename='js/library-book-transition.js') }}?v={{ asset_v }}"></script>
 </body>
 </html>
- 
