@@ -5817,6 +5817,45 @@ body.dark-mode .chat-saved-empty{
     gap: 6px;
 }
 
+.settings-phone-row{
+    font-size: 13.5px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.settings-phone-row i{
+    color: var(--accent);
+    font-size: 12px;
+}
+
+.settings-phone-input{
+    font-size: 13.5px;
+    border: none;
+    border-bottom: 1px dashed var(--border-soft);
+    background: transparent;
+    color: var(--text-main);
+    padding: 3px 2px;
+    flex: 1;
+    min-width: 0;
+}
+
+.settings-phone-input:focus{
+    outline: none;
+    border-bottom-color: var(--accent);
+}
+
+.settings-phone-input.has-error{
+    border-bottom-color: #d32f2f;
+}
+
+.settings-phone-error{
+    font-size: 11.5px;
+    color: #d32f2f;
+    min-height: 14px;
+}
+
 .settings-save-hint{
     font-size: 11.5px;
     color: var(--accent);
@@ -6087,6 +6126,7 @@ body.dark-mode .chat-saved-empty{
     }
     .settings-profile-info{ align-items: center; }
     .settings-profile-phone{ justify-content: center; }
+    .settings-phone-row{ justify-content: center; }
 }
 
 /* ===== Favorite button (plant details page) ===== */
