@@ -1375,6 +1375,12 @@ nav a:hover{
     padding:0 0 22px;
     text-align:left;
     overflow:hidden;
+    border:1px solid rgba(var(--accent-rgb),.08);
+    box-shadow:0 10px 26px rgba(0,0,0,.07);
+}
+
+.store-product-card:hover{
+    border-color:rgba(var(--accent-rgb),.22);
 }
 
 .store-product-img{
@@ -1391,35 +1397,40 @@ nav a:hover{
     display:flex;
     align-items:center;
     justify-content:center;
+    background:linear-gradient(135deg, rgba(var(--accent-rgb),.16), rgba(var(--accent-light-rgb),.22));
 }
 
 .store-product-img-placeholder i{
-    font-size:36px;
-    color:#a8cfae;
+    font-size:40px;
+    color:var(--accent);
     margin-bottom:0;
+    filter:drop-shadow(0 4px 8px rgba(var(--accent-rgb),.25));
 }
 
 .store-product-card h3{
     padding:0 20px;
     font-size:18px;
+    font-weight:700;
     margin-bottom:6px;
 }
 
 .store-product-category{
-    display:inline-block;
+    display:inline-flex;
+    align-items:center;
     margin:0 20px 10px;
     font-size:12px;
-    font-weight:600;
-    color:var(--accent);
-    background:rgba(var(--accent-rgb),.09);
-    padding:4px 10px;
+    font-weight:700;
+    color:#fff;
+    background:linear-gradient(135deg, var(--accent), var(--accent-dark));
+    padding:5px 12px;
     border-radius:20px;
+    box-shadow:0 4px 10px rgba(var(--accent-rgb),.28);
 }
 
 .store-product-category i{
     font-size:11px;
     margin:0 4px 0 0;
-    color:var(--accent);
+    color:#fff;
 }
 
 .store-product-desc{
@@ -1438,9 +1449,9 @@ nav a:hover{
 }
 
 .store-product-price{
-    font-weight:700;
+    font-weight:800;
     color:var(--accent-dark);
-    font-size:16px;
+    font-size:18px;
 }
 
 .store-product-price small{
@@ -1891,30 +1902,33 @@ nav a:hover{
     width:100%;
     max-width:220px;
     border:none;
-    border-radius:10px;
+    border-radius:12px;
     cursor:pointer;
     position:relative;
     overflow:hidden;
-    background:var(--accent);
+    background:linear-gradient(135deg, var(--accent-mid), var(--accent), var(--accent-dark));
+    box-shadow:0 8px 18px rgba(var(--accent-rgb),.32);
     transition:all .5s ease-in-out;
 }
 
 .store-buy-btn:hover{
-    box-shadow:.5px .5px 60px rgba(37,37,37,.5);
+    transform:translateY(-2px);
+    box-shadow:0 12px 26px rgba(var(--accent-rgb),.42);
 }
 
 .store-buy-btn::before{
     content:"Mua ngay";
     height:46px;
     width:100%;
-    background-color:var(--accent);
+    background:linear-gradient(135deg, var(--accent-mid), var(--accent), var(--accent-dark));
     color:#fff;
     position:absolute;
     top:0;
     left:0;
     transform:translateY(0px) scale(1.2);
     font-size:1rem;
-    font-weight:600;
+    font-weight:700;
+    letter-spacing:.3px;
     display:flex;
     align-items:center;
     justify-content:center;
@@ -6061,20 +6075,24 @@ body.dark-mode .chat-saved-empty{
     width:46px;
     flex:none;
     border:2px solid var(--accent);
-    border-radius:10px;
-    background:#fff;
+    border-radius:12px;
+    background:rgba(var(--accent-rgb),.06);
     color:var(--accent);
-    font-size:1.05rem;
+    font-size:1.1rem;
     cursor:pointer;
     display:flex;
     align-items:center;
     justify-content:center;
+    box-shadow:0 4px 10px rgba(var(--accent-rgb),.12);
     transition:all .25s ease;
 }
 
 .store-cart-add-btn:hover{
-    background:var(--accent);
+    background:linear-gradient(135deg, var(--accent-mid), var(--accent-dark));
+    border-color:var(--accent-dark);
     color:#fff;
+    transform:translateY(-2px);
+    box-shadow:0 8px 16px rgba(var(--accent-rgb),.3);
 }
 
 .store-cart-add-btn.added{
